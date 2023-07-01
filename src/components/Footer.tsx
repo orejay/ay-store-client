@@ -49,9 +49,14 @@ const Footer = () => {
           <FlexBetween mt="15px" gap="25px">
             <Button
               variant="outlined"
-              sx={{ borderRadius: "25px", px: "50px" }}
+              sx={{ borderRadius: "25px", px: "50px", textAlign: "left" }}
             >
-              <Typography fontSize="12px" fontFamily="Nunito" fontWeight="bold">
+              <Typography
+                fontSize="12px"
+                fontFamily="Nunito"
+                fontWeight="bold"
+                textAlign="left"
+              >
                 Follow Us
               </Typography>
             </Button>
@@ -86,14 +91,14 @@ const Footer = () => {
       </FlexBetween>
       <FlexBetween width="50%" mt="40px">
         <Box display="flex">
-          <CopyrightOutlined />
+          <CopyrightOutlined sx={{ fontSize: "14px" }} />
           <Typography fontFamily="Nunito" fontWeight="bold">
             Beauty 2023
           </Typography>
         </Box>
         <FlexBetween gap="20px">
           <Typography fontFamily="Nunito" fontWeight="bold">
-            Provacy & Policy
+            Privacy & Policy
           </Typography>
           <Typography fontFamily="Nunito" fontWeight="bold">
             Terms & Conditions

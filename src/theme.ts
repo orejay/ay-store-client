@@ -12,7 +12,7 @@ export const themeSettings = (): PaletteOptions => {
       default: '#F4f7fc',
     },
     warning:{
-      main:'#FD6600'
+      main:'#FD1201'
     },
     success:{
       main:'#00C98D'

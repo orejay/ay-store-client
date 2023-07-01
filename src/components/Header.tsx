@@ -7,12 +7,34 @@ import {
   TextField,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import React from "react";
+import React, { useState } from "react";
 import FlexBetween from "./FlexBetween";
 import { SearchRounded, ShoppingCartOutlined } from "@mui/icons-material";
 
+interface ProductData {
+  name: string;
+  _id: string;
+}
+
 const Header = () => {
   const theme = useTheme();
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const [searchText, setSearchText] = useState("");
+  const [data, setData] = useState<ProductData[]>([]);
+
+  const search = async () => {
+    try {
+      console.log(searchText);
+      const response = await fetch(
+        `${baseUrl}/get/products/search?name=${searchText}`
+      );
+      const jsonData = await response.json();
+      setData(jsonData.products);
+      console.log(jsonData.products);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   return (
     <Box
@@ -77,8 +99,9 @@ const Header = () => {
               variant="standard"
               color="secondary"
               placeholder="search..."
+              onChange={(e) => setSearchText(e.target.value)}
             />
-            <IconButton>
+            <IconButton onClick={search}>
               <SearchRounded />
             </IconButton>
           </Box>
