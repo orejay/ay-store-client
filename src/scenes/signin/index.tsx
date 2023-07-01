@@ -91,7 +91,7 @@ const SignIn = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              border: "2px solid #077488",
+              border: "2px solid #E0E0E0",
               borderRadius: "30px",
               width: "35%",
               p: "4%",

@@ -5,6 +5,7 @@ module.exports = {
     colors: {
       drk: "#182223",
       gry: "#676769",
+      hov: "#E0E0E0",
       primary: "#Ed981b",
       secondary: "#077488",
       disabled: "#Dfeaec",

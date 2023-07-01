@@ -5,11 +5,21 @@ import {
   IconButton,
   Typography,
   TextField,
+  Divider,
+  ListItem,
+  List,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import FlexBetween from "./FlexBetween";
-import { SearchRounded, ShoppingCartOutlined } from "@mui/icons-material";
+import {
+  BorderRight,
+  SearchRounded,
+  ShoppingCartOutlined,
+} from "@mui/icons-material";
+import { useSelector, useDispatch } from "react-redux";
+import { useAppDispatch, RootState } from "store";
+import { setShowSearches } from "state";
 
 interface ProductData {
   name: string;
@@ -21,6 +31,10 @@ const Header = () => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [searchText, setSearchText] = useState("");
   const [data, setData] = useState<ProductData[]>([]);
+  const showSearches = useSelector(
+    (state: RootState) => state.global.showSearches
+  );
+  const dispatch = useAppDispatch();
 
   const search = async () => {
     try {
@@ -54,7 +68,7 @@ const Header = () => {
           </h1>
         </Box>
 
-        <FlexBetween width="27%" gap="25px">
+        <FlexBetween width="20%" gap="15px">
           <Link to="/about" className="Nunito font-semibold text-drk">
             About
           </Link>
@@ -87,7 +101,7 @@ const Header = () => {
             </Typography>
           </Button>
         </FlexBetween>
-        <FlexBetween gap="25px" backGround="green">
+        <FlexBetween gap="5px" backGround="green">
           <Box
             sx={{
               display: "flex",
@@ -99,12 +113,57 @@ const Header = () => {
               variant="standard"
               color="secondary"
               placeholder="search..."
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                if (e.target.value.length > 1) {
+                  search();
+                  dispatch(setShowSearches(true));
+                }
+              }}
             />
             <IconButton onClick={search}>
               <SearchRounded />
             </IconButton>
           </Box>
+          {data.length > 0 && showSearches === true ? (
+            <ul
+              style={{
+                backgroundColor: "white",
+                position: "absolute",
+                width: "200px",
+                top: 60,
+                padding: "1% 0",
+                borderRadius: "12px",
+              }}
+            >
+              {data.map((each) => (
+                <Link
+                  key={each._id}
+                  to={`/products/${each.name}`}
+                  className="w-full h-full pl-3 Nunito font-semibold py-2 hover:bg-hov transition-all ease-in-out duration-400 block"
+                >
+                  {each.name}
+                </Link>
+              ))}
+            </ul>
+          ) : showSearches && searchText.length > 0 ? (
+            <div
+              style={{
+                backgroundColor: "white",
+                position: "absolute",
+                width: "200px",
+                top: 60,
+                padding: "1% 0",
+                borderRadius: "12px",
+              }}
+            >
+              <span className="pl-3 Nunito font-semibold">
+                No results found...
+              </span>
+            </div>
+          ) : (
+            ""
+          )}
           <IconButton>
             <ShoppingCartOutlined />
           </IconButton>
