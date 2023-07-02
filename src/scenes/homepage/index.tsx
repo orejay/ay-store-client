@@ -6,6 +6,7 @@ import Hero from "components/Hero";
 import { setShowSearches } from "../../state";
 import { useAppDispatch } from "store";
 import ProductCategory from "components/ProductCategory";
+import AboutSection from "components/AboutSection";
 
 const Homepage = () => {
   const dispatch = useAppDispatch();
@@ -17,6 +18,7 @@ const Homepage = () => {
       <Header />
       <Hero />
       <ProductCategory />
+      <AboutSection />
       <Footer />
     </Box>
   );

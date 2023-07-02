@@ -9,8 +9,8 @@ import {
   ListItem,
   List,
 } from "@mui/material";
-import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import FlexBetween from "./FlexBetween";
 import {
   BorderRight,
@@ -26,15 +26,23 @@ interface ProductData {
   _id: string;
 }
 
+const nav = ["About", "Shop", "Contact"];
+
 const Header = () => {
   const theme = useTheme();
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [searchText, setSearchText] = useState("");
+  const [active, setActive] = useState("");
   const [data, setData] = useState<ProductData[]>([]);
   const showSearches = useSelector(
     (state: RootState) => state.global.showSearches
   );
   const dispatch = useAppDispatch();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    setActive(pathname.substring(1));
+  }, [pathname]);
 
   const search = async () => {
     try {
@@ -69,32 +77,37 @@ const Header = () => {
         </Box>
 
         <FlexBetween width="20%" gap="15px">
-          <Link to="/about" className="Nunito font-semibold text-drk">
-            About
-          </Link>
-          <Link to="/shop" className="Nunito font-semibold text-drk">
-            Shop
-          </Link>
-          <Link to="/contact" className="Nunito font-semibold text-drk">
-            Contact
-          </Link>
+          {nav.map((each, index) => (
+            <Link
+              to={`/${each.toLowerCase()}`}
+              className={`Nunito font-semibold ${
+                active === each.toLowerCase() ? "text-primary" : "text-drk"
+              }`}
+            >
+              {each}
+            </Link>
+          ))}
         </FlexBetween>
 
         <FlexBetween gap="20px">
-          <Typography fontFamily="Nunito" fontWeight="bold">
-            <Link to="/signin" className="hover:text-gry">
+          <Typography
+            fontFamily="Nunito"
+            fontWeight="bold"
+            color={`${active === "signin" ? "primary" : ""}`}
+          >
+            <Link to="/signin" className={`hover:text-gry`}>
               Sign In
             </Link>
           </Typography>
           <Button
             variant="outlined"
-            color="secondary"
+            color={`${active === "signup" ? "primary" : "secondary"}`}
             sx={{ borderRadius: "20px", px: "20px" }}
           >
             <Typography
               fontFamily="Nunito"
               fontWeight="bold"
-              color="secondary"
+              color={`${active === "signup" ? "primary" : "secondary"}`}
               sx={{ textTransform: "none" }}
             >
               <Link to="/signup">Sign Up</Link>
