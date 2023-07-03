@@ -26,7 +26,6 @@ interface UserData {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
   phoneNumber: string;
   role: string;
   _id: string;
@@ -57,6 +56,8 @@ const SignIn = () => {
       });
       const jsonData = await response.json();
       setData(jsonData.userData);
+      localStorage.setItem("token", jsonData.userData.token);
+      localStorage.setItem("user", JSON.stringify(jsonData.userData));
       if (response.ok) setIsSignedIn(true);
       console.log(jsonData);
     } catch (error) {
@@ -68,7 +69,7 @@ const SignIn = () => {
     if (isSignedIn) {
       setTimeout(() => {
         navigate("/customer/account");
-      }, 3000); // Redirect after 3 seconds
+      }, 3000);
     }
   }, [isSignedIn, navigate]);
 
