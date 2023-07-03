@@ -60,7 +60,7 @@ const Header = () => {
 
   return (
     <Box
-      py="20px"
+      py="15px"
       px="60px"
       width="100vw"
       sx={{

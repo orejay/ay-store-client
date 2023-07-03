@@ -11,6 +11,8 @@ import SignUp from "scenes/signup";
 import SignIn from "scenes/signin";
 import Account from "scenes/account";
 import Shop from "scenes/shop";
+import About from "scenes/about";
+import Contact from "scenes/contact";
 
 function App() {
   const theme = createTheme({
@@ -27,9 +29,9 @@ function App() {
           <CssBaseline />
           <Routes>
             <Route path="/" element={<Homepage />} />
-            <Route path="/about" element={<Shop />} />
+            <Route path="/about" element={<About />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/contact" element={<Shop />} />
+            <Route path="/contact" element={<Contact />} />
 
             <Route path="/signup" element={<SignUp />} />
             <Route path="/customer/account" element={<Account />} />
