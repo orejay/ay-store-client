@@ -186,9 +186,11 @@ const Shop = () => {
                       }}
                     >
                       {!categoryList.includes(each.toLowerCase()) ? (
-                        <CheckBoxOutlineBlankRounded />
+                        <CheckBoxOutlineBlankRounded
+                          sx={{ color: "#Ed981b" }}
+                        />
                       ) : (
-                        <CheckBoxRounded />
+                        <CheckBoxRounded sx={{ color: "#Ed981b" }} />
                       )}
                     </IconButton>
                     <Typography fontFamily="Nunito" fontWeight="bold">
