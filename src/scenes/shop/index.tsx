@@ -7,17 +7,10 @@ import {
   RemoveShoppingCartRounded,
   TuneRounded,
 } from "@mui/icons-material";
-import {
-  Box,
-  FormControlLabel,
-  FormGroup,
-  IconButton,
-  Slider,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, Slider, Typography } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import perfumery from "../../assets/perfumery.jpg";
 import { RootState, useAppDispatch } from "store";
 import { useSelector } from "react-redux";
@@ -67,10 +60,6 @@ const Shop = () => {
     setPriceRange(newValue as number[]);
   };
 
-  useEffect(() => {
-    getProducts();
-  }, [categoryList, priceRange, discount, rating]);
-
   const getProducts = async () => {
     try {
       const response = await fetch(
@@ -87,6 +76,14 @@ const Shop = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  // useEffect(()=>{
+  //   if (categoryList.length )
+  // },[])
+
+  useMemo(() => {
+    getProducts();
+  }, [categoryList, priceRange, discount, rating]);
 
   return (
     <Box>

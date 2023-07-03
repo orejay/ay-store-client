@@ -8,6 +8,9 @@ import household from "../assets/household.PNG";
 import decorative from "../assets/decorative.jpg";
 import { Link } from "react-router-dom";
 import { Element } from "react-scroll";
+import { RootState, useAppDispatch } from "store";
+import { setCategories } from "state";
+import { useSelector } from "react-redux";
 
 const category = [
   { title: "skin", image: skin },
@@ -19,6 +22,8 @@ const category = [
 ];
 
 const ProductCategory = () => {
+  const dispatch = useAppDispatch();
+
   return (
     <Box
       display="flex"
@@ -68,12 +73,13 @@ const ProductCategory = () => {
       >
         {category.map((each, index) => (
           <Link
-            to={`/products/${each.title}`}
+            to={`/shop`}
             key={index}
             style={{
               height: "180px",
               width: "180px",
             }}
+            onClick={() => dispatch(setCategories([each.title]))}
           >
             <Box
               component="img"
