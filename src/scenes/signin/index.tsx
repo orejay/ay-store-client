@@ -10,7 +10,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import { VisibilityOff, Visibility } from "@mui/icons-material";
+import { VisibilityOff, Visibility, Warning } from "@mui/icons-material";
 import Header from "components/Header";
 import { useNavigate } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
@@ -35,6 +35,8 @@ interface UserData {
 const SignIn = () => {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isUser, setIsUser] = useState<boolean>(true);
+  const [wrongPass, setWrongPass] = useState<boolean>(false);
   const [data, setData] = useState<UserData | null>(null);
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
@@ -54,12 +56,19 @@ const SignIn = () => {
         },
         body: JSON.stringify(body),
       });
+      console.log(response);
       const jsonData = await response.json();
-      setData(jsonData.userData);
-      localStorage.setItem("token", jsonData.userData.token);
-      localStorage.setItem("user", JSON.stringify(jsonData.userData));
-      if (response.ok) setIsSignedIn(true);
       console.log(jsonData);
+
+      if (response.status === 404) setIsUser(false);
+      if (response.status === 401) setWrongPass(true);
+
+      if (response.ok) {
+        setData(jsonData.userData);
+        setIsSignedIn(true);
+        localStorage.setItem("token", jsonData.userData.token);
+        localStorage.setItem("user", JSON.stringify(jsonData.userData));
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -107,6 +116,30 @@ const SignIn = () => {
             >
               Sign In
             </Typography>
+            <CSSTransition
+              in={!isUser || wrongPass}
+              timeout={1000}
+              classNames="elastic-bounce"
+              unmountOnExit
+            >
+              <Typography
+                fontStyle="italic"
+                fontFamily="Nunito"
+                sx={{
+                  backgroundColor: "#ff5316",
+                  p: "5px 5px 5px 10px",
+                  borderRadius: "5px",
+                  mb: "20px",
+                  color: "white",
+                }}
+              >
+                {!isUser
+                  ? "User does not exist!"
+                  : wrongPass
+                  ? "Incorrect password!"
+                  : ""}
+              </Typography>
+            </CSSTransition>
 
             <FormControl variant="outlined" sx={{ mb: "20px" }}>
               <InputLabel color="secondary">Email</InputLabel>

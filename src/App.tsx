@@ -18,6 +18,9 @@ import Orders from "scenes/orders";
 import Inbox from "scenes/inbox";
 import Vouchers from "scenes/vouchers";
 import SavedItems from "scenes/saved items";
+import AddressBook from "scenes/address book";
+import AccManagement from "scenes/account management";
+import ChangePassword from "scenes/change password";
 
 function App() {
   const theme = createTheme({
@@ -43,6 +46,14 @@ function App() {
               <Route path="/customer/inbox" element={<Inbox />} />
               <Route path="/customer/vouchers" element={<Vouchers />} />
               <Route path="/customer/saved" element={<SavedItems />} />
+              <Route path="/customer/addresses" element={<AddressBook />} />
+              <Route path="/customer/password" element={<ChangePassword />} />
+              <Route
+                path="/customer/account/management"
+                element={<AccManagement />}
+              />
+
+              <Route path="/admin/account" element={<Account />} />
             </Route>
 
             <Route path="/signup" element={<SignUp />} />

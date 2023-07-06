@@ -1,8 +1,9 @@
 import { ManageAccountsRounded } from "@mui/icons-material";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface UserData {
   firstName: string;
@@ -131,14 +132,34 @@ const Account = () => {
               >
                 Default address
               </Typography>
-              <Typography
-                fontSize="15px"
-                fontStyle="italic"
-                fontFamily="Nunito"
-              >
-                {data[0]?.address}, {data[0]?.city}, {data[0]?.state},{" "}
-                {data[0]?.country}.
-              </Typography>
+              {data[0]?.address ? (
+                <Typography
+                  fontSize="15px"
+                  fontStyle="italic"
+                  fontFamily="Nunito"
+                >
+                  {data[0]?.address}, {data[0]?.city}, {data[0]?.state},{" "}
+                  {data[0]?.country}.
+                </Typography>
+              ) : (
+                <Box display="flex" justifyContent="end">
+                  <Button
+                    variant="contained"
+                    sx={{ px: "20px", mt: "15px", borderRadius: "20px" }}
+                  >
+                    <Link to="/customer/addresses" className="w-full h-full">
+                      <Typography
+                        color="#FFFFFF"
+                        fontWeight="bold"
+                        fontFamily="Nunito"
+                        fontSize="12px"
+                      >
+                        Set Default Address
+                      </Typography>
+                    </Link>
+                  </Button>
+                </Box>
+              )}
             </Box>
           )}
         </Box>

@@ -23,25 +23,10 @@ interface BodyState {
   phoneNumber: string;
 }
 
-interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-  transactions: string[];
-  role: string;
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
 const SignUp = () => {
   const [isSignedUp, setIsSignedUp] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
-  const [data, setData] = useState<UserData | null>(null);
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const [body, setBody] = useState<BodyState>({
@@ -64,7 +49,6 @@ const SignUp = () => {
         body: JSON.stringify(body),
       });
       const jsonData = await response.json();
-      setData(jsonData.newUser);
       if (response.ok) setIsSignedUp(true);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -74,7 +58,7 @@ const SignUp = () => {
   useEffect(() => {
     if (isSignedUp) {
       setTimeout(() => {
-        navigate("/customer/account");
+        navigate("/signin");
       }, 3000); // Redirect after 3 seconds
     }
   }, [isSignedUp, navigate]);
@@ -239,7 +223,7 @@ const SignUp = () => {
             fontFamily="Playfair Display"
             fontWeight="bold"
           >
-            Welcome! {data?.firstName}
+            Sign up successful!, please sign in to continue.
           </Typography>
         </CSSTransition>
       </Box>

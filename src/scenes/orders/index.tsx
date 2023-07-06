@@ -24,10 +24,10 @@ const Orders = () => {
   console.log(user);
 
   useEffect(() => {
-    getAddress();
+    getOrders();
   }, []);
 
-  const getAddress = async () => {
+  const getOrders = async () => {
     try {
       const response = await fetch(`${baseUrl}/get/orders/${user?.id}`);
       const jsonData = await response.json();

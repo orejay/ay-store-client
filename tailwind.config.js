@@ -11,7 +11,7 @@ module.exports = {
       secondary: "#077488",
       disabled: "#Dfeaec",
       bkgrnd: "#F4f7fc",
-      warning: "#FD1201",
+      warning: "#ff5316",
     },
     extend: {},
   },
