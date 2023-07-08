@@ -1,8 +1,72 @@
-import { Box, Button, Typography } from "@mui/material";
-import React from "react";
+import { Close } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  FormControl,
+  IconButton,
+  Input,
+  InputLabel,
+  Typography,
+} from "@mui/material";
+import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { CSSTransition } from "react-transition-group";
+
+interface BodyState {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+}
+
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  id: string;
+  token: string;
+}
 
 const AccManagement = () => {
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const [closeModal, setCloseModal] = useState<boolean>(true);
+  const [updated, setUpdated] = useState<boolean>(false);
+  const firstNameRef = useRef(null);
+  const user: UserData | null = JSON.parse(
+    localStorage.getItem("user") || "null"
+  ) as UserData | null;
+  const [body, setBody] = useState<BodyState>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+  });
+
+  const editDetails = async () => {
+    try {
+      console.log(body);
+      console.log(JSON.stringify(body));
+      const response = await fetch(`${baseUrl}/edit/user`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify(body),
+      });
+      const jsonData = await response.json();
+      if (response.ok) {
+        setCloseModal(false);
+        setUpdated(true);
+        localStorage.setItem("user", JSON.stringify(jsonData.userData));
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -31,15 +95,112 @@ const AccManagement = () => {
           Account Management
         </Typography>
       </Box>
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          gridAutoRows: "200px",
-          gap: "20px",
-          p: "20px",
-        }}
-      ></Box>
+      <Box sx={{}}>
+        {
+          <CSSTransition
+            in={!closeModal}
+            timeout={1000}
+            classNames="fade"
+            unmountOnExit
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: "5px",
+                backgroundColor: updated ? "#00C98D" : "#ff5316",
+                pl: "30px",
+                pr: "10px",
+              }}
+            >
+              <Typography
+                fontFamily="Nunito"
+                sx={{
+                  color: "white",
+                  fontStyle: "italic",
+                }}
+              >
+                {updated
+                  ? "Details Updated Successfully!"
+                  : "Something Went Wrong!"}
+              </Typography>
+              <IconButton
+                onClick={() => {
+                  setCloseModal(true);
+                }}
+              >
+                <Close sx={{ color: "white" }} />
+              </IconButton>
+            </Box>
+          </CSSTransition>
+        }
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            pl: "30px",
+            pt: "20px",
+            width: "40%",
+          }}
+        >
+          <FormControl variant="outlined" sx={{ mb: "20px" }}>
+            <InputLabel color="secondary">First Name</InputLabel>
+            <Input
+              required
+              type="text"
+              color="secondary"
+              defaultValue={user?.firstName}
+              onChange={(e) =>
+                setBody((body) => ({ ...body, firstName: e.target.value }))
+              }
+            />
+          </FormControl>
+          <FormControl variant="outlined" sx={{ mb: "20px" }}>
+            <InputLabel color="secondary">Last Name</InputLabel>
+            <Input
+              required
+              type="text"
+              defaultValue={user?.lastName}
+              color="secondary"
+              onChange={(e) =>
+                setBody((body) => ({ ...body, lastName: e.target.value }))
+              }
+            />
+          </FormControl>
+          <FormControl variant="outlined" sx={{ mb: "20px" }}>
+            <InputLabel color="secondary">Email</InputLabel>
+            <Input
+              required
+              type="email"
+              defaultValue={user?.email}
+              color="secondary"
+              onChange={(e) =>
+                setBody((body) => ({ ...body, email: e.target.value }))
+              }
+            />
+          </FormControl>
+          <FormControl variant="outlined" sx={{ mb: "20px" }}>
+            <InputLabel color="secondary">Phone Number</InputLabel>
+            <Input
+              required
+              type="tel"
+              defaultValue={user?.phoneNumber}
+              color="secondary"
+              onChange={(e) =>
+                setBody((body) => ({ ...body, phoneNumber: e.target.value }))
+              }
+            />
+          </FormControl>
+          <Button
+            variant="contained"
+            sx={{ borderRadius: "20px", mt: "15px", width: "40%" }}
+            onClick={editDetails}
+          >
+            <Typography color="#ffffff">Confirm</Typography>
+          </Button>
+        </Box>
+      </Box>
     </Box>
   );
 };

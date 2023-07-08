@@ -14,6 +14,7 @@ import React, { useState, useEffect } from "react";
 import FlexBetween from "./FlexBetween";
 import {
   BorderRight,
+  KeyboardArrowDownRounded,
   SearchRounded,
   ShoppingCartOutlined,
 } from "@mui/icons-material";
@@ -26,11 +27,24 @@ interface ProductData {
   _id: string;
 }
 
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  id: string;
+  token: string;
+}
+
 const nav = ["About", "Shop", "Contact"];
 
 const Header = () => {
   const theme = useTheme();
   const baseUrl = process.env.REACT_APP_BASE_URL;
+  const user: UserData | null = JSON.parse(
+    localStorage.getItem("user") || "null"
+  ) as UserData | null;
   const [searchText, setSearchText] = useState("");
   const [active, setActive] = useState("");
   const [data, setData] = useState<ProductData[]>([]);
@@ -89,31 +103,62 @@ const Header = () => {
           ))}
         </FlexBetween>
 
-        <FlexBetween gap="20px">
-          <Typography
-            fontFamily="Nunito"
-            fontWeight="bold"
-            color={`${active === "signin" ? "primary" : ""}`}
-          >
-            <Link to="/signin" className={`hover:text-gry`}>
-              Sign In
-            </Link>
-          </Typography>
-          <Button
-            variant="outlined"
-            color={`${active === "signup" ? "primary" : "secondary"}`}
-            sx={{ borderRadius: "20px", px: "20px" }}
-          >
+        {!user ? (
+          <FlexBetween gap="20px">
             <Typography
               fontFamily="Nunito"
               fontWeight="bold"
-              color={`${active === "signup" ? "primary" : "secondary"}`}
-              sx={{ textTransform: "none" }}
+              color={`${active === "signin" ? "primary" : ""}`}
             >
-              <Link to="/signup">Sign Up</Link>
+              <Link to="/signin" className={`hover:text-gry`}>
+                Sign In
+              </Link>
             </Typography>
-          </Button>
-        </FlexBetween>
+            <Button
+              variant="outlined"
+              color={`${active === "signup" ? "primary" : "secondary"}`}
+              sx={{ borderRadius: "20px", px: "20px" }}
+            >
+              <Typography
+                fontFamily="Nunito"
+                fontWeight="bold"
+                color={`${active === "signup" ? "primary" : "secondary"}`}
+                sx={{ textTransform: "none" }}
+              >
+                <Link to="/signup">Sign Up</Link>
+              </Typography>
+            </Button>
+          </FlexBetween>
+        ) : (
+          <FlexBetween gap="20px">
+            <Box display="flex">
+              <Typography
+                fontFamily="Nunito"
+                fontWeight="bold"
+                color="secondary"
+              >
+                <Link to="/customer/account" className={`hover:text-gry`}>
+                  Hi, {user.firstName}
+                  <KeyboardArrowDownRounded />
+                </Link>
+              </Typography>
+            </Box>
+            <Button
+              variant="outlined"
+              color="primary"
+              sx={{ borderRadius: "20px", px: "20px" }}
+            >
+              <Typography
+                fontFamily="Nunito"
+                fontWeight="bold"
+                color="primary"
+                sx={{ textTransform: "none" }}
+              >
+                <Link to="/signin">Sign Out</Link>
+              </Typography>
+            </Button>
+          </FlexBetween>
+        )}
         <FlexBetween gap="5px" backGround="green">
           <Box
             sx={{

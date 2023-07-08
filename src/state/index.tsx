@@ -14,6 +14,22 @@ interface InitialState {
   showSearches: boolean;
   cart: ProductData[];
   categories: string[];
+  addresses: AddressData[];
+}
+
+interface AddressData {
+  _id: string;
+  contactName: string;
+  phoneNumber: string;
+  user: string;
+  isDefault: boolean;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: string;
 }
 
 const initialState: InitialState = {
@@ -21,6 +37,7 @@ const initialState: InitialState = {
   showSearches: false,
   cart: [],
   categories: [],
+  addresses: [],
 };
 
 export const globalSlice = createSlice({
@@ -39,9 +56,17 @@ export const globalSlice = createSlice({
     setCategories: (state, action) => {
       state.categories = action.payload;
     },
+    setAddresses: (state, action) => {
+      state.addresses = action.payload;
+    },
   },
 });
 
-export const { setShowSearches, setProductId, setCart, setCategories } =
-  globalSlice.actions;
+export const {
+  setShowSearches,
+  setProductId,
+  setCart,
+  setCategories,
+  setAddresses,
+} = globalSlice.actions;
 export default globalSlice.reducer;

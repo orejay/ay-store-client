@@ -81,7 +81,7 @@ const Contact = () => {
             <InputLabel color="secondary">Message</InputLabel>
             <Input
               required
-              type="email"
+              type="text"
               color="secondary"
               multiline
               // onChange={(e) =>

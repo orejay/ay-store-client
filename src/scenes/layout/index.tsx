@@ -65,24 +65,34 @@ const adminItems = [
     icon: <AdminPanelSettings />,
   },
   {
-    text: "Orders",
-    link: "/customer/orders",
-    icon: <InboxRounded />,
+    text: "Add Product",
+    link: "/admin/product/add",
+    icon: <AdminPanelSettings />,
   },
   {
-    text: "Inbox",
-    link: "/customer/inbox",
-    icon: <MailRounded />,
+    text: "Catalog",
+    link: "/admin/products",
+    icon: <AdminPanelSettings />,
   },
   {
-    text: "Saved Items",
-    link: "/customer/saved",
-    icon: <FavoriteBorderRounded />,
+    text: "Manage Users",
+    link: "/customer/account",
+    icon: <AdminPanelSettings />,
   },
   {
-    text: "Voucher",
-    link: "/customer/vouchers",
-    icon: <LocalActivityOutlined />,
+    text: "Account Management",
+    link: "/customer/account",
+    icon: <AdminPanelSettings />,
+  },
+  {
+    text: "Change Password",
+    link: "/customer/account",
+    icon: <AdminPanelSettings />,
+  },
+  {
+    text: "Manage Users",
+    link: "/customer/account",
+    icon: <AdminPanelSettings />,
   },
 ];
 

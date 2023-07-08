@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { VisibilityOff, Visibility, Warning } from "@mui/icons-material";
 import Header from "components/Header";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
 import React, { useState, useEffect } from "react";
 import Footer from "components/Footer";
@@ -174,6 +174,21 @@ const SignIn = () => {
                 }
               />
             </FormControl>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              sx={{ width: "100%" }}
+            >
+              <Typography fontSize="14px" fontStyle="italic">
+                Don't have an account?
+              </Typography>
+              <Link
+                to="/signup"
+                className="underline italic text-sm text-secondary"
+              >
+                Signup
+              </Link>
+            </Box>
             <Button
               variant="contained"
               sx={{ borderRadius: "20px", mt: "15px" }}

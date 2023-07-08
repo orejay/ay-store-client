@@ -130,12 +130,11 @@ const Shop = () => {
           <Box
             sx={{
               width: "19%",
-              height: "92vh",
               py: "2%",
               px: "3%",
               boxShadow: "2px 2px 7px #E0E0E0",
               backgroundColor: "white",
-              borderRadius: "20px",
+              borderRadius: "5px",
             }}
           >
             <Box
@@ -186,9 +185,7 @@ const Shop = () => {
                       }}
                     >
                       {!categoryList.includes(each.toLowerCase()) ? (
-                        <CheckBoxOutlineBlankRounded
-                          sx={{ color: "#Ed981b" }}
-                        />
+                        <CheckBoxOutlineBlankRounded />
                       ) : (
                         <CheckBoxRounded sx={{ color: "#Ed981b" }} />
                       )}
@@ -278,7 +275,7 @@ const Shop = () => {
                 key={each._id}
                 sx={{
                   boxShadow: "2px 2px 7px #E0E0E0",
-                  borderRadius: "20px",
+                  borderRadius: "5px",
                   height: "350px",
                 }}
                 onMouseEnter={() => setHovered(each._id)}
@@ -316,7 +313,7 @@ const Shop = () => {
                   src={perfumery}
                   width="100%"
                   sx={{
-                    borderRadius: "20px 20px 0 0",
+                    borderRadius: "5px 5px 0 0",
                     objectFit: "cover",
                     zIndex: 1,
                   }}

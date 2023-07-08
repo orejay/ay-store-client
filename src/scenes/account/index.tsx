@@ -17,6 +17,8 @@ interface UserData {
 
 interface AddressData {
   _id: string;
+  contactName: string;
+  phoneNumber: string;
   user: string;
   isDefault: boolean;
   address: string;
@@ -43,7 +45,7 @@ const Account = () => {
   const getAddress = async () => {
     try {
       const response = await fetch(
-        `${baseUrl}/get/address/default/${user?.id}`
+        `${baseUrl}/get/addresses/default/${user?.id}`
       );
       const jsonData = await response.json();
       setData(jsonData);
@@ -108,6 +110,26 @@ const Account = () => {
             <Typography fontSize="13px" pt="8px" fontFamily="Nunito">
               {user?.phoneNumber}
             </Typography>
+            <Box display="flex" justifyContent="end">
+              <Button
+                variant="contained"
+                sx={{ px: "20px", borderRadius: "20px" }}
+              >
+                <Link
+                  to="/customer/account/management"
+                  className="w-full h-full"
+                >
+                  <Typography
+                    color="#FFFFFF"
+                    fontWeight="bold"
+                    fontFamily="Nunito"
+                    fontSize="12px"
+                  >
+                    Edit Details
+                  </Typography>
+                </Link>
+              </Button>
+            </Box>
           </Box>
         </Box>
         <Box sx={{ border: "1px solid #E0E0E0", borderRadius: "5px" }}>
@@ -124,40 +146,48 @@ const Account = () => {
           </Box>
           {data && (
             <Box sx={{ p: "20px" }}>
-              <Typography
-                fontSize="17px"
-                fontWeight="bold"
-                pb="8px"
-                fontFamily="Nunito"
-              >
-                Default address
-              </Typography>
               {data[0]?.address ? (
-                <Typography
-                  fontSize="15px"
-                  fontStyle="italic"
-                  fontFamily="Nunito"
-                >
-                  {data[0]?.address}, {data[0]?.city}, {data[0]?.state},{" "}
-                  {data[0]?.country}.
-                </Typography>
+                <Box sx={{}}>
+                  <Typography fontSize="15px" pb="2px" fontFamily="Nunito">
+                    {data[0].address}
+                  </Typography>
+                  <Typography fontSize="15px" pb="2px" fontFamily="Nunito">
+                    {data[0].city}, {data[0].state}
+                  </Typography>
+                  <Typography fontSize="15px" pb="4px" fontFamily="Nunito">
+                    {data[0].country}
+                  </Typography>
+                  <Typography fontSize="14px" pb="8px" fontFamily="Nunito">
+                    {data[0].phoneNumber}
+                  </Typography>
+                </Box>
               ) : (
-                <Box display="flex" justifyContent="end">
-                  <Button
-                    variant="contained"
-                    sx={{ px: "20px", mt: "15px", borderRadius: "20px" }}
+                <Box>
+                  <Typography
+                    fontWeight="bold"
+                    fontFamily="Nunito"
+                    fontStyle="italic"
+                    fontSize="16px"
                   >
-                    <Link to="/customer/addresses" className="w-full h-full">
-                      <Typography
-                        color="#FFFFFF"
-                        fontWeight="bold"
-                        fontFamily="Nunito"
-                        fontSize="12px"
-                      >
-                        Set Default Address
-                      </Typography>
-                    </Link>
-                  </Button>
+                    No Default Address is Set
+                  </Typography>
+                  <Box display="flex" justifyContent="end">
+                    <Button
+                      variant="contained"
+                      sx={{ px: "20px", mt: "15px", borderRadius: "20px" }}
+                    >
+                      <Link to="/customer/addresses" className="w-full h-full">
+                        <Typography
+                          color="#FFFFFF"
+                          fontWeight="bold"
+                          fontFamily="Nunito"
+                          fontSize="12px"
+                        >
+                          Set Default Address
+                        </Typography>
+                      </Link>
+                    </Button>
+                  </Box>
                 </Box>
               )}
             </Box>

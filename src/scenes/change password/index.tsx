@@ -118,9 +118,10 @@ const ChangePassword = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              p: "15px",
+              p: "5px",
               backgroundColor: !wrongPass ? "#00C98D" : "#ff5316",
               pl: "70px",
+              pr: "10px",
             }}
           >
             <Typography
@@ -147,8 +148,8 @@ const ChangePassword = () => {
       <Box
         sx={{
           gap: "20px",
-          pl: "70px",
-          pt: "40px",
+          pl: "30px",
+          pt: "20px",
         }}
       >
         <Box sx={{ width: "35%", display: "flex", flexDirection: "column" }}>
