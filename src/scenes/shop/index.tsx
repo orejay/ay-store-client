@@ -29,6 +29,8 @@ interface ProductData {
   price: number;
   rating: number;
   discount: number;
+  imageName: string;
+  imagePath: string;
   description: string;
   category: string;
   _id: string;
@@ -39,6 +41,7 @@ const cats = ["Skin", "Face", "Lips", "Perfumery", "Household", "Decorative"];
 const Shop = () => {
   const [data, setData] = useState<ProductData[]>([]);
   const baseUrl = process.env.REACT_APP_BASE_URL;
+  const imageUrl = process.env.REACT_APP_IMAGE_URL;
   const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
   const [hovered, setHovered] = useState("");
   const dispatch = useAppDispatch();
@@ -310,7 +313,7 @@ const Shop = () => {
                 <Box
                   component="img"
                   alt="hero-img"
-                  src={perfumery}
+                  src={`${imageUrl}/public/uploads/${each.imageName}`}
                   width="100%"
                   sx={{
                     borderRadius: "5px 5px 0 0",

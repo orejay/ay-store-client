@@ -1,4 +1,8 @@
 import {
+  AddPhotoAlternateRounded,
+  DriveFolderUploadRounded,
+} from "@mui/icons-material";
+import {
   Box,
   Button,
   FormControl,
@@ -8,11 +12,90 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 
 const cats = ["Skin", "Face", "Lips", "Perfumery", "Household", "Decorative"];
+interface BodyState {
+  name: string;
+  price: string;
+  discount: string;
+  category: string;
+  supply: string;
+  description: string;
+}
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  id: string;
+  token: string;
+}
 
 const AddProduct = () => {
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const [expired, setExpired] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [closeModal, setCloseModal] = useState<boolean>(true);
+  const [added, setAdded] = useState<boolean>(false);
+  const user: UserData | null = JSON.parse(
+    localStorage.getItem("user") || "null"
+  ) as UserData | null;
+  const [body, setBody] = useState<BodyState>({
+    name: "",
+    price: "",
+    discount: "",
+    category: "",
+    supply: "",
+    description: "",
+  });
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+
+    const file = e.target.files && e.target.files[0];
+    setSelectedImage(file || null);
+  };
+
+  const upload = async () => {
+    try {
+      if (!selectedImage) {
+        console.log("No image selected");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("image", selectedImage);
+      formData.append("name", body.name);
+      formData.append("price", body.price);
+      formData.append("discount", body.discount);
+      formData.append("category", body.category);
+      formData.append("supply", body.supply);
+      formData.append("description", body.description);
+      const response = await fetch(`${baseUrl}/post/products`, {
+        method: "POST",
+        headers: {
+          // "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+          "Content-Length": formData.toString().length.toString(),
+        },
+        body: formData,
+      });
+      console.log(response);
+      const jsonData = await response.json();
+      console.log(jsonData);
+
+      if (response.status === 401) setExpired(true);
+
+      if (response.ok) {
+        setAdded(true);
+        setCloseModal(false);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -57,12 +140,12 @@ const AddProduct = () => {
               required
               type="text"
               color="secondary"
-              // onChange={(e) =>
-              //   setBody((body) => ({
-              //     ...body,
-              //     contactName: e.target.value,
-              //   }))
-              // }
+              onChange={(e) =>
+                setBody((body) => ({
+                  ...body,
+                  name: e.target.value,
+                }))
+              }
             />
           </FormControl>
           <FormControl variant="outlined" sx={{ mb: "20px" }}>
@@ -71,12 +154,12 @@ const AddProduct = () => {
               required
               type="text"
               color="secondary"
-              // onChange={(e) =>
-              //   setBody((body) => ({
-              //     ...body,
-              //     contactName: e.target.value,
-              //   }))
-              // }
+              onChange={(e) =>
+                setBody((body) => ({
+                  ...body,
+                  price: e.target.value,
+                }))
+              }
             />
           </FormControl>
           <FormControl variant="outlined" sx={{ mb: "20px" }}>
@@ -85,17 +168,24 @@ const AddProduct = () => {
               required
               type="text"
               color="secondary"
-              // onChange={(e) =>
-              //   setBody((body) => ({
-              //     ...body,
-              //     contactName: e.target.value,
-              //   }))
-              // }
+              onChange={(e) =>
+                setBody((body) => ({
+                  ...body,
+                  discount: e.target.value,
+                }))
+              }
             />
           </FormControl>
           <FormControl variant="standard" sx={{ mb: "20px" }}>
             <InputLabel color="secondary">Category</InputLabel>
-            <Select>
+            <Select
+              onChange={(e) =>
+                setBody((body) => ({
+                  ...body,
+                  category: e.target.value as string,
+                }))
+              }
+            >
               {cats.map((each, index) => (
                 <MenuItem key={index} value={each.toLowerCase()}>
                   {each}
@@ -109,12 +199,12 @@ const AddProduct = () => {
               required
               type="text"
               color="secondary"
-              // onChange={(e) =>
-              //   setBody((body) => ({
-              //     ...body,
-              //     contactName: e.target.value,
-              //   }))
-              // }
+              onChange={(e) =>
+                setBody((body) => ({
+                  ...body,
+                  supply: e.target.value,
+                }))
+              }
             />
           </FormControl>
           <FormControl
@@ -127,28 +217,53 @@ const AddProduct = () => {
               type="text"
               color="secondary"
               multiline
-              // onChange={(e) =>
-              //   setBody((body) => ({ ...body, password: e.target.value }))
-              // }
+              onChange={(e) =>
+                setBody((body) => ({ ...body, description: e.target.value }))
+              }
             />
           </FormControl>
 
           <Box sx={{ gridColumn: "span 2" }}>
+            <label
+              htmlFor="upload"
+              className="flex items-center cursor-pointer"
+            >
+              <DriveFolderUploadRounded
+                sx={{
+                  fontSize: "70px",
+                  color: "#Ed981b",
+                  mr: "5px",
+                  transform: "rotate(-10deg)",
+                  transformOrigin: "left",
+                }}
+              />
+              <Typography
+                fontWeight="bold"
+                fontFamily="Nunito"
+                color={!selectedImage ? "secondary" : "primary"}
+              >
+                {!selectedImage ? "Upload Image" : `${selectedImage.name}`}
+              </Typography>
+            </label>
             <input
+              hidden
               required
               type="file"
+              name="upload"
+              id="upload"
               accept="image/*"
               className="grid-cols-2"
               color="secondary"
+              onChange={(e) => handleImage(e)}
             />
           </Box>
           <Box display="flex" alignItems="center">
             <Button
-              // onClick={addAddress}
+              onClick={upload}
               variant="contained"
               sx={{ borderRadius: "20px", width: "70%" }}
             >
-              <Typography color="#ffffff">Confirm</Typography>
+              <Typography color="#ffffff">Upload</Typography>
             </Button>
           </Box>
         </Box>
