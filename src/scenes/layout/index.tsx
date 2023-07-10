@@ -76,7 +76,7 @@ const adminItems = [
   },
   {
     text: "Manage Users",
-    link: "/customer/account",
+    link: "/admin/users",
     icon: <AdminPanelSettings />,
   },
   {

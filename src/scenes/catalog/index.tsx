@@ -169,7 +169,7 @@ const Catalog = () => {
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(3,1fr)",
-              //   gridAutoRows: "200px",
+              gridAutoRows: "180px",
               gap: "20px",
               py: "20px",
               width: "90%",
@@ -193,16 +193,19 @@ const Catalog = () => {
               ? data.map((each) => (
                   <Box
                     sx={{
-                      border: "1px solid #E0E0E0",
+                      // border: "1px solid #E0E0E0",
+                      boxShadow: "3px 3px 10px #E0E0E0",
                       borderRadius: "5px",
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
+                      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${imageUrl}/uploads/${each.imageName})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
                     }}
                   >
                     <Box
                       sx={{
-                        borderBottom: "1px solid #E0E0E0",
                         pl: "20px",
                         py: "8px",
                       }}
@@ -210,33 +213,29 @@ const Catalog = () => {
                       <Typography
                         fontFamily="Playfair Display"
                         fontWeight="bold"
-                        sx={{ textTransform: "capitalize" }}
+                        sx={{
+                          textTransform: "capitalize",
+                          textShadow: "1px 1px 1px rgba(7, 116, 136, 1)",
+                        }}
+                        color="primary"
                       >
                         {each.name}
                       </Typography>
                     </Box>
-                    <Box sx={{ width: "100%", display: "flex" }}>
-                      <Box
-                        sx={{
-                          width: "41%",
-                          height: "100px",
-                          backgroundImage: `url(${imageUrl}/uploads/${each.imageName})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                        }}
-                      ></Box>
-                      <Box sx={{ ml: "10px", pt: "10px" }}>
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "baseline",
+                      }}
+                    >
+                      <Box sx={{ pl: "20px", pt: "10px" }}>
                         <Typography
                           fontStyle="italic"
                           fontFamily="Nunito"
                           fontSize="14px"
-                        >
-                          Name: {each.name}
-                        </Typography>
-                        <Typography
-                          fontStyle="italic"
-                          fontFamily="Nunito"
-                          fontSize="14px"
+                          fontWeight="bold"
+                          color="white"
                         >
                           Category: {each.category}
                         </Typography>
@@ -244,6 +243,8 @@ const Catalog = () => {
                           fontStyle="italic"
                           fontFamily="Nunito"
                           fontSize="14px"
+                          fontWeight="bold"
+                          color="white"
                         >
                           Supply: {each.supply}
                         </Typography>
@@ -255,7 +256,6 @@ const Catalog = () => {
                         display: "flex",
                         justifyContent: "end",
                         alignItems: "center",
-                        borderTop: "1px solid #E0E0E0",
                         p: "5px",
                       }}
                     >
