@@ -10,9 +10,10 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { CSSTransition } from "react-transition-group";
+import { useSelector } from "react-redux";
+import { useAppDispatch, RootState } from "store";
 
 const cats = ["Skin", "Face", "Lips", "Perfumery", "Household", "Decorative"];
 interface BodyState {
@@ -33,12 +34,13 @@ interface UserData {
   token: string;
 }
 
-const AddProduct = () => {
+const EditProduct = () => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [expired, setExpired] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [closeModal, setCloseModal] = useState<boolean>(true);
   const [added, setAdded] = useState<boolean>(false);
+  const products = useSelector((state: RootState) => state.global.products);
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
@@ -58,22 +60,18 @@ const AddProduct = () => {
     setSelectedImage(file || null);
   };
 
-  const upload = async () => {
+  const upload = async (id: string) => {
     try {
-      if (!selectedImage) {
-        console.log("No image selected");
-        return;
-      }
       const formData = new FormData();
-      formData.append("image", selectedImage);
+      if (selectedImage) formData.append("image", selectedImage);
       formData.append("name", body.name);
       formData.append("price", body.price);
       formData.append("discount", body.discount);
       formData.append("category", body.category);
       formData.append("supply", body.supply);
       formData.append("description", body.description);
-      const response = await fetch(`${baseUrl}/post/products`, {
-        method: "POST",
+      const response = await fetch(`${baseUrl}/edit/products/${id}`, {
+        method: "PATCH",
         headers: {
           // "Content-Type": "application/json",
           Authorization: `Bearer ${user?.token}`,
@@ -172,6 +170,7 @@ const AddProduct = () => {
             <Input
               required
               type="text"
+              defaultValue={products && products[0].name}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -186,6 +185,7 @@ const AddProduct = () => {
             <Input
               required
               type="text"
+              defaultValue={products && products[0].price}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -200,6 +200,7 @@ const AddProduct = () => {
             <Input
               required
               type="text"
+              defaultValue={products && products[0].discount}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -218,6 +219,7 @@ const AddProduct = () => {
                   category: e.target.value as string,
                 }))
               }
+              defaultValue={products && products[0].category}
             >
               {cats.map((each, index) => (
                 <MenuItem key={index} value={each.toLowerCase()}>
@@ -231,6 +233,7 @@ const AddProduct = () => {
             <Input
               required
               type="text"
+              defaultValue={products && products[0].supply}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -248,6 +251,7 @@ const AddProduct = () => {
             <Input
               required
               type="text"
+              defaultValue={products && products[0].description}
               color="secondary"
               multiline
               onChange={(e) =>
@@ -292,7 +296,7 @@ const AddProduct = () => {
           </Box>
           <Box display="flex" alignItems="center">
             <Button
-              onClick={upload}
+              onClick={() => upload(products[0]._id)}
               variant="contained"
               sx={{ borderRadius: "20px", width: "70%" }}
             >
@@ -305,4 +309,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

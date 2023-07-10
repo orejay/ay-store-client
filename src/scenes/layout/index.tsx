@@ -66,12 +66,12 @@ const adminItems = [
   },
   {
     text: "Add Product",
-    link: "/admin/product/add",
+    link: "/admin/products/add",
     icon: <AdminPanelSettings />,
   },
   {
     text: "Catalog",
-    link: "/admin/products",
+    link: "/admin/catalog",
     icon: <AdminPanelSettings />,
   },
   {
@@ -201,7 +201,17 @@ const Layout = () => {
               <Button sx={{ width: "100%" }}>Log Out</Button>
             </Box>
           </Box>
-          <Outlet />
+          <Box
+            sx={{
+              backgroundColor: "white",
+              width: "78%",
+              height: "100vh",
+              borderRadius: "5px",
+              boxShadow: "2px 2px 7px #E0E0E0",
+            }}
+          >
+            <Outlet />
+          </Box>
         </Box>
       </Box>
       <Footer />

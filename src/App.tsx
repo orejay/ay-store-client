@@ -22,6 +22,8 @@ import AddressBook from "scenes/address book";
 import AccManagement from "scenes/account management";
 import ChangePassword from "scenes/change password";
 import AddProduct from "scenes/add product";
+import Catalog from "scenes/catalog";
+import EditProduct from "scenes/edit product";
 
 function App() {
   const theme = createTheme({
@@ -60,7 +62,9 @@ function App() {
               />
 
               <Route path="/admin/account" element={<Account />} />
-              <Route path="/admin/product/add" element={<AddProduct />} />
+              <Route path="/admin/products/add" element={<AddProduct />} />
+              <Route path="/admin/products/edit" element={<EditProduct />} />
+              <Route path="/admin/catalog" element={<Catalog />} />
             </Route>
 
             <Route path="/signup" element={<SignUp />} />

@@ -5,12 +5,16 @@ interface ProductData {
   price: number;
   rating: number;
   discount: number;
+  imageName: string;
+  imagePath: string;
   description: string;
   category: string;
+  supply: number;
   _id: string;
 }
 interface InitialState {
   productId: string;
+  products: ProductData[];
   showSearches: boolean;
   cart: ProductData[];
   categories: string[];
@@ -34,6 +38,7 @@ interface AddressData {
 
 const initialState: InitialState = {
   productId: "",
+  products: [],
   showSearches: false,
   cart: [],
   categories: [],
@@ -46,6 +51,9 @@ export const globalSlice = createSlice({
   reducers: {
     setProductId: (state, action) => {
       state.productId = action.payload;
+    },
+    setProducts: (state, action) => {
+      state.products = action.payload;
     },
     setShowSearches: (state, action) => {
       state.showSearches = action.payload;
@@ -68,5 +76,6 @@ export const {
   setCart,
   setCategories,
   setAddresses,
+  setProducts,
 } = globalSlice.actions;
 export default globalSlice.reducer;
