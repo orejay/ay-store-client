@@ -1,11 +1,13 @@
 import {
   AddPhotoAlternateRounded,
+  Close,
   DriveFolderUploadRounded,
 } from "@mui/icons-material";
 import {
   Box,
   Button,
   FormControl,
+  IconButton,
   Input,
   InputLabel,
   MenuItem,
@@ -13,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
+import { CSSTransition } from "react-transition-group";
 
 const cats = ["Skin", "Face", "Lips", "Perfumery", "Household", "Decorative"];
 interface BodyState {
@@ -124,7 +127,47 @@ const AddProduct = () => {
           Add Product
         </Typography>
       </Box>
-      <Box display="flex" justifyContent="center">
+      <Box display="flex" flexDirection="column" alignItems="center">
+        {
+          <CSSTransition
+            in={!closeModal}
+            timeout={1000}
+            classNames="fade"
+            unmountOnExit
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: "5px",
+                backgroundColor: added ? "#00C98D" : "#ff5316",
+                pl: "30px",
+                pr: "10px",
+                width: "100%",
+              }}
+            >
+              <Typography
+                fontFamily="Nunito"
+                sx={{
+                  color: "white",
+                  fontStyle: "italic",
+                }}
+              >
+                {added
+                  ? "Product Added Successfully!"
+                  : "Something Went Wrong!"}
+              </Typography>
+              <IconButton
+                onClick={() => {
+                  setCloseModal(true);
+                }}
+              >
+                <Close sx={{ color: "white" }} />
+              </IconButton>
+            </Box>
+          </CSSTransition>
+        }
         <Box
           sx={{
             display: "grid",

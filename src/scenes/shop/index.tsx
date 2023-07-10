@@ -52,6 +52,10 @@ const Shop = () => {
   const [discount, setDiscount] = useState(false);
   const [rating, setRating] = useState<number[]>([0, 5]);
 
+  const formatNumberWithCommas = (number: string) => {
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   const handleRatingChange = (event: Event, newValue: number | number[]) => {
     setRating(newValue as number[]);
   };
@@ -313,8 +317,9 @@ const Shop = () => {
                 <Box
                   component="img"
                   alt="hero-img"
-                  src={`${imageUrl}/public/uploads/${each.imageName}`}
+                  src={`${imageUrl}/uploads/${each.imageName}`}
                   width="100%"
+                  height="55%"
                   sx={{
                     borderRadius: "5px 5px 0 0",
                     objectFit: "cover",
@@ -360,7 +365,10 @@ const Shop = () => {
                       color="primary"
                       my="10px"
                     >
-                      ${each.price}
+                      $
+                      {formatNumberWithCommas(
+                        (each.price * ((100 - each.discount) / 100)).toFixed(2)
+                      )}
                     </Typography>
                     {!cart.some((item) => item._id === each._id) ? (
                       <IconButton
