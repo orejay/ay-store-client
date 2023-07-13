@@ -83,7 +83,7 @@ const ProductCategory = () => {
           >
             <Box
               component="img"
-              alt="hero-img"
+              alt="product-category-img"
               src={each.image}
               width="100%"
               borderRadius="20px"

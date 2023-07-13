@@ -1,4 +1,8 @@
-import { Close, DriveFolderUploadRounded } from "@mui/icons-material";
+import {
+  ArrowBackRounded,
+  Close,
+  DriveFolderUploadRounded,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -14,6 +18,7 @@ import React, { useState, useEffect } from "react";
 import { CSSTransition } from "react-transition-group";
 import { useSelector } from "react-redux";
 import { useAppDispatch, RootState } from "store";
+import { Link } from "react-router-dom";
 
 const cats = ["Skin", "Face", "Lips", "Perfumery", "Household", "Decorative"];
 interface BodyState {
@@ -100,20 +105,27 @@ const EditProduct = () => {
         sx={{
           borderBottom: "1px solid #E0E0E0",
           px: "30px",
-          py: "13px",
+          py: "3px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <Typography
-          fontFamily="Playfair Display"
-          fontWeight="bold"
-          color="secondary"
-          variant="h5"
-        >
-          Add Product
-        </Typography>
+        <Box display="flex" alignItems="center">
+          <IconButton sx={{}} onClick={() => setCloseModal(true)}>
+            <Link to="/admin/catalog">
+              <ArrowBackRounded />
+            </Link>
+          </IconButton>
+          <Typography
+            fontFamily="Playfair Display"
+            fontWeight="bold"
+            color="secondary"
+            variant="h5"
+          >
+            Edit Product
+          </Typography>
+        </Box>
       </Box>
       <Box display="flex" flexDirection="column" alignItems="center">
         {
@@ -170,7 +182,7 @@ const EditProduct = () => {
             <Input
               required
               type="text"
-              defaultValue={products && products[0].name}
+              defaultValue={products.length > 0 ? products[0].name : ""}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -185,7 +197,7 @@ const EditProduct = () => {
             <Input
               required
               type="text"
-              defaultValue={products && products[0].price}
+              defaultValue={products.length > 0 ? products[0].price : ""}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -200,7 +212,7 @@ const EditProduct = () => {
             <Input
               required
               type="text"
-              defaultValue={products && products[0].discount}
+              defaultValue={products.length > 0 ? products[0].discount : ""}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -219,7 +231,7 @@ const EditProduct = () => {
                   category: e.target.value as string,
                 }))
               }
-              defaultValue={products && products[0].category}
+              defaultValue={products.length > 0 ? products[0].category : ""}
             >
               {cats.map((each, index) => (
                 <MenuItem key={index} value={each.toLowerCase()}>
@@ -233,7 +245,7 @@ const EditProduct = () => {
             <Input
               required
               type="text"
-              defaultValue={products && products[0].supply}
+              defaultValue={products.length > 0 ? products[0].supply : ""}
               color="secondary"
               onChange={(e) =>
                 setBody((body) => ({
@@ -251,7 +263,7 @@ const EditProduct = () => {
             <Input
               required
               type="text"
-              defaultValue={products && products[0].description}
+              defaultValue={products.length > 0 ? products[0].description : ""}
               color="secondary"
               multiline
               onChange={(e) =>

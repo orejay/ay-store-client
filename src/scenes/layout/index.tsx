@@ -1,5 +1,7 @@
 import {
+  AddBusinessRounded,
   AdminPanelSettings,
+  EditRounded,
   FavoriteBorderRounded,
   InboxRounded,
   Key,
@@ -7,13 +9,15 @@ import {
   MailRounded,
   ManageAccountsRounded,
   MenuBook,
+  PeopleRounded,
   SettingsSuggest,
+  StoreRounded,
 } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React, { useState, useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const userItems = [
   {
@@ -61,38 +65,33 @@ const userItems = [
 const adminItems = [
   {
     text: "Manage Account",
-    link: "/customer/account",
+    link: "/admin/account",
     icon: <AdminPanelSettings />,
   },
   {
     text: "Add Product",
     link: "/admin/products/add",
-    icon: <AdminPanelSettings />,
+    icon: <AddBusinessRounded />,
   },
   {
     text: "Catalog",
     link: "/admin/catalog",
-    icon: <AdminPanelSettings />,
+    icon: <StoreRounded />,
   },
   {
     text: "Manage Users",
     link: "/admin/users",
-    icon: <AdminPanelSettings />,
+    icon: <PeopleRounded />,
   },
   {
-    text: "Account Management",
-    link: "/customer/account",
-    icon: <AdminPanelSettings />,
+    text: "Edit Information",
+    link: "/admin/account/management",
+    icon: <EditRounded />,
   },
   {
     text: "Change Password",
-    link: "/customer/account",
-    icon: <AdminPanelSettings />,
-  },
-  {
-    text: "Manage Users",
-    link: "/customer/account",
-    icon: <AdminPanelSettings />,
+    link: "/admin/password",
+    icon: <Key />,
   },
 ];
 
@@ -112,7 +111,30 @@ const Layout = () => {
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const navigate = useNavigate();
+  const token = user?.token;
+
+  const auth = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/auth/authenticate`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 401) logout();
+    } catch (error) {
+      console.error("Error fetching data", error);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
+
   useEffect(() => {
+    auth();
     setActive(pathname);
   }, [pathname]);
 
@@ -121,7 +143,7 @@ const Layout = () => {
       <Header />
       <Box
         pt="150px"
-        mb="80px"
+        pb="80px"
         sx={{
           minHeight: "100vh",
           display: "flex",

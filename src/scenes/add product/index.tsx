@@ -1,4 +1,8 @@
-import { Close, DriveFolderUploadRounded } from "@mui/icons-material";
+import {
+  AddAPhotoRounded,
+  Close,
+  DriveFolderUploadRounded,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -261,7 +265,7 @@ const AddProduct = () => {
               htmlFor="upload"
               className="flex items-center cursor-pointer"
             >
-              <DriveFolderUploadRounded
+              <AddAPhotoRounded
                 sx={{
                   fontSize: "70px",
                   color: "#Ed981b",

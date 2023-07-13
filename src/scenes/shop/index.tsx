@@ -29,6 +29,7 @@ interface ProductData {
   price: number;
   rating: number;
   discount: number;
+  quantity: number;
   imageName: string;
   imagePath: string;
   description: string;
@@ -257,7 +258,7 @@ const Shop = () => {
                 {!discount ? (
                   <CheckBoxOutlineBlankRounded />
                 ) : (
-                  <CheckBoxRounded />
+                  <CheckBoxRounded sx={{ color: "#Ed981b" }} />
                 )}
               </IconButton>
               <Typography fontFamily="Nunito" fontWeight="bold">
@@ -288,35 +289,37 @@ const Shop = () => {
                 onMouseEnter={() => setHovered(each._id)}
                 onMouseLeave={() => setHovered("")}
               >
-                <Box
-                  sx={{
-                    backgroundColor: "#Ed981b",
-                    p: "2px",
-                    borderRadius: "4px",
-                    width: "35px",
-                    height: "35px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    position: "absolute",
-                    transform: "rotate(45deg)",
-                    mt: "15px",
-                    ml: "15px",
-                  }}
-                >
-                  <Typography
-                    fontFamily="Nunito"
-                    fontWeight="bold"
-                    fontSize="12px"
-                    color="white"
-                    sx={{ transform: "rotate(-45deg)" }}
+                {each.discount > 0 && (
+                  <Box
+                    sx={{
+                      backgroundColor: "#Ed981b",
+                      p: "2px",
+                      borderRadius: "4px",
+                      width: "35px",
+                      height: "35px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      position: "absolute",
+                      transform: "rotate(45deg)",
+                      mt: "15px",
+                      ml: "15px",
+                    }}
                   >
-                    -{each.discount}%
-                  </Typography>
-                </Box>
+                    <Typography
+                      fontFamily="Nunito"
+                      fontWeight="bold"
+                      fontSize="12px"
+                      color="white"
+                      sx={{ transform: "rotate(-45deg)" }}
+                    >
+                      -{each.discount}%
+                    </Typography>
+                  </Box>
+                )}
                 <Box
                   component="img"
-                  alt="hero-img"
+                  alt="product-img"
                   src={`${imageUrl}/uploads/${each.imageName}`}
                   width="100%"
                   height="55%"
@@ -372,7 +375,11 @@ const Shop = () => {
                     </Typography>
                     {!cart.some((item) => item._id === each._id) ? (
                       <IconButton
-                        onClick={() => dispatch(setCart([...cart, each]))}
+                        onClick={() => {
+                          dispatch(
+                            setCart([...cart, { ...each, quantity: 1 }])
+                          );
+                        }}
                       >
                         <AddShoppingCartRounded
                           color="primary"

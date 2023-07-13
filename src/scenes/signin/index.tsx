@@ -56,9 +56,7 @@ const SignIn = () => {
         },
         body: JSON.stringify(body),
       });
-      console.log(response);
       const jsonData = await response.json();
-      console.log(jsonData);
 
       if (response.status === 404) setIsUser(false);
       if (response.status === 401) setWrongPass(true);
@@ -77,7 +75,9 @@ const SignIn = () => {
   useEffect(() => {
     if (isSignedIn) {
       setTimeout(() => {
-        navigate("/customer/account");
+        data?.role === "user"
+          ? navigate("/customer/account")
+          : navigate("/admin/account");
       }, 3000);
     }
   }, [isSignedIn, navigate]);

@@ -80,7 +80,7 @@ const Catalog = () => {
 
   const getProducts = async () => {
     try {
-      const response = await fetch(`${baseUrl}/get/products/filter`, {
+      const response = await fetch(`${baseUrl}/get/products`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${user?.token}`,

@@ -24,6 +24,11 @@ import ChangePassword from "scenes/change password";
 import AddProduct from "scenes/add product";
 import Catalog from "scenes/catalog";
 import EditProduct from "scenes/edit product";
+import Users from "scenes/users";
+import AdminManagement from "scenes/admin account";
+import { useAppDispatch } from "store";
+import { setShowCart, setShowSearches } from "state";
+import Checkout from "scenes/checkout";
 
 function App() {
   const theme = createTheme({
@@ -32,9 +37,14 @@ function App() {
     },
     palette: themeSettings(),
   });
+  const dispatch = useAppDispatch();
 
   return (
-    <div>
+    <div
+      onClick={() => {
+        dispatch(setShowSearches(false));
+      }}
+    >
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
@@ -43,6 +53,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route element={<Layout />}>
               <Route path="/customer/account" element={<Account />} />
               <Route path="/customer/orders" element={<Orders />} />
@@ -61,10 +72,16 @@ function App() {
                 element={<AccManagement />}
               />
 
-              <Route path="/admin/account" element={<Account />} />
+              <Route path="/admin/account" element={<AdminManagement />} />
               <Route path="/admin/products/add" element={<AddProduct />} />
               <Route path="/admin/products/edit" element={<EditProduct />} />
               <Route path="/admin/catalog" element={<Catalog />} />
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/password" element={<ChangePassword />} />
+              <Route
+                path="/admin/account/management"
+                element={<AccManagement />}
+              />
             </Route>
 
             <Route path="/signup" element={<SignUp />} />

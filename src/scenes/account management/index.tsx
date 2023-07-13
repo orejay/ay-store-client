@@ -130,11 +130,12 @@ const AccManagement = () => {
         }
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
+            display: "grid",
+            gridTemplateColumns: "repeat(2,1fr)",
+            gap: "30px",
             pl: "30px",
             pt: "20px",
-            width: "40%",
+            width: "90%",
           }}
         >
           <FormControl variant="outlined" sx={{ mb: "20px" }}>

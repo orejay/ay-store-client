@@ -9,18 +9,21 @@ import {
   ListItem,
   List,
 } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import FlexBetween from "./FlexBetween";
 import {
   BorderRight,
+  CloseRounded,
+  DeleteOutlineRounded,
+  DeleteRounded,
   KeyboardArrowDownRounded,
   SearchRounded,
   ShoppingCartOutlined,
 } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
 import { useAppDispatch, RootState } from "store";
-import { setShowSearches } from "state";
+import { setCart, setShowCart, setShowSearches } from "state";
 
 interface ProductData {
   name: string;
@@ -51,12 +54,33 @@ const Header = () => {
   const showSearches = useSelector(
     (state: RootState) => state.global.showSearches
   );
+  const showCart = useSelector((state: RootState) => state.global.showCart);
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { pathname } = useLocation();
+  const cart = useSelector((state: RootState) => state.global.cart);
 
   useEffect(() => {
     setActive(pathname.substring(1));
   }, [pathname]);
+
+  const formatNumberWithCommas = (number: string) => {
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
+
+  const total = () => {
+    let x = 0;
+    for (let i = 0; i < cart.length; i++) {
+      console.log(cart[i]);
+      x += cart[i].price * ((100 - cart[i].discount) / 100);
+    }
+    return x;
+  };
 
   const search = async () => {
     try {
@@ -147,6 +171,7 @@ const Header = () => {
               variant="outlined"
               color="primary"
               sx={{ borderRadius: "20px", px: "20px" }}
+              onClick={logout}
             >
               <Typography
                 fontFamily="Nunito"
@@ -173,6 +198,7 @@ const Header = () => {
               placeholder="search..."
               onChange={(e) => {
                 setSearchText(e.target.value);
+                dispatch(setShowCart(false));
                 if (e.target.value.length > 1) {
                   search();
                   dispatch(setShowSearches(true));
@@ -183,7 +209,7 @@ const Header = () => {
               <SearchRounded />
             </IconButton>
           </Box>
-          {data.length > 0 && showSearches === true ? (
+          {data?.length > 0 && showSearches === true ? (
             <ul
               style={{
                 backgroundColor: "white",
@@ -191,7 +217,7 @@ const Header = () => {
                 width: "200px",
                 top: 60,
                 padding: "1% 0",
-                borderRadius: "12px",
+                borderRadius: "5px",
               }}
             >
               {data.map((each) => (
@@ -212,7 +238,7 @@ const Header = () => {
                 width: "200px",
                 top: 60,
                 padding: "1% 0",
-                borderRadius: "12px",
+                borderRadius: "5px",
               }}
             >
               <span className="pl-3 Nunito font-semibold">
@@ -222,9 +248,184 @@ const Header = () => {
           ) : (
             ""
           )}
-          <IconButton>
-            <ShoppingCartOutlined />
-          </IconButton>
+          <Box
+            sx={{
+              backgroundColor: showCart ? "white" : "",
+              borderRadius: "20px 20px 0 0",
+            }}
+          >
+            <Box
+              p="10px"
+              sx={{ cursor: "pointer", zIndex: "100" }}
+              onClick={() => {
+                dispatch(setShowCart(!showCart));
+                dispatch(setShowSearches(false));
+              }}
+            >
+              <ShoppingCartOutlined />
+            </Box>
+          </Box>
+          {showCart && cart?.length > 0 ? (
+            <Box
+              sx={{
+                backgroundColor: "white",
+                position: "absolute",
+                maxHeight: "83vh",
+                width: "300px",
+                top: 60,
+                padding: "1% 0",
+                borderRadius: "5px",
+                px: "15px",
+              }}
+            >
+              <Box width="100%" sx={{ display: "flex", justifyContent: "end" }}>
+                <IconButton onClick={() => dispatch(setShowCart(false))}>
+                  <CloseRounded sx={{ color: "#ff5316", fontWeight: "bold" }} />
+                </IconButton>
+              </Box>
+              <Box sx={{ overflow: "hidden", maxHeight: "100%" }}>
+                {cart.map((each) => (
+                  <Box
+                    sx={{
+                      py: "10px",
+                      borderBottom: "2px solid #E0E0E0",
+                      "& hover": { bgcolor: "#F0F0F0" },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box sx={{ mb: "7px" }}>
+                        <Typography
+                          fontWeight="bold"
+                          fontSize="17px"
+                          fontFamily="Nunito"
+                        >
+                          {each.name}
+                        </Typography>
+                        <Typography
+                          fontFamily="Playfair Display"
+                          fontWeight="bold"
+                          fontSize="14px"
+                          color="secondary"
+                        >
+                          {each.category}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        onClick={() =>
+                          dispatch(
+                            setCart(
+                              cart.filter((item) => item._id !== each._id)
+                            )
+                          )
+                        }
+                      >
+                        <DeleteOutlineRounded sx={{ color: "#Ed981b" }} />
+                      </IconButton>
+                    </Box>
+                    <Typography fontSize="13px" fontStyle="italic" mb="10px">
+                      {each.description.slice(0, 30)}...
+                    </Typography>
+
+                    <Typography
+                      fontFamily="Playfair Display"
+                      fontWeight="bold"
+                      fontSize="14px"
+                    >
+                      {each.quantity} x{" "}
+                      {formatNumberWithCommas(
+                        (each.price * ((100 - each.discount) / 100)).toFixed(2)
+                      )}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+
+              <Box>
+                <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    py: "20px",
+                  }}
+                >
+                  <Typography fontWeight="bold" fontFamily="Nunito">
+                    Total
+                  </Typography>
+                  <Typography fontFamily="Nunito" fontWeight="bold">
+                    ${formatNumberWithCommas(total().toFixed(2))}
+                  </Typography>
+                </Box>
+              </Box>
+              <Button
+                variant="outlined"
+                color="primary"
+                sx={{
+                  borderRadius: "20px",
+                  width: "100%",
+                  textTransform: "none",
+                  borderWidth: "2px",
+                  transition: "ease-in-out 0.2s",
+                }}
+                onClick={() => {
+                  navigate("/checkout");
+                  dispatch(setShowCart(false));
+                }}
+              >
+                <Typography fontFamily="Nunito" fontWeight="bold">
+                  Checkout
+                </Typography>
+              </Button>
+            </Box>
+          ) : showCart && cart.length < 1 ? (
+            <Box
+              sx={{
+                backgroundColor: "white",
+                position: "absolute",
+                width: "300px",
+                top: 60,
+                padding: "1% 0",
+                borderRadius: "5px",
+                px: "15px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <Box
+                width="100%"
+                sx={{ display: "flex", justifyContent: "end", pr: "5px" }}
+              >
+                <IconButton onClick={() => dispatch(setShowCart(false))}>
+                  <CloseRounded sx={{ color: "#ff5316", fontWeight: "bold" }} />
+                </IconButton>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  py: "5px",
+                }}
+              >
+                <Typography
+                  fontFamily="Playfair Display"
+                  color="secondary"
+                  fontWeight="bold"
+                  fontStyle="italic"
+                >
+                  Your cart is empty...
+                </Typography>
+              </Box>
+            </Box>
+          ) : (
+            ""
+          )}
         </FlexBetween>
       </FlexBetween>
     </Box>

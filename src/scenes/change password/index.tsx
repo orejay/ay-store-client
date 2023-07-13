@@ -145,7 +145,14 @@ const ChangePassword = () => {
           pt: "20px",
         }}
       >
-        <Box sx={{ width: "35%", display: "flex", flexDirection: "column" }}>
+        <Box
+          sx={{
+            width: "90%",
+            display: "grid",
+            gridTemplateColumns: "repeat(2,1fr)",
+            gap: "30px",
+          }}
+        >
           <FormControl variant="outlined" sx={{ mb: "20px" }}>
             <InputLabel color="secondary">Old Password</InputLabel>
             <Input
@@ -235,6 +242,7 @@ const ChangePassword = () => {
               }
             />
           </FormControl>
+          <Box sx={{ columnSpan: "all" }}></Box>
           <Button
             variant="contained"
             sx={{ borderRadius: "20px", mt: "15px", width: "40%" }}

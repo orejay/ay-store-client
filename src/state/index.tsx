@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 interface ProductData {
   name: string;
+  quantity: number;
   price: number;
   rating: number;
   discount: number;
@@ -16,12 +17,30 @@ interface InitialState {
   productId: string;
   products: ProductData[];
   showSearches: boolean;
+  showCart: boolean;
   cart: ProductData[];
   categories: string[];
   addresses: AddressData[];
+  deliveryAddress: DeliveryAddress | null;
+  instructions: string;
 }
 
 interface AddressData {
+  _id: string;
+  contactName: string;
+  phoneNumber: string;
+  user: string;
+  isDefault: boolean;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: string;
+}
+
+interface DeliveryAddress {
   _id: string;
   contactName: string;
   phoneNumber: string;
@@ -40,9 +59,12 @@ const initialState: InitialState = {
   productId: "",
   products: [],
   showSearches: false,
+  showCart: false,
   cart: [],
   categories: [],
   addresses: [],
+  deliveryAddress: null,
+  instructions: "",
 };
 
 export const globalSlice = createSlice({
@@ -58,6 +80,9 @@ export const globalSlice = createSlice({
     setShowSearches: (state, action) => {
       state.showSearches = action.payload;
     },
+    setShowCart: (state, action) => {
+      state.showCart = action.payload;
+    },
     setCart: (state, action) => {
       state.cart = action.payload;
     },
@@ -67,15 +92,50 @@ export const globalSlice = createSlice({
     setAddresses: (state, action) => {
       state.addresses = action.payload;
     },
+    incrementQuantity: (state, action) => {
+      const { payload: itemId } = action;
+      const updatedCart = state.cart.map((item) =>
+        item._id === itemId ? { ...item, quantity: item.quantity + 1 } : item
+      );
+      state.cart = updatedCart;
+    },
+    decrementQuantity: (state, action) => {
+      const { payload: itemId } = action;
+      const updatedCart = state.cart.map((item) =>
+        item._id === itemId ? { ...item, quantity: item.quantity - 1 } : item
+      );
+      state.cart = updatedCart;
+    },
+    customQuantity: (state, action) => {
+      const {
+        payload: { itemId, quantity },
+      } = action;
+      const updatedCart = state.cart.map((item) =>
+        item._id === itemId ? { ...item, quantity } : item
+      );
+      state.cart = updatedCart;
+    },
+    setDeliveryAddress: (state, action) => {
+      state.deliveryAddress = action.payload;
+    },
+    setInstructions: (state, action) => {
+      state.instructions = action.payload;
+    },
   },
 });
 
 export const {
+  incrementQuantity,
+  decrementQuantity,
+  customQuantity,
   setShowSearches,
   setProductId,
   setCart,
   setCategories,
   setAddresses,
   setProducts,
+  setShowCart,
+  setDeliveryAddress,
+  setInstructions,
 } = globalSlice.actions;
 export default globalSlice.reducer;
