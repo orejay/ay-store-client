@@ -25,9 +25,6 @@ interface UserData {
 
 const Checkout = () => {
   const cart = useSelector((state: RootState) => state.global.cart);
-  const instructions = useSelector(
-    (state: RootState) => state.global.instructions
-  );
   const [tab, setTab] = useState(0);
   const deliveryAddress = useSelector(
     (state: RootState) => state.global.deliveryAddress
@@ -40,33 +37,6 @@ const Checkout = () => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
-  const checkout = async () => {
-    const response = await fetch(`${baseUrl}/post/order`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        order: [...cart],
-        address: { ...deliveryAddress },
-        instructions: instructions,
-        price: total().toFixed(2),
-      }),
-    });
-
-    const jsonData = await response.json();
-
-    if (response.ok) {
-      dispatch(setCart([]));
-      dispatch(setModalMessage("Order Placed Successfully!"));
-      dispatch(setCloseModal(false));
-      navigate("/");
-    }
-
-    console.log(jsonData);
-  };
 
   const auth = async () => {
     try {
@@ -88,7 +58,7 @@ const Checkout = () => {
 
   useEffect(() => {
     auth();
-    if (cart.length < 0) navigate("/");
+    if (cart.length < 1) navigate("/");
   }, []);
 
   const formatNumberWithCommas = (number: string) => {
@@ -491,7 +461,6 @@ const Checkout = () => {
                   </FlexBetween>
                   <Box sx={{ mx: "auto", width: "100%", pt: "10px" }}>
                     <PaystackPayment />
-                    <Button onClick={checkout}>checkout</Button>
                   </Box>
                 </Box>
               </Box>

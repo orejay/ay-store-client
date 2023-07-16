@@ -1,7 +1,9 @@
 import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "store";
+import { useNavigate } from "react-router-dom";
+import { setCart, setCloseModal, setModalMessage } from "state";
+import { RootState, useAppDispatch } from "store";
 
 interface UserData {
   firstName: string;
@@ -14,11 +16,21 @@ interface UserData {
 }
 
 const PaystackPayment = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
+  const token = user?.token;
   const key = String(process.env.REACT_APP_PAYSTACK_KEY);
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const cart = useSelector((state: RootState) => state.global.cart);
+  const instructions = useSelector(
+    (state: RootState) => state.global.instructions
+  );
+  const deliveryAddress = useSelector(
+    (state: RootState) => state.global.deliveryAddress
+  );
 
   const total = () => {
     let x = 0;
@@ -27,6 +39,34 @@ const PaystackPayment = () => {
       x += cart[i].price * cart[i].quantity * ((100 - cart[i].discount) / 100);
     }
     return x;
+  };
+
+  const checkout = async (ref: string) => {
+    const response = await fetch(`${baseUrl}/post/order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        order: [...cart],
+        address: { ...deliveryAddress },
+        instructions: instructions,
+        price: total().toFixed(2),
+        ref: ref,
+      }),
+    });
+
+    const jsonData = await response.json();
+
+    if (response.ok) {
+      dispatch(setCart([]));
+      dispatch(setModalMessage("Order Placed Successfully!"));
+      dispatch(setCloseModal(false));
+      navigate("/");
+    }
+
+    console.log(jsonData);
   };
 
   useEffect(() => {
@@ -43,7 +83,6 @@ const PaystackPayment = () => {
   const payWithPaystack = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Retrieve form values
     const email = user?.email;
     const amount = total().toFixed(2);
     const ref = String(Math.floor(Math.random() * 1000000000000) + 1);
@@ -59,8 +98,24 @@ const PaystackPayment = () => {
       },
       callback: function (response: any) {
         console.log(response);
-        const message = "Payment complete! Reference: " + response.reference;
-        // alert(message);
+        const verify = async () => {
+          try {
+            const res = await fetch(
+              `${baseUrl}/get/verify-paystack/${response.reference}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${user?.token}`,
+                },
+              }
+            );
+            const jsonData = await res.json();
+            if (jsonData.data.status) checkout(response.reference);
+          } catch (error) {
+            console.error("something went wrong", error);
+          }
+        };
+        verify();
       },
     });
 
