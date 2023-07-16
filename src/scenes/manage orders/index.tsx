@@ -1,11 +1,13 @@
 import {
   Box,
+  Button,
   Card,
   CardActions,
   CardContent,
   Collapse,
   FormControl,
   InputLabel,
+  MenuItem,
   Select,
   Typography,
 } from "@mui/material";
@@ -15,6 +17,36 @@ import { styled } from "@mui/material/styles";
 import { ExpandMoreRounded } from "@mui/icons-material";
 import FlexBetween from "components/FlexBetween";
 
+const orderStatus = ["new", "processing", "shipped", "delivered", "completed"];
+
+interface AddressData {
+  _id: string;
+  contactName: string;
+  phoneNumber: string;
+  user: string;
+  isDefault: boolean;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: string;
+}
+interface ProductData {
+  name: string;
+  quantity: number;
+  price: number;
+  rating: number;
+  discount: number;
+  imageName: string;
+  imagePath: string;
+  description: string;
+  category: string;
+  supply: number;
+  _id: string;
+}
+
 interface UserData {
   firstName: string;
   lastName: string;
@@ -23,7 +55,20 @@ interface UserData {
   role: string;
   id: string;
   token: string;
+}
+
+interface OrderData {
+  productId: ProductData;
+  quantity: number;
+}
+
+interface OrdersData {
   _id: string;
+  order: OrderData[];
+  address: AddressData;
+  instructions: string;
+  userId: string;
+  status: string;
 }
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -41,18 +86,44 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
   }),
 }));
 
-const Users = () => {
+const ManageOrders = () => {
+  const [expanded, setExpanded] = useState(false);
+  const [tab, setTab] = useState("new");
+  const [ordersStatus, setOrdersStatus] = useState("");
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
   const baseUrl = process.env.REACT_APP_BASE_URL;
-  const [data, setData] = useState<UserData[]>([]);
-  const [expanded, setExpanded] = useState(false);
+  const [data, setData] = useState<OrdersData[]>([]);
   const token = user?.token;
 
-  const getAllUsers = async () => {
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
+  const updateStatus = async (id: string) => {
     try {
-      const response = await fetch(`${baseUrl}/get/users`, {
+      const response = await fetch(`${baseUrl}/edit/orders/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: ordersStatus,
+        }),
+      });
+      const jsonData = await response.json();
+      getAllOrders(tab);
+      console.log(jsonData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const getAllOrders = async (status: string) => {
+    try {
+      const response = await fetch(`${baseUrl}/get/allorders/${status}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -66,12 +137,8 @@ const Users = () => {
     }
   };
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
   useEffect(() => {
-    getAllUsers();
+    getAllOrders(tab);
   }, []);
 
   return (
@@ -92,17 +159,34 @@ const Users = () => {
           color="secondary"
           variant="h5"
         >
-          Manage Users ({data?.length})
+          Manage Orders ({data?.length})
         </Typography>
       </Box>
       <Box sx={{ p: "20px", width: "100%", height: "100%" }}>
+        <Box sx={{ mt: "20px", px: "3%", width: "50%" }}>
+          <FormControl variant="standard" sx={{ width: "50%" }}>
+            <InputLabel color="secondary">Category</InputLabel>
+            <Select
+              onChange={(e) => {
+                setTab(e.target.value as string);
+                getAllOrders(e.target.value);
+              }}
+              defaultValue="new"
+            >
+              {orderStatus.map((each, index) => (
+                <MenuItem key={index} value={each.toLowerCase()}>
+                  {each}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
         <Box
           sx={{
             mt: "30px",
             px: "3%",
             display: "grid",
             gridTemplateColumns: "repeat(2,1fr)",
-            gap: "20px",
             overflow: "auto",
             maxHeight: "80vh",
             "&::-webkit-scrollbar": {
@@ -132,10 +216,26 @@ const Users = () => {
             >
               <Box display="flex" sx={{}}>
                 <Typography fontSize="15px" fontWeight="bold">
-                  Name:{" "}
+                  Order:{" "}
                 </Typography>
                 <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each.firstName} {each.lastName}
+                  {each._id}
+                </Typography>
+              </Box>
+              <Box display="flex" sx={{}}>
+                <Typography fontSize="15px" fontWeight="bold">
+                  Status:{" "}
+                </Typography>
+                <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                  {each.status}
+                </Typography>
+              </Box>
+              <Box display="flex" sx={{}}>
+                <Typography fontSize="15px" fontWeight="bold">
+                  Address:{" "}
+                </Typography>
+                <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                  {each.address.address}
                 </Typography>
               </Box>
               <Box display="flex" sx={{}}>
@@ -143,26 +243,32 @@ const Users = () => {
                   Contact:{" "}
                 </Typography>
                 <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each.phoneNumber}
-                </Typography>
-              </Box>
-              <Box display="flex" sx={{}}>
-                <Typography fontSize="15px" fontWeight="bold">
-                  Email:{" "}
-                </Typography>
-                <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each.email}
-                </Typography>
-              </Box>
-              <Box display="flex" sx={{}}>
-                <Typography fontSize="15px" fontWeight="bold">
-                  Role:{" "}
-                </Typography>
-                <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each.role}
+                  {each.address.phoneNumber}
                 </Typography>
               </Box>
               <CardActions disableSpacing>
+                {each.status !== "completed" && (
+                  <FlexBetween sx={{ width: "50%", alignItems: "end" }}>
+                    <FormControl variant="standard" sx={{ width: "50%" }}>
+                      <InputLabel color="secondary">Set Status</InputLabel>
+                      <Select
+                        onChange={(e) => {
+                          setOrdersStatus(e.target.value as string);
+                        }}
+                        defaultValue={each.status}
+                      >
+                        {orderStatus.map((each, index) => (
+                          <MenuItem key={index} value={each.toLowerCase()}>
+                            {each}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <Button onClick={() => updateStatus(each._id)}>
+                      Update
+                    </Button>
+                  </FlexBetween>
+                )}
                 <ExpandMore
                   expand={expanded}
                   onClick={handleExpandClick}
@@ -173,7 +279,21 @@ const Users = () => {
                 </ExpandMore>
               </CardActions>
               <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <CardContent></CardContent>
+                <CardContent>
+                  <Typography fontWeight="bold" fontFamily="Playfair Display">
+                    ITEMS:
+                  </Typography>
+                  {each.order.map((each) => (
+                    <Box display="flex" mt="10px">
+                      <Typography fontWeight="bold">
+                        Product: {each.productId.name},
+                      </Typography>
+                      <Typography fontWeight="bold" ml="5px">
+                        Quantity: {each.quantity}
+                      </Typography>
+                    </Box>
+                  ))}
+                </CardContent>
               </Collapse>
             </Card>
           ))}
@@ -183,4 +303,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default ManageOrders;

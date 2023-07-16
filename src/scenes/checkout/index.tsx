@@ -1,16 +1,95 @@
-import { ArrowBackIosRounded } from "@mui/icons-material";
+import { ArrowBackIosRounded, Close } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import CheckoutCart from "components/CheckoutCart";
 import DeliveryDetails from "components/DeliveryDetails";
+import FlexBetween from "components/FlexBetween";
 import Footer from "components/Footer";
 import Header from "components/Header";
+import PaystackPayment from "components/PaystackPayment";
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "store";
+import { useLocation, useNavigate } from "react-router-dom";
+import { CSSTransition } from "react-transition-group";
+import { setCart, setCloseModal, setModalMessage, setPrevPage } from "state";
+import { RootState, useAppDispatch } from "store";
+
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  id: string;
+  token: string;
+}
 
 const Checkout = () => {
   const cart = useSelector((state: RootState) => state.global.cart);
+  const instructions = useSelector(
+    (state: RootState) => state.global.instructions
+  );
   const [tab, setTab] = useState(0);
+  const deliveryAddress = useSelector(
+    (state: RootState) => state.global.deliveryAddress
+  );
+  const user: UserData | null = JSON.parse(
+    localStorage.getItem("user") || "null"
+  ) as UserData | null;
+  const token = user?.token;
+  const { pathname } = useLocation();
+  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const checkout = async () => {
+    const response = await fetch(`${baseUrl}/post/order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        order: [...cart],
+        address: { ...deliveryAddress },
+        instructions: instructions,
+        price: total().toFixed(2),
+      }),
+    });
+
+    const jsonData = await response.json();
+
+    if (response.ok) {
+      dispatch(setCart([]));
+      dispatch(setModalMessage("Order Placed Successfully!"));
+      dispatch(setCloseModal(false));
+      navigate("/");
+    }
+
+    console.log(jsonData);
+  };
+
+  const auth = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/auth/authenticate`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 401) signout();
+    } catch (error) {
+      console.error("Error fetching data", error);
+    }
+  };
+  const signout = () => {
+    dispatch(setPrevPage(pathname));
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
+
+  useEffect(() => {
+    auth();
+    if (cart.length < 0) navigate("/");
+  }, []);
 
   const formatNumberWithCommas = (number: string) => {
     return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -57,6 +136,9 @@ const Checkout = () => {
             }}
           >
             <Box
+              onClick={() => {
+                tab > 0 && setTab(0);
+              }}
               sx={{
                 backgroundColor: tab >= 0 ? "#Ed981b" : "#Dfeaec",
                 borderRadius: "4px",
@@ -66,6 +148,7 @@ const Checkout = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 transform: "rotate(45deg)",
+                cursor: "pointer",
               }}
             >
               <Typography
@@ -98,11 +181,15 @@ const Checkout = () => {
             }}
           >
             <Box
+              onClick={() => {
+                tab > 1 && setTab(1);
+              }}
               sx={{
                 backgroundColor: tab > 0 ? "#Ed981b" : "#Dfeaec",
                 borderRadius: "4px",
                 width: "55px",
                 height: "55px",
+                cursor: "pointer",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -148,6 +235,7 @@ const Checkout = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 transform: "rotate(45deg)",
+                cursor: "pointer",
               }}
             >
               <Typography
@@ -157,7 +245,7 @@ const Checkout = () => {
                 color="white"
                 sx={{ transform: "rotate(-45deg)" }}
               >
-                02
+                03
               </Typography>
             </Box>
             <Typography fontFamily="Nunito" fontWeight="bold">
@@ -176,7 +264,7 @@ const Checkout = () => {
           display="grid"
           sx={{
             width: "100%",
-            height: "70vh",
+            height: "75vh",
             gap: "40px",
             gridTemplateColumns: "repeat(3,1fr)",
             gridTemplateRows: "repeat(2,1fr)",
@@ -192,70 +280,9 @@ const Checkout = () => {
               overflow: "hidden",
             }}
           >
-            {tab === 0 ? <CheckoutCart /> : <DeliveryDetails />}
+            {tab === 0 || tab === 2 ? <CheckoutCart /> : <DeliveryDetails />}
           </Box>
-          <Box
-            sx={{
-              boxShadow: "2px 2px 7px #E0E0E0",
-              gridRow: "span 1",
-              borderRadius: "5px",
-              backgroundColor: "white",
-              p: "20px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box>
-              {tab > 0 && (
-                <Box>
-                  <IconButton onClick={() => setTab(tab - 1)}>
-                    <ArrowBackIosRounded sx={{ color: "#Ed981b" }} />
-                  </IconButton>
-                </Box>
-              )}
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                sx={{ borderBottom: "2px solid #E0E0E0", py: "10px" }}
-              >
-                <Typography fontFamily="Nunito" fontWeight="bold">
-                  Sub Total
-                </Typography>
-                <Typography fontFamily="Nunito" fontWeight="bold">
-                  ${formatNumberWithCommas(total().toFixed(2))}
-                </Typography>
-              </Box>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                sx={{ py: "10px", mt: "10px" }}
-              >
-                <Typography fontFamily="Nunito" fontWeight="bold">
-                  Total
-                </Typography>
-                <Typography fontFamily="Nunito" fontWeight="bold">
-                  ${formatNumberWithCommas(total().toFixed(2))}
-                </Typography>
-              </Box>
-            </Box>
-            <Box sx={{ mx: "auto", width: "100%" }}>
-              <Button
-                variant="contained"
-                sx={{
-                  textTransform: "none",
-                  borderRadius: "20px",
-                  width: "100%",
-                }}
-                onClick={() => setTab(tab + 1)}
-              >
-                <Typography color="white" fontFamily="Nunito" fontWeight="bold">
-                  Next Step
-                </Typography>
-              </Button>
-            </Box>
-          </Box>
-          {tab > 0 && (
+          {[0, 1].includes(tab) && (
             <Box
               sx={{
                 boxShadow: "2px 2px 7px #E0E0E0",
@@ -266,6 +293,87 @@ const Checkout = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
+              }}
+            >
+              <Box>
+                {tab > 0 && (
+                  <Box>
+                    <IconButton onClick={() => setTab(tab - 1)}>
+                      <ArrowBackIosRounded sx={{ color: "#Ed981b" }} />
+                    </IconButton>
+                  </Box>
+                )}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  sx={{ borderBottom: "2px solid #E0E0E0", py: "10px" }}
+                >
+                  <Typography fontFamily="Nunito" fontWeight="bold">
+                    Sub Total
+                  </Typography>
+                  <Typography fontFamily="Nunito" fontWeight="bold">
+                    ${formatNumberWithCommas(total().toFixed(2))}
+                  </Typography>
+                </Box>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  sx={{ py: "10px", mt: "10px" }}
+                >
+                  <Typography fontFamily="Nunito" fontWeight="bold">
+                    Total
+                  </Typography>
+                  <Typography fontFamily="Nunito" fontWeight="bold">
+                    ${formatNumberWithCommas(total().toFixed(2))}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ mx: "auto", width: "100%" }}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "20px",
+                    width: "100%",
+                  }}
+                  onClick={() => setTab(tab + 1)}
+                >
+                  <Typography
+                    color="white"
+                    fontFamily="Nunito"
+                    fontWeight="bold"
+                  >
+                    Next Step
+                  </Typography>
+                </Button>
+              </Box>
+            </Box>
+          )}
+          {tab === 1 && (
+            <Box
+              sx={{
+                boxShadow: "2px 2px 7px #E0E0E0",
+                gridRow: "span 1",
+                borderRadius: "5px",
+                backgroundColor: "white",
+                p: "20px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                overflow: "auto",
+                maxHeight: "50vh",
+                "&::-webkit-scrollbar": {
+                  width: "0.4em",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "gray",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  background: "darkgray",
+                },
               }}
             >
               {cart.map((each, i) => (
@@ -319,6 +427,74 @@ const Checkout = () => {
                   </Typography>
                 </Box>
               ))}
+            </Box>
+          )}
+          {tab === 2 && (
+            <Box
+              sx={{
+                boxShadow: "2px 2px 7px #E0E0E0",
+                // gridRow: "span 2",
+                borderRadius: "5px",
+                backgroundColor: "white",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box>
+                {tab === 2 && (
+                  <Box sx={{ p: "10px 0 0 10px" }}>
+                    <IconButton onClick={() => setTab(tab - 1)}>
+                      <ArrowBackIosRounded sx={{ color: "#Ed981b" }} />
+                    </IconButton>
+                  </Box>
+                )}
+                <Box
+                  sx={{
+                    p: "20px",
+                  }}
+                >
+                  <FlexBetween
+                    sx={{
+                      borderBottom: "1px solid #E0E0E0",
+                      pb: "10px",
+                      mb: "10px",
+                    }}
+                  >
+                    <Typography fontWeight="bold">Total</Typography>
+                    <Typography fontWeight="bold">
+                      ${formatNumberWithCommas(total().toFixed(2))}
+                    </Typography>
+                  </FlexBetween>
+                  <FlexBetween
+                    sx={{
+                      alignItems: "start",
+                      borderBottom: "1px solid #E0E0E0",
+                      pb: "10px",
+                    }}
+                  >
+                    <Typography fontWeight="bold">Contact</Typography>
+                    <Box>
+                      <Typography fontStyle="italic" fontSize="14px">
+                        {deliveryAddress?.address}
+                      </Typography>
+                      <Typography fontStyle="italic" fontSize="14px">
+                        {deliveryAddress?.city}
+                      </Typography>
+                      <Typography fontStyle="italic" fontSize="14px">
+                        {deliveryAddress?.state},{deliveryAddress?.country}
+                      </Typography>
+                      <Typography fontStyle="italic" fontSize="14px">
+                        {deliveryAddress?.phoneNumber}
+                      </Typography>
+                    </Box>
+                  </FlexBetween>
+                  <Box sx={{ mx: "auto", width: "100%", pt: "10px" }}>
+                    <PaystackPayment />
+                    <Button onClick={checkout}>checkout</Button>
+                  </Box>
+                </Box>
+              </Box>
             </Box>
           )}
         </Box>

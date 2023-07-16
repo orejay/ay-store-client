@@ -23,6 +23,9 @@ interface InitialState {
   addresses: AddressData[];
   deliveryAddress: DeliveryAddress | null;
   instructions: string;
+  prevPage: string;
+  closeModal: boolean;
+  modalMessage: string;
 }
 
 interface AddressData {
@@ -65,6 +68,9 @@ const initialState: InitialState = {
   addresses: [],
   deliveryAddress: null,
   instructions: "",
+  prevPage: "",
+  closeModal: true,
+  modalMessage: "",
 };
 
 export const globalSlice = createSlice({
@@ -121,6 +127,15 @@ export const globalSlice = createSlice({
     setInstructions: (state, action) => {
       state.instructions = action.payload;
     },
+    setPrevPage: (state, action) => {
+      state.prevPage = action.payload;
+    },
+    setCloseModal: (state, action) => {
+      state.closeModal = action.payload;
+    },
+    setModalMessage: (state, action) => {
+      state.modalMessage = action.payload;
+    },
   },
 });
 
@@ -137,5 +152,8 @@ export const {
   setShowCart,
   setDeliveryAddress,
   setInstructions,
+  setPrevPage,
+  setCloseModal,
+  setModalMessage,
 } = globalSlice.actions;
 export default globalSlice.reducer;

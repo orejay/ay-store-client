@@ -23,7 +23,25 @@ const CheckoutCart = () => {
   };
 
   return (
-    <Box p="20px" sx={{ overflowY: "auto" }}>
+    <Box
+      p="20px"
+      sx={{
+        overflow: "auto",
+        maxHeight: "70vh",
+        "&::-webkit-scrollbar": {
+          width: "0.4em",
+        },
+        "&::-webkit-scrollbar-track": {
+          background: "transparent",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          background: "gray",
+        },
+        "&::-webkit-scrollbar-thumb:hover": {
+          background: "darkgray",
+        },
+      }}
+    >
       {cart?.map((each) => (
         <Box
           sx={{

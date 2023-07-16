@@ -85,9 +85,13 @@ const Shop = () => {
     }
   };
 
-  // useEffect(()=>{
-  //   if (categoryList.length )
-  // },[])
+  // useEffect(() => {
+  //   getProducts();
+
+  //   return () => {
+  //     dispatch(setCategories([]));
+  //   };
+  // }, []);
 
   useMemo(() => {
     getProducts();
@@ -116,7 +120,7 @@ const Shop = () => {
           ml="auto"
           mr="0"
         >
-          {categoryList.map((each, index) => (
+          {categoryList?.map((each, index) => (
             <Box display="flex" alignItems="center" gap="3px">
               <Typography key={index} fontFamily="Nunito">
                 {each}

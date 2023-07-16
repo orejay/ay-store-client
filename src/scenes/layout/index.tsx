@@ -6,6 +6,7 @@ import {
   InboxRounded,
   Key,
   LocalActivityOutlined,
+  LocalShippingRounded,
   MailRounded,
   ManageAccountsRounded,
   MenuBook,
@@ -84,6 +85,11 @@ const adminItems = [
     icon: <PeopleRounded />,
   },
   {
+    text: "Manage Orders",
+    link: "/admin/orders",
+    icon: <LocalShippingRounded />,
+  },
+  {
     text: "Edit Information",
     link: "/admin/account/management",
     icon: <EditRounded />,
@@ -122,13 +128,13 @@ const Layout = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (response.status === 401) logout();
+      if (response.status === 401) signout();
     } catch (error) {
       console.error("Error fetching data", error);
     }
   };
 
-  const logout = () => {
+  const signout = () => {
     localStorage.removeItem("user");
     navigate("/signin");
   };

@@ -1,5 +1,5 @@
 import { ManageAccountsRounded } from "@mui/icons-material";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Card, Typography } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React, { useEffect, useState } from "react";
@@ -76,7 +76,7 @@ const AdminManagement = () => {
           p: "20px",
         }}
       >
-        <Box sx={{ border: "1px solid #E0E0E0", borderRadius: "5px" }}>
+        <Card sx={{ border: "1px solid #E0E0E0", borderRadius: "5px" }}>
           <Box
             sx={{ borderBottom: "1px solid #E0E0E0", pl: "20px", py: "8px" }}
           >
@@ -121,7 +121,7 @@ const AdminManagement = () => {
               </Button>
             </Box>
           </Box>
-        </Box>
+        </Card>
       </Box>
     </Box>
   );

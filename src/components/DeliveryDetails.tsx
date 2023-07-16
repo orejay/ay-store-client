@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { setDeliveryAddress, setInstructions } from "state";
+import { useLocation, useNavigate } from "react-router-dom";
+import { setDeliveryAddress, setInstructions, setPrevPage } from "state";
 import { RootState, useAppDispatch } from "store";
 
 interface AddressData {
@@ -49,6 +49,7 @@ const DeliveryDetails = () => {
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
+  const { pathname } = useLocation();
 
   const getAddresses = async () => {
     try {
@@ -236,7 +237,10 @@ const DeliveryDetails = () => {
           : ""}
       </Box>
       <Button
-        onClick={() => navigate("/customer/addresses/add")}
+        onClick={() => {
+          dispatch(setPrevPage(pathname));
+          navigate("/customer/addresses/add");
+        }}
         variant="contained"
         sx={{ mt: "15px", borderRadius: "20px" }}
       >
@@ -260,7 +264,7 @@ const DeliveryDetails = () => {
             type="text"
             color="secondary"
             multiline
-            onChange={(e) => dispatch(setInstructions(e.target.value))}
+            onBlur={(e) => dispatch(setInstructions(e.target.value))}
           />
         </FormControl>
       </Box>

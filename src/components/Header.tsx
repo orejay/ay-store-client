@@ -283,7 +283,24 @@ const Header = () => {
                   <CloseRounded sx={{ color: "#ff5316", fontWeight: "bold" }} />
                 </IconButton>
               </Box>
-              <Box sx={{ overflow: "hidden", maxHeight: "100%" }}>
+              <Box
+                sx={{
+                  overflow: "auto",
+                  maxHeight: "50vh",
+                  "&::-webkit-scrollbar": {
+                    width: "0.4em",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "transparent",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "gray",
+                  },
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    background: "darkgray",
+                  },
+                }}
+              >
                 {cart.map((each) => (
                   <Box
                     sx={{

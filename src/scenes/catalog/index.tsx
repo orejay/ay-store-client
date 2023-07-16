@@ -2,6 +2,7 @@ import { Close, DeleteOutlineRounded, EditRounded } from "@mui/icons-material";
 import {
   Box,
   Button,
+  Card,
   FormControl,
   IconButton,
   Input,
@@ -173,8 +174,8 @@ const Catalog = () => {
               gap: "20px",
               py: "20px",
               width: "90%",
-              maxHeight: "100%",
-              overflowY: "auto",
+              overflow: "auto",
+              maxHeight: "80vh",
               "&::-webkit-scrollbar": {
                 width: "0.4em",
               },
@@ -191,7 +192,7 @@ const Catalog = () => {
           >
             {data
               ? data.map((each) => (
-                  <Box
+                  <Card
                     sx={{
                       // border: "1px solid #E0E0E0",
                       boxShadow: "3px 3px 10px #E0E0E0",
@@ -341,7 +342,7 @@ const Catalog = () => {
                         )}
                       </Box>
                     </Box>
-                  </Box>
+                  </Card>
                 ))
               : ""}
           </Box>

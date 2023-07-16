@@ -29,6 +29,7 @@ import AdminManagement from "scenes/admin account";
 import { useAppDispatch } from "store";
 import { setShowCart, setShowSearches } from "state";
 import Checkout from "scenes/checkout";
+import ManageOrders from "scenes/manage orders";
 
 function App() {
   const theme = createTheme({
@@ -78,6 +79,7 @@ function App() {
               <Route path="/admin/catalog" element={<Catalog />} />
               <Route path="/admin/users" element={<Users />} />
               <Route path="/admin/password" element={<ChangePassword />} />
+              <Route path="/admin/orders" element={<ManageOrders />} />
               <Route
                 path="/admin/account/management"
                 element={<AccManagement />}

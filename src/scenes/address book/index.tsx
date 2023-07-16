@@ -10,6 +10,7 @@ import {
 import {
   Box,
   Button,
+  Card,
   FormControl,
   IconButton,
   Input,
@@ -75,6 +76,7 @@ const AddressBook = () => {
   const addressList = useSelector((state: RootState) => state.global.addresses);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const prevPage = useSelector((state: RootState) => state.global.prevPage);
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
@@ -167,7 +169,7 @@ const AddressBook = () => {
           {pathname === "/customer/addresses/add" ||
           pathname === "/customer/addresses/edit" ? (
             <IconButton sx={{}} onClick={() => setCloseModal(true)}>
-              <Link to="/customer/addresses">
+              <Link to={prevPage !== "" ? prevPage : `/customer/addresses`}>
                 <ArrowBackRounded />
               </Link>
             </IconButton>
@@ -261,7 +263,7 @@ const AddressBook = () => {
                 ? data
                     .filter((item) => item.isDefault === true)
                     .map((each) => (
-                      <Box
+                      <Card
                         key={each._id}
                         sx={{
                           border: "1px solid #E0E0E0",
@@ -415,14 +417,14 @@ const AddressBook = () => {
                             )}
                           </Box>
                         </Box>
-                      </Box>
+                      </Card>
                     ))
                 : ""}
               {data
                 ? data
                     .filter((item) => item.isDefault === false)
                     .map((each) => (
-                      <Box
+                      <Card
                         key={each._id}
                         sx={{
                           border: "1px solid #E0E0E0",
@@ -576,7 +578,7 @@ const AddressBook = () => {
                             )}
                           </Box>
                         </Box>
-                      </Box>
+                      </Card>
                     ))
                 : ""}
             </Box>

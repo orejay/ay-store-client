@@ -16,6 +16,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
 import React, { useState, useEffect } from "react";
 import Footer from "components/Footer";
+import { useSelector } from "react-redux";
+import { RootState } from "store";
 
 interface BodyState {
   password: string;
@@ -39,6 +41,7 @@ const SignIn = () => {
   const [wrongPass, setWrongPass] = useState<boolean>(false);
   const [data, setData] = useState<UserData | null>(null);
   const baseUrl = process.env.REACT_APP_BASE_URL;
+  const prevPage = useSelector((state: RootState) => state.global.prevPage);
   const navigate = useNavigate();
   const [body, setBody] = useState<BodyState>({
     password: "",
@@ -75,9 +78,11 @@ const SignIn = () => {
   useEffect(() => {
     if (isSignedIn) {
       setTimeout(() => {
-        data?.role === "user"
-          ? navigate("/customer/account")
-          : navigate("/admin/account");
+        if (data?.role === "user") {
+          prevPage === "" ? navigate("/customer/account") : navigate(prevPage);
+        } else {
+          navigate("/admin/account");
+        }
       }, 3000);
     }
   }, [isSignedIn, navigate]);
