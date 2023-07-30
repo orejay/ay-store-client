@@ -18,6 +18,7 @@ import {
   DeleteOutlineRounded,
   DeleteRounded,
   KeyboardArrowDownRounded,
+  PermIdentityRounded,
   SearchRounded,
   ShoppingCartOutlined,
 } from "@mui/icons-material";
@@ -163,7 +164,7 @@ const Header = () => {
               >
                 <Link to="/customer/account" className={`hover:text-gry`}>
                   Hi, {user.firstName}
-                  <KeyboardArrowDownRounded />
+                  <PermIdentityRounded sx={{ ml: "3px" }} />
                 </Link>
               </Typography>
             </Box>
@@ -262,6 +263,26 @@ const Header = () => {
                 dispatch(setShowSearches(false));
               }}
             >
+              {cart?.length > 0 && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "50%",
+                    position: "absolute",
+                    width: "14px",
+                    height: "14px",
+                    backgroundColor: "#F4f7fc",
+                    ml: "12px",
+                    mb: "10px",
+                  }}
+                >
+                  <Typography fontSize="12px" fontWeight="bold" color="primary">
+                    {cart?.length}
+                  </Typography>
+                </Box>
+              )}
               <ShoppingCartOutlined />
             </Box>
           </Box>

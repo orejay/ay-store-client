@@ -153,6 +153,7 @@ const Orders = () => {
                 gap: "20px",
                 overflow: "auto",
                 maxHeight: "80vh",
+                pb: "15px",
                 "&::-webkit-scrollbar": {
                   width: "0.4em",
                 },
