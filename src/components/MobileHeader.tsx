@@ -27,8 +27,6 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { useAppDispatch, RootState } from "store";
 import { setCart, setShowCart, setShowSearches } from "state";
-import PCHeader from "./PCHeader";
-import MobileHeader from "./MobileHeader";
 
 interface ProductData {
   name: string;
@@ -47,9 +45,7 @@ interface UserData {
 
 const nav = ["About", "Shop", "Contact"];
 
-const Header = () => {
-  const isMediumScreen = useMediaQuery("(max-width:768px)");
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
+const MobileHeader = () => {
   const theme = useTheme();
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const user: UserData | null = JSON.parse(
@@ -104,7 +100,79 @@ const Header = () => {
     }
   };
 
-  return <Box>{isMediumScreen ? <MobileHeader /> : <PCHeader />}</Box>;
+  return (
+    <Box
+      py="5px"
+      px="20px"
+      width="100vw"
+      sx={{
+        position: "fixed",
+        backgroundColor: theme.palette.background.default,
+        zIndex: "100",
+        display: "flex",
+        justifyContent: "end",
+      }}
+    >
+      <Box sx={{ position: "absolute", top: 8, left: 20 }}>
+        <IconButton onClick={() => setOpenMenu(!openMenu)}>
+          <MenuRounded />
+        </IconButton>
+      </Box>
+      <FlexBetween sx={{ width: "60%", height: "fit" }}>
+        <Box>
+          <h1 className="Nunito text-primary font-bold">
+            <Link to="/">BEAUTY</Link>
+          </h1>
+        </Box>
+        <Box
+          sx={{
+            backgroundColor: showCart ? "white" : "",
+            borderRadius: "20px 20px 0 0",
+          }}
+        >
+          <Box
+            p="10px"
+            sx={{ cursor: "pointer", zIndex: "100" }}
+            onClick={() => {
+              dispatch(setShowCart(!showCart));
+              dispatch(setShowSearches(false));
+            }}
+          >
+            {cart?.length > 0 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: "50%",
+                  position: "absolute",
+                  width: "14px",
+                  height: "14px",
+                  backgroundColor: "#F4f7fc",
+                  ml: "12px",
+                  mb: "10px",
+                }}
+              >
+                <Typography fontSize="12px" fontWeight="bold" color="primary">
+                  {cart?.length}
+                </Typography>
+              </Box>
+            )}
+            <ShoppingCartOutlined />
+          </Box>
+        </Box>
+      </FlexBetween>
+      {openMenu && (
+        <Box
+          sx={{
+            height: "100vh",
+            // backgroundColor: theme.palette.background.default,
+            backgroundColor: "red",
+          }}
+        ></Box>
+      )}
+    </Box>
+  );
 };
 
-export default Header;
+export default MobileHeader;
