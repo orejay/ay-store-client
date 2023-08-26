@@ -25,12 +25,12 @@ const Hero = () => {
   return (
     <Box
       height="100vh"
-      display={isMediumScreen ? "" : "flex"}
-      justifyContent="space-between"
+      display={"flex"}
+      justifyContent={isMediumScreen ? "center" : "space-between"}
       alignItems="center"
       mt={isMediumScreen ? "" : "40px"}
     >
-      <Box ml={!isMediumScreen ? "10%" : ""} mt={isMediumScreen ? "15%" : ""}>
+      <Box ml={!isMediumScreen ? "10%" : ""}>
         <Box width={!isMediumScreen ? "50%" : "100%"}>
           <Typography
             variant={isMediumScreen ? "h4" : "h3"}
@@ -38,7 +38,7 @@ const Hero = () => {
             fontWeight="bold"
             marginBottom="50px"
             sx={{
-              width: isMediumScreen ? "55%" : "100%",
+              width: isMediumScreen ? "85%" : "100%",
               mx: isMediumScreen ? "auto" : "",
               textAlign: isMediumScreen ? "center" : "",
             }}

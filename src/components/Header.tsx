@@ -8,6 +8,7 @@ import {
   Divider,
   ListItem,
   List,
+  useMediaQuery,
 } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
@@ -18,6 +19,7 @@ import {
   DeleteOutlineRounded,
   DeleteRounded,
   KeyboardArrowDownRounded,
+  MenuRounded,
   PermIdentityRounded,
   SearchRounded,
   ShoppingCartOutlined,
@@ -44,6 +46,8 @@ interface UserData {
 const nav = ["About", "Shop", "Contact"];
 
 const Header = () => {
+  const isMediumScreen = useMediaQuery("(max-width:768px)");
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const theme = useTheme();
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const user: UserData | null = JSON.parse(
@@ -108,6 +112,13 @@ const Header = () => {
         zIndex: "100",
       }}
     >
+      {isMediumScreen && (
+        <Box>
+          <IconButton>
+            <MenuRounded />
+          </IconButton>
+        </Box>
+      )}
       <FlexBetween>
         <Box>
           <h1 className="Nunito text-primary font-bold">
