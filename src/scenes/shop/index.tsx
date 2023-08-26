@@ -122,11 +122,14 @@ const Shop = () => {
         <Box
           display="flex"
           width="74%"
-          justifyContent="start"
-          gap="20px"
+          justifyContent={isSmallScreen ? "center" : "start"}
+          gap={isSmallScreen ? "12px" : "20px"}
           my="15px"
-          ml="auto"
+          ml={isSmallScreen ? "" : "auto"}
           mr="0"
+          sx={{
+            flexWrap: isSmallScreen ? "wrap" : "",
+          }}
         >
           {categoryList?.map((each, index) => (
             <Box display="flex" alignItems="center" gap="3px">
@@ -134,7 +137,7 @@ const Shop = () => {
                 {each}
               </Typography>
               <CloseRounded
-                sx={{ fontSize: "17px", cursor: "pointer" }}
+                sx={{ fontSize: "17px", cursor: "pointer", color: "red" }}
                 onClick={() => {
                   dispatch(
                     setCategories(
@@ -150,10 +153,14 @@ const Shop = () => {
           width={isMediumScreen ? "95%" : "90%"}
           display="flex"
           justifyContent="space-between"
+          sx={{
+            flexDirection: isSmallScreen ? "column" : "",
+          }}
         >
           <Box
             sx={{
-              width: isMediumScreen ? "30%" : "19%",
+              width: isSmallScreen ? "100%" : isMediumScreen ? "30%" : "19%",
+              mb: isSmallScreen ? "10px" : "",
               py: "2%",
               px: "3%",
               boxShadow: "2px 2px 7px #E0E0E0",
@@ -163,7 +170,8 @@ const Shop = () => {
           >
             <Box
               display="flex"
-              justifyContent="space-between"
+              justifyContent={isSmallScreen ? "center" : "space-between"}
+              gap={isSmallScreen ? "10px" : ""}
               alignItems="center"
               width="50%"
               mx="auto"
@@ -183,13 +191,19 @@ const Shop = () => {
               >
                 Choose Category
               </Typography>
-              <Box>
+              <Box
+                sx={{
+                  display: isSmallScreen ? "flex" : "",
+                  flexWrap: isSmallScreen ? "wrap" : "",
+                  justifyContent: "center",
+                }}
+              >
                 {cats.map((each, index) => (
                   <Box
                     key={index}
                     display="flex"
                     alignItems="center"
-                    width="50%"
+                    width={isSmallScreen ? "fit" : "50%"}
                   >
                     <IconButton
                       onClick={() => {
@@ -221,7 +235,11 @@ const Shop = () => {
                 ))}
               </Box>
             </Box>
-            <Box my="15px">
+            <Box
+              my="15px"
+              width={isSmallScreen ? "70%" : "fit"}
+              mx={isSmallScreen ? "auto" : ""}
+            >
               <Typography
                 fontFamily="Nunito"
                 textAlign="center"
@@ -242,7 +260,10 @@ const Shop = () => {
                 ${priceRange[0]} - ${priceRange[1]}
               </Typography>
             </Box>
-            <Box>
+            <Box
+              width={isSmallScreen ? "70%" : "fit"}
+              mx={isSmallScreen ? "auto" : ""}
+            >
               <Typography
                 fontFamily="Nunito"
                 textAlign="center"
@@ -266,9 +287,10 @@ const Shop = () => {
             <Box
               display="flex"
               alignItems="center"
-              justifyContent="space-between"
-              width="50%"
+              justifyContent={isSmallScreen ? "center" : "space-between"}
+              width={isSmallScreen ? "" : "50%"}
               my="15px"
+              mx={isSmallScreen ? "auto" : ""}
             >
               <IconButton onClick={() => setDiscount(!discount)}>
                 {!discount ? (
@@ -282,16 +304,17 @@ const Shop = () => {
               </Typography>
             </Box>
           </Box>
+
           <Box
             sx={{
-              width: isMediumScreen ? "65%" : "77%",
+              width: isSmallScreen ? "100%" : isMediumScreen ? "65%" : "77%",
               display: "grid",
               gridTemplateColumns: isSmallScreen
                 ? "repeat(2,1fr)"
                 : isMediumScreen
                 ? "repeat(2,1fr)"
                 : "repeat(4,1fr)",
-              gap: "45px",
+              gap: isSmallScreen ? "10px" : "45px",
               gridAutoRows: "350px",
               justifyContent: "center",
               flexWrap: "wrap",
@@ -411,7 +434,13 @@ const Shop = () => {
                                 ? "visible"
                                 : "hidden"
                               : "visible",
-                            opacity: hovered === each._id ? 1 : 0,
+                            opacity: isMediumScreen
+                              ? 1
+                              : !isMediumScreen
+                              ? hovered === each._id
+                                ? 1
+                                : 0
+                              : 1,
                             transition: "0.5s ease-in",
                           }}
                         />
