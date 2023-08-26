@@ -30,7 +30,7 @@ const ProductCategory = () => {
     <Box
       display="flex"
       flexDirection="column"
-      py="50px"
+      py={isMediumScreen ? "" : "50px"}
       alignItems="center"
       sx={{
         minHeight: "100vh",

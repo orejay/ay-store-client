@@ -28,7 +28,7 @@ const Hero = () => {
       display={isMediumScreen ? "" : "flex"}
       justifyContent="space-between"
       alignItems="center"
-      mt="40px"
+      mt={isMediumScreen ? "" : "40px"}
     >
       <Box ml={!isMediumScreen ? "10%" : ""} mt={isMediumScreen ? "15%" : ""}>
         <Box width={!isMediumScreen ? "50%" : "100%"}>
