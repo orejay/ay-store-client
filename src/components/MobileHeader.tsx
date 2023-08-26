@@ -46,6 +46,7 @@ interface UserData {
 const nav = ["About", "Shop", "Contact"];
 
 const MobileHeader = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const theme = useTheme();
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const user: UserData | null = JSON.parse(
@@ -122,48 +123,115 @@ const MobileHeader = () => {
           justifyContent: "end",
         }}
       >
-        <FlexBetween sx={{ width: "60%", height: "fit" }}>
+        <FlexBetween
+          gap="45px"
+          sx={{ width: isSmallScreen ? "75%" : "60%", height: "fit" }}
+        >
           <Box>
             <h1 className="Nunito text-primary font-bold">
               <Link to="/">BEAUTY</Link>
             </h1>
           </Box>
-          <Box
-            sx={{
-              backgroundColor: showCart ? "white" : "",
-              borderRadius: "20px 20px 0 0",
-            }}
-          >
+          <FlexBetween>
             <Box
-              p="10px"
-              sx={{ cursor: "pointer", zIndex: "100" }}
-              onClick={() => {
-                navigate("/checkout");
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
-              {cart?.length > 0 && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "50%",
-                    position: "absolute",
-                    width: "14px",
-                    height: "14px",
-                    backgroundColor: "#F4f7fc",
-                    ml: "12px",
-                    mb: "10px",
-                  }}
-                >
-                  <Typography fontSize="12px" fontWeight="bold" color="primary">
-                    {cart?.length}
-                  </Typography>
-                </Box>
-              )}
-              <ShoppingCartOutlined />
+              <TextField
+                variant="standard"
+                color="secondary"
+                placeholder="search..."
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  dispatch(setShowCart(false));
+                  if (e.target.value.length > 1) {
+                    search();
+                    dispatch(setShowSearches(true));
+                  }
+                }}
+              />
+              <IconButton onClick={search}>
+                <SearchRounded />
+              </IconButton>
             </Box>
-          </Box>
+            {data?.length > 0 && showSearches === true ? (
+              <ul
+                style={{
+                  backgroundColor: "white",
+                  position: "absolute",
+                  width: "100px",
+                  top: 60,
+                  padding: "1% 0",
+                  borderRadius: "5px",
+                }}
+              >
+                {data.map((each) => (
+                  <Link
+                    key={each._id}
+                    to={`/products/${each.name}`}
+                    className="w-full h-full pl-3 Nunito font-semibold py-2 hover:bg-hov transition-all ease-in-out duration-400 block"
+                  >
+                    {each.name}
+                  </Link>
+                ))}
+              </ul>
+            ) : showSearches && searchText.length > 0 ? (
+              <div
+                style={{
+                  backgroundColor: "white",
+                  position: "absolute",
+                  width: "100px",
+                  top: 60,
+                  padding: "1% 0",
+                  borderRadius: "5px",
+                }}
+              >
+                <span className="pl-3 Nunito font-semibold">
+                  No results found...
+                </span>
+              </div>
+            ) : (
+              ""
+            )}
+            <Box sx={{}}>
+              <Box
+                p="10px"
+                sx={{ cursor: "pointer", zIndex: "100" }}
+                onClick={() => {
+                  navigate("/checkout");
+                }}
+              >
+                {cart?.length > 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: "50%",
+                      position: "absolute",
+                      width: "14px",
+                      height: "14px",
+                      backgroundColor: "#F4f7fc",
+                      ml: "12px",
+                      mb: "10px",
+                    }}
+                  >
+                    <Typography
+                      fontSize="12px"
+                      fontWeight="bold"
+                      color="primary"
+                    >
+                      {cart?.length}
+                    </Typography>
+                  </Box>
+                )}
+                <ShoppingCartOutlined />
+              </Box>
+            </Box>
+          </FlexBetween>
         </FlexBetween>
       </Box>
       {openMenu && (
