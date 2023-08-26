@@ -5,28 +5,25 @@ import {
   IconButton,
   Typography,
   TextField,
-  Divider,
-  ListItem,
-  List,
   useMediaQuery,
 } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import FlexBetween from "./FlexBetween";
 import {
-  BorderRight,
-  CloseRounded,
-  DeleteOutlineRounded,
-  DeleteRounded,
-  KeyboardArrowDownRounded,
   MenuRounded,
   PermIdentityRounded,
   SearchRounded,
   ShoppingCartOutlined,
 } from "@mui/icons-material";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useAppDispatch, RootState } from "store";
-import { setCart, setShowCart, setShowSearches } from "state";
+import {
+  setCloseModal,
+  setModalMessage,
+  setShowCart,
+  setShowSearches,
+} from "state";
 
 interface ProductData {
   name: string;
@@ -59,7 +56,6 @@ const MobileHeader = () => {
   const showSearches = useSelector(
     (state: RootState) => state.global.showSearches
   );
-  const showCart = useSelector((state: RootState) => state.global.showCart);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { pathname } = useLocation();
@@ -201,7 +197,12 @@ const MobileHeader = () => {
                 p="10px"
                 sx={{ cursor: "pointer", zIndex: "100" }}
                 onClick={() => {
-                  navigate("/checkout");
+                  if (cart.length > 0) {
+                    navigate("/checkout");
+                  } else {
+                    dispatch(setModalMessage("Your cart is empty!"));
+                    dispatch(setCloseModal(false));
+                  }
                 }}
               >
                 {cart?.length > 0 && (

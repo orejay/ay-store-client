@@ -1,5 +1,11 @@
 import { ArrowBackIosRounded, Close } from "@mui/icons-material";
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import CheckoutCart from "components/CheckoutCart";
 import DeliveryDetails from "components/DeliveryDetails";
 import FlexBetween from "components/FlexBetween";
@@ -24,6 +30,8 @@ interface UserData {
 }
 
 const Checkout = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const isMediumScreen = useMediaQuery("(max-width:768px)");
   const cart = useSelector((state: RootState) => state.global.cart);
   const [tab, setTab] = useState(0);
   const deliveryAddress = useSelector(
@@ -82,7 +90,7 @@ const Checkout = () => {
           pt: "100px",
           pb: "80px",
           minHeight: "100vh",
-          width: "80%",
+          width: isSmallScreen ? "95%" : isMediumScreen ? "90%" : "80%",
           mx: "auto",
         }}
       >
@@ -90,8 +98,8 @@ const Checkout = () => {
           sx={{
             display: "grid",
             mx: "auto",
-            gap: "40px",
-            width: "75%",
+            gap: isSmallScreen ? "20px" : "40px",
+            width: isSmallScreen ? "95%" : isMediumScreen ? "90%" : "75%",
             gridTemplateColumns: "repeat(7,1fr)",
             gridAutoRows: "50px",
             mb: "35px",
@@ -99,7 +107,7 @@ const Checkout = () => {
         >
           <Box
             sx={{
-              gridColumn: "span 2",
+              gridColumn: isSmallScreen ? "span 3" : "span 2",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -112,8 +120,16 @@ const Checkout = () => {
               sx={{
                 backgroundColor: tab >= 0 ? "#Ed981b" : "#Dfeaec",
                 borderRadius: "4px",
-                width: "55px",
-                height: "55px",
+                width: isSmallScreen
+                  ? "28px"
+                  : isMediumScreen
+                  ? "35px"
+                  : "55px",
+                height: isSmallScreen
+                  ? "28px"
+                  : isMediumScreen
+                  ? "35px"
+                  : "55px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -131,7 +147,11 @@ const Checkout = () => {
                 01
               </Typography>
             </Box>
-            <Typography fontFamily="Nunito" fontWeight="bold">
+            <Typography
+              fontFamily="Nunito"
+              fontWeight="bold"
+              fontSize={isSmallScreen ? "14px" : "16px"}
+            >
               My bag
             </Typography>
             <Box
@@ -144,7 +164,7 @@ const Checkout = () => {
           </Box>
           <Box
             sx={{
-              gridColumn: "span 3",
+              gridColumn: isSmallScreen ? "span 4" : "span 3",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -157,8 +177,16 @@ const Checkout = () => {
               sx={{
                 backgroundColor: tab > 0 ? "#Ed981b" : "#Dfeaec",
                 borderRadius: "4px",
-                width: "55px",
-                height: "55px",
+                width: isSmallScreen
+                  ? "28px"
+                  : isMediumScreen
+                  ? "35px"
+                  : "55px",
+                height: isSmallScreen
+                  ? "28px"
+                  : isMediumScreen
+                  ? "35px"
+                  : "55px",
                 cursor: "pointer",
                 display: "flex",
                 justifyContent: "center",
@@ -176,7 +204,11 @@ const Checkout = () => {
                 02
               </Typography>
             </Box>
-            <Typography fontFamily="Nunito" fontWeight="bold">
+            <Typography
+              fontFamily="Nunito"
+              fontSize={isSmallScreen ? "14px" : "16px"}
+              fontWeight="bold"
+            >
               Delivery & Payment
             </Typography>
             <Box
@@ -189,7 +221,7 @@ const Checkout = () => {
           </Box>
           <Box
             sx={{
-              gridColumn: "span 2",
+              gridColumn: isSmallScreen ? "span 3" : "span 2",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -199,8 +231,16 @@ const Checkout = () => {
               sx={{
                 backgroundColor: tab > 1 ? "#Ed981b" : "#Dfeaec",
                 borderRadius: "4px",
-                width: "55px",
-                height: "55px",
+                width: isSmallScreen
+                  ? "28px"
+                  : isMediumScreen
+                  ? "35px"
+                  : "55px",
+                height: isSmallScreen
+                  ? "28px"
+                  : isMediumScreen
+                  ? "35px"
+                  : "55px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
@@ -218,7 +258,11 @@ const Checkout = () => {
                 03
               </Typography>
             </Box>
-            <Typography fontFamily="Nunito" fontWeight="bold">
+            <Typography
+              fontFamily="Nunito"
+              fontWeight="bold"
+              fontSize={isSmallScreen ? "14px" : "16px"}
+            >
               Confirm
             </Typography>
             <Box
@@ -234,17 +278,17 @@ const Checkout = () => {
           display="grid"
           sx={{
             width: "100%",
-            height: "75vh",
-            gap: "40px",
+            height: isSmallScreen ? "90vh" : "75vh",
+            gap: isSmallScreen ? "10px" : "40px",
             gridTemplateColumns: "repeat(3,1fr)",
             gridTemplateRows: "repeat(2,1fr)",
           }}
         >
           <Box
             sx={{
-              gridColumn: "span 2",
+              gridColumn: isSmallScreen ? "span 3" : "span 2",
               boxShadow: "2px 2px 7px #E0E0E0",
-              gridRow: "span 2",
+              gridRow: isSmallScreen ? "span 3" : "span 2",
               borderRadius: "5px",
               backgroundColor: "white",
               overflow: "hidden",
@@ -257,6 +301,7 @@ const Checkout = () => {
               sx={{
                 boxShadow: "2px 2px 7px #E0E0E0",
                 gridRow: "span 1",
+                gridColumn: isSmallScreen ? "span 3" : "",
                 borderRadius: "5px",
                 backgroundColor: "white",
                 p: "20px",

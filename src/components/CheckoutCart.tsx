@@ -3,7 +3,13 @@ import {
   DeleteOutlineRounded,
   RemoveRounded,
 } from "@mui/icons-material";
-import { Box, IconButton, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  TextField,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -15,6 +21,8 @@ import {
 import { RootState, useAppDispatch } from "store";
 
 const CheckoutCart = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const isMediumScreen = useMediaQuery("(max-width:768px)");
   const imageUrl = process.env.REACT_APP_IMAGE_URL;
   const cart = useSelector((state: RootState) => state.global.cart);
   const dispatch = useAppDispatch();
@@ -54,8 +62,8 @@ const CheckoutCart = () => {
           <Box
             component="img"
             src={`${imageUrl}/uploads/${each.imageName}`}
-            width="25%"
-            height="150px"
+            width={isSmallScreen ? "30%" : "25%"}
+            height={isSmallScreen ? "100px" : "150px"}
             sx={{
               borderRadius: "15px",
               objectFit: "cover",
@@ -63,7 +71,7 @@ const CheckoutCart = () => {
             }}
           />
           <Box
-            width="70%"
+            width={isSmallScreen ? "65%" : "70%"}
             display="flex"
             flexDirection="column"
             justifyContent="space-between"
@@ -96,7 +104,11 @@ const CheckoutCart = () => {
                   <DeleteOutlineRounded sx={{ color: "#Ed981b" }} />
                 </IconButton>
               </Box>
-              <Typography fontSize="13px" fontStyle="italic" mt="10px">
+              <Typography
+                fontSize="13px"
+                fontStyle="italic"
+                mt={isSmallScreen ? "" : "10px"}
+              >
                 {each.description.slice(0, 30)}...
               </Typography>
             </Box>
@@ -109,7 +121,9 @@ const CheckoutCart = () => {
                 <IconButton
                   onClick={() => dispatch(decrementQuantity(each._id))}
                 >
-                  <RemoveRounded />
+                  <RemoveRounded
+                    sx={{ fontSize: isSmallScreen ? "16px" : "" }}
+                  />
                 </IconButton>
                 <TextField
                   variant="standard"
@@ -133,7 +147,7 @@ const CheckoutCart = () => {
                 <IconButton
                   onClick={() => dispatch(incrementQuantity(each._id))}
                 >
-                  <AddRounded />
+                  <AddRounded sx={{ fontSize: isSmallScreen ? "16px" : "" }} />
                 </IconButton>
               </Box>
               <Typography

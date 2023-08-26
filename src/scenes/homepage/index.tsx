@@ -3,7 +3,7 @@ import Header from "components/Header";
 import React, { useEffect } from "react";
 import Footer from "components/Footer";
 import Hero from "components/Hero";
-import { setCloseModal, setShowSearches } from "../../state";
+import { setCloseModal, setModalMessage, setShowSearches } from "../../state";
 import { RootState, useAppDispatch } from "store";
 import ProductCategory from "components/ProductCategory";
 import AboutSection from "components/AboutSection";
@@ -92,6 +92,7 @@ const Homepage = () => {
               <IconButton
                 onClick={() => {
                   dispatch(setCloseModal(true));
+                  dispatch(setModalMessage(""));
                 }}
               >
                 <Close sx={{ color: "white" }} />
