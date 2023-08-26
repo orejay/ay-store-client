@@ -6,6 +6,7 @@ import { ShoppingCartOutlined } from "@mui/icons-material";
 
 const Hero = () => {
   const isMediumScreen = useMediaQuery("(max-width: 768px)");
+  const isSmallScreen = useMediaQuery("(max-width: 450px)");
   const scrollToSection = (sectionId: string): void => {
     const section = document.getElementById(sectionId);
     const offset = 80; // Adjust the value to add space on top
@@ -24,7 +25,7 @@ const Hero = () => {
 
   return (
     <Box
-      height={isMediumScreen ? "80vh" : "100vh"}
+      height={isSmallScreen ? "80vh" : "100vh"}
       display={"flex"}
       justifyContent={isMediumScreen ? "center" : "space-between"}
       alignItems="center"

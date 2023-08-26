@@ -121,6 +121,7 @@ const PCHeader = () => {
         <FlexBetween width="20%" gap="15px">
           {nav.map((each, index) => (
             <Link
+              key={index}
               to={`/${each.toLowerCase()}`}
               className={`Nunito font-semibold ${
                 active === each.toLowerCase() ? "text-primary" : "text-drk"
@@ -188,7 +189,7 @@ const PCHeader = () => {
             </Button>
           </FlexBetween>
         )}
-        <FlexBetween gap="5px" backGround="green">
+        <FlexBetween gap="5px">
           <Box
             sx={{
               display: "flex",

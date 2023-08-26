@@ -109,8 +109,6 @@ const MobileHeader = () => {
         position: "fixed",
         backgroundColor: theme.palette.background.default,
         zIndex: "100",
-        display: "flex",
-        justifyContent: "end",
       }}
     >
       <Box sx={{ position: "absolute", top: 8, left: 20 }}>
@@ -118,58 +116,153 @@ const MobileHeader = () => {
           <MenuRounded />
         </IconButton>
       </Box>
-      <FlexBetween sx={{ width: "60%", height: "fit" }}>
-        <Box>
-          <h1 className="Nunito text-primary font-bold">
-            <Link to="/">BEAUTY</Link>
-          </h1>
-        </Box>
-        <Box
-          sx={{
-            backgroundColor: showCart ? "white" : "",
-            borderRadius: "20px 20px 0 0",
-          }}
-        >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "end",
+        }}
+      >
+        <FlexBetween sx={{ width: "60%", height: "fit" }}>
+          <Box>
+            <h1 className="Nunito text-primary font-bold">
+              <Link to="/">BEAUTY</Link>
+            </h1>
+          </Box>
           <Box
-            p="10px"
-            sx={{ cursor: "pointer", zIndex: "100" }}
-            onClick={() => {
-              dispatch(setShowCart(!showCart));
-              dispatch(setShowSearches(false));
+            sx={{
+              backgroundColor: showCart ? "white" : "",
+              borderRadius: "20px 20px 0 0",
             }}
           >
-            {cart?.length > 0 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: "50%",
-                  position: "absolute",
-                  width: "14px",
-                  height: "14px",
-                  backgroundColor: "#F4f7fc",
-                  ml: "12px",
-                  mb: "10px",
-                }}
-              >
-                <Typography fontSize="12px" fontWeight="bold" color="primary">
-                  {cart?.length}
-                </Typography>
-              </Box>
-            )}
-            <ShoppingCartOutlined />
+            <Box
+              p="10px"
+              sx={{ cursor: "pointer", zIndex: "100" }}
+              onClick={() => {
+                navigate("/checkout");
+              }}
+            >
+              {cart?.length > 0 && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "50%",
+                    position: "absolute",
+                    width: "14px",
+                    height: "14px",
+                    backgroundColor: "#F4f7fc",
+                    ml: "12px",
+                    mb: "10px",
+                  }}
+                >
+                  <Typography fontSize="12px" fontWeight="bold" color="primary">
+                    {cart?.length}
+                  </Typography>
+                </Box>
+              )}
+              <ShoppingCartOutlined />
+            </Box>
           </Box>
-        </Box>
-      </FlexBetween>
+        </FlexBetween>
+      </Box>
       {openMenu && (
         <Box
           sx={{
             height: "100vh",
-            // backgroundColor: theme.palette.background.default,
-            backgroundColor: "red",
+            width: "100%",
+            backgroundColor: theme.palette.background.default,
+            p: "20px",
+            pt: "40px",
           }}
-        ></Box>
+        >
+          <Box
+            width="20%"
+            gap="15px"
+            sx={{ display: "flex", flexDirection: "column" }}
+          >
+            {nav.map((each, index) => (
+              <Link
+                key={index}
+                to={`/${each.toLowerCase()}`}
+                className={`Nunito font-semibold ${
+                  active === each.toLowerCase() ? "text-primary" : "text-drk"
+                }`}
+              >
+                {each}
+              </Link>
+            ))}
+          </Box>
+          {!user ? (
+            <FlexBetween
+              gap="10px"
+              sx={{
+                flexDirection: "column",
+                mt: "40px",
+              }}
+            >
+              <Typography
+                fontFamily="Nunito"
+                fontWeight="bold"
+                color={`${active === "signin" ? "primary" : ""}`}
+              >
+                <Link to="/signin" className={`hover:text-gry`}>
+                  Sign In
+                </Link>
+              </Typography>
+              <Button
+                variant="outlined"
+                color={`${active === "signup" ? "primary" : "secondary"}`}
+                sx={{ borderRadius: "20px", px: "20px" }}
+              >
+                <Typography
+                  fontFamily="Nunito"
+                  fontWeight="bold"
+                  color={`${active === "signup" ? "primary" : "secondary"}`}
+                  sx={{ textTransform: "none" }}
+                >
+                  <Link to="/signup">Sign Up</Link>
+                </Typography>
+              </Button>
+            </FlexBetween>
+          ) : (
+            <FlexBetween
+              gap="10px"
+              sx={{
+                flexDirection: "column",
+                mt: "40px",
+              }}
+            >
+              <Box display="flex">
+                <Typography
+                  fontFamily="Nunito"
+                  fontWeight="bold"
+                  color="secondary"
+                >
+                  <Link to="/customer/account" className={`hover:text-gry`}>
+                    Hi, {user.firstName}
+                    <PermIdentityRounded sx={{ ml: "3px" }} />
+                  </Link>
+                </Typography>
+              </Box>
+              <Button
+                variant="outlined"
+                color="primary"
+                sx={{ borderRadius: "20px", px: "20px" }}
+                onClick={logout}
+              >
+                <Typography
+                  fontFamily="Nunito"
+                  fontWeight="bold"
+                  color="primary"
+                  sx={{ textTransform: "none" }}
+                >
+                  <Link to="/signin">Sign Out</Link>
+                </Typography>
+              </Button>
+            </FlexBetween>
+          )}
+        </Box>
       )}
     </Box>
   );
