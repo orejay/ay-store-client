@@ -1,10 +1,11 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, useMediaQuery } from "@mui/material";
 import { Link } from "react-router-dom";
 import React from "react";
 import heroBg from "../assets/hero.png";
 import { ShoppingCartOutlined } from "@mui/icons-material";
 
 const Hero = () => {
+  const isMediumScreen = useMediaQuery("(max-width: 768px)");
   const scrollToSection = (sectionId: string): void => {
     const section = document.getElementById(sectionId);
     const offset = 80; // Adjust the value to add space on top
@@ -24,18 +25,23 @@ const Hero = () => {
   return (
     <Box
       height="100vh"
-      display="flex"
+      display={isMediumScreen ? "" : "flex"}
       justifyContent="space-between"
       alignItems="center"
       mt="40px"
     >
-      <Box ml="10%">
-        <Box width="50%">
+      <Box ml={!isMediumScreen ? "10%" : ""} mt={isMediumScreen ? "15%" : ""}>
+        <Box width={!isMediumScreen ? "50%" : "100%"}>
           <Typography
-            variant="h3"
+            variant={isMediumScreen ? "h4" : "h3"}
             fontFamily="Playfair Display"
             fontWeight="bold"
             marginBottom="50px"
+            sx={{
+              width: isMediumScreen ? "55%" : "100%",
+              mx: isMediumScreen ? "auto" : "",
+              textAlign: isMediumScreen ? "center" : "",
+            }}
           >
             Take Pleasure in the way you look
           </Typography>
@@ -47,6 +53,7 @@ const Hero = () => {
               display: "flex",
               alignItems: "center",
               px: "30px",
+              mx: isMediumScreen ? "auto" : "",
               py: "10px",
             }}
             onClick={() => scrollToSection("shop")}
@@ -56,15 +63,17 @@ const Hero = () => {
           </Button>
         </Box>
       </Box>
-      <Box>
-        <Box
-          component="img"
-          alt="hero-img"
-          src={heroBg}
-          height="80vh"
-          sx={{ objectFit: "cover", opacity: "60%" }}
-        />
-      </Box>
+      {!isMediumScreen && (
+        <Box>
+          <Box
+            component="img"
+            alt="hero-img"
+            src={heroBg}
+            height="80vh"
+            sx={{ objectFit: "cover", opacity: "60%" }}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

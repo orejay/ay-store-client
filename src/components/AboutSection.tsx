@@ -1,9 +1,11 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
 import about from "../assets/about.PNG";
 
 const AboutSection = () => {
+  const isMediumScreen = useMediaQuery("(max-width: 768px)");
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   return (
     <Box
       display="flex"
@@ -22,7 +24,7 @@ const AboutSection = () => {
           display: "flex",
           mb: "70px",
           mt: "40px",
-          ml: "10%",
+          ml: isMediumScreen ? "" : "10%",
         }}
       >
         <Box
@@ -47,10 +49,14 @@ const AboutSection = () => {
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" width="90%">
+      <Box
+        display="flex"
+        width="90%"
+        sx={{ flexDirection: isSmallScreen ? "column-reverse" : "" }}
+      >
         <Box
-          width="50%"
-          pl="13%"
+          width={!isSmallScreen ? "50%" : "100%"}
+          pl={isMediumScreen ? "" : "13%"}
           display="flex"
           flexDirection="column"
           justifyContent="center"
@@ -71,8 +77,10 @@ const AboutSection = () => {
             Discover
           </Link>
         </Box>
+
         <Box
-          width="50%"
+          width={isSmallScreen ? "90%" : "50%"}
+          mb={isSmallScreen ? "25px" : ""}
           display="flex"
           alignItems="center"
           justifyContent="center"

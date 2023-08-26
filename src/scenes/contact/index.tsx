@@ -8,12 +8,15 @@ import {
   InputAdornment,
   InputLabel,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React from "react";
 
 const Contact = () => {
+  const isMediumScreen = useMediaQuery("(max-width: 768px)");
+  const isSmallScreen = useMediaQuery("(max-width: 450px)");
   return (
     <Box>
       <Header />
@@ -28,9 +31,9 @@ const Contact = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            border: "2px solid #E0E0E0",
+            border: !isSmallScreen ? "2px solid #E0E0E0" : "",
             borderRadius: "30px",
-            width: "35%",
+            width: isSmallScreen ? "90%" : isMediumScreen ? "50%" : "35%",
             p: "4%",
           }}
         >

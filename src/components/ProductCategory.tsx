@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 import React from "react";
 import lips from "../assets/lips.PNG";
 import face from "../assets/face.jpg";
@@ -23,6 +23,8 @@ const category = [
 
 const ProductCategory = () => {
   const dispatch = useAppDispatch();
+  const isSmallScreen = useMediaQuery("(max-width: 450px)");
+  const isMediumScreen = useMediaQuery("(max-width: 768px)");
 
   return (
     <Box
@@ -36,7 +38,14 @@ const ProductCategory = () => {
       }}
       id="shop"
     >
-      <Box sx={{ width: "90%", display: "flex", mb: "70px", ml: "10%" }}>
+      <Box
+        sx={{
+          width: "90%",
+          display: "flex",
+          mb: "70px",
+          ml: isMediumScreen ? "" : "10%",
+        }}
+      >
         <Box
           sx={{
             width: "2px",
@@ -61,12 +70,15 @@ const ProductCategory = () => {
       </Box>
       <Box
         sx={{
-          width: "40%",
+          width: !isSmallScreen ? "40%" : "80%",
           display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
+          gridTemplateColumns: !isSmallScreen
+            ? "repeat(3,1fr)"
+            : "repeat(1,1fr)",
           gap: "80px",
           gridAutoRows: "180px",
           justifyContent: "center",
+          justifyItems: "center",
           flexWrap: "wrap",
         }}
         gap="15px"
@@ -76,8 +88,8 @@ const ProductCategory = () => {
             to={`/shop`}
             key={index}
             style={{
-              height: "180px",
-              width: "180px",
+              height: !isSmallScreen ? "180px" : "200px",
+              width: !isSmallScreen ? "180px" : "200px",
             }}
             onClick={() => dispatch(setCategories([each.title]))}
           >
@@ -101,7 +113,7 @@ const ProductCategory = () => {
               textAlign="center"
               fontWeight="bold"
               color="secondary"
-              mt="10px"
+              mt={!isSmallScreen ? "10px" : "6px"}
             >
               {each.title[0].toUpperCase()}
               {each.title.slice(1)}

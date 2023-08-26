@@ -7,7 +7,13 @@ import {
   RemoveShoppingCartRounded,
   TuneRounded,
 } from "@mui/icons-material";
-import { Box, IconButton, Slider, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Slider,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React, { useState, useEffect, useMemo, useRef } from "react";
@@ -40,6 +46,8 @@ interface ProductData {
 const cats = ["Skin", "Face", "Lips", "Perfumery", "Household", "Decorative"];
 
 const Shop = () => {
+  const isMediumScreen = useMediaQuery("(max-width: 768px)");
+  const isSmallScreen = useMediaQuery("(max-width: 450px)");
   const [data, setData] = useState<ProductData[]>([]);
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const imageUrl = process.env.REACT_APP_IMAGE_URL;
@@ -138,10 +146,14 @@ const Shop = () => {
             </Box>
           ))}
         </Box>
-        <Box width="90%" display="flex" justifyContent="space-between">
+        <Box
+          width={isMediumScreen ? "95%" : "90%"}
+          display="flex"
+          justifyContent="space-between"
+        >
           <Box
             sx={{
-              width: "19%",
+              width: isMediumScreen ? "30%" : "19%",
               py: "2%",
               px: "3%",
               boxShadow: "2px 2px 7px #E0E0E0",
@@ -272,9 +284,13 @@ const Shop = () => {
           </Box>
           <Box
             sx={{
-              width: "77%",
+              width: isMediumScreen ? "65%" : "77%",
               display: "grid",
-              gridTemplateColumns: "repeat(4,1fr)",
+              gridTemplateColumns: isSmallScreen
+                ? "repeat(2,1fr)"
+                : isMediumScreen
+                ? "repeat(2,1fr)"
+                : "repeat(4,1fr)",
               gap: "45px",
               gridAutoRows: "350px",
               justifyContent: "center",
@@ -388,8 +404,13 @@ const Shop = () => {
                         <AddShoppingCartRounded
                           color="primary"
                           sx={{
-                            visibility:
-                              hovered === each._id ? "visible" : "hidden",
+                            visibility: isMediumScreen
+                              ? "visible"
+                              : !isMediumScreen
+                              ? hovered === each._id
+                                ? "visible"
+                                : "hidden"
+                              : "visible",
                             opacity: hovered === each._id ? 1 : 0,
                             transition: "0.5s ease-in",
                           }}

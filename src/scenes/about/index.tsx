@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React from "react";
@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import about from "../../assets/about.PNG";
 
 const About = () => {
+  const isMediumScreen = useMediaQuery("(max-width:768px)");
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   return (
     <Box>
       <Header />
@@ -26,7 +28,7 @@ const About = () => {
             display: "flex",
             mb: "70px",
             mt: "40px",
-            ml: "10%",
+            ml: isMediumScreen ? "" : "10%",
           }}
         >
           <Box
@@ -51,10 +53,16 @@ const About = () => {
             </Typography>
           </Box>
         </Box>
-        <Box display="flex" width="90%">
+        <Box
+          display="flex"
+          width="90%"
+          sx={{
+            flexDirection: isSmallScreen ? "column-reverse" : "",
+          }}
+        >
           <Box
-            width="50%"
-            pl="13%"
+            width={isSmallScreen ? "100%" : "50%"}
+            pl={isMediumScreen ? "" : "13%"}
             display="flex"
             flexDirection="column"
             justifyContent="center"
@@ -92,7 +100,8 @@ const About = () => {
             </Link>
           </Box>
           <Box
-            width="50%"
+            width={isSmallScreen ? "90%" : "50%"}
+            mb={isSmallScreen ? "30px" : ""}
             display="flex"
             alignItems="center"
             justifyContent="center"

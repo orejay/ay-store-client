@@ -9,6 +9,7 @@ import {
   MenuItem,
   Select,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { VisibilityOff, Visibility, Warning } from "@mui/icons-material";
 import Header from "components/Header";
@@ -35,6 +36,8 @@ interface UserData {
 }
 
 const SignIn = () => {
+  const isMediumScreen = useMediaQuery("(max-width: 768px)");
+  const isSmallScreen = useMediaQuery("(max-width: 450px)");
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isUser, setIsUser] = useState<boolean>(true);
@@ -106,10 +109,11 @@ const SignIn = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              border: "2px solid #E0E0E0",
+              border: !isSmallScreen ? "2px solid #E0E0E0" : "",
               borderRadius: "30px",
-              width: "35%",
+              width: isSmallScreen ? "90%" : isMediumScreen ? "50%" : "35%",
               p: "4%",
+              mt: isMediumScreen ? "60px" : "",
             }}
           >
             <Typography

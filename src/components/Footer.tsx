@@ -1,4 +1,10 @@
-import { Box, Button, Typography, IconButton } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  IconButton,
+  useMediaQuery,
+} from "@mui/material";
 import React from "react";
 import FlexBetween from "./FlexBetween";
 import {
@@ -10,15 +16,20 @@ import {
 import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const isMediumScreen = useMediaQuery("(max-width: 768px)");
+  const isSmallScreen = useMediaQuery("(max-width: 450px)");
   return (
-    <Box py="40px" px="60px">
+    <Box py="40px" px={isSmallScreen ? "10px" : "60px"}>
       <Box>
         <h1 className="Nunito text-primary font-bold">
           <Link to="/">BEAUTY</Link>
         </h1>
       </Box>
       <FlexBetween mt="20px">
-        <FlexBetween sx={{ ml: "90px" }} gap="80px">
+        <FlexBetween
+          sx={{ ml: isSmallScreen ? "" : "90px", flexDirection: "column" }}
+          gap={isSmallScreen ? "40px" : "80px"}
+        >
           <Box display="flex" flexDirection="column" gap="15px">
             <Link to="/about" className="Nunito font-bold text-drk">
               About
@@ -30,7 +41,11 @@ const Footer = () => {
               Contact
             </Link>
           </Box>
-          <Box display="flex" flexDirection="column" gap="15px">
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap={isSmallScreen ? "7px" : "15px"}
+          >
             <Typography fontFamily="Nunito" fontWeight="bold">
               SAY HI!
             </Typography>
@@ -39,14 +54,18 @@ const Footer = () => {
         </FlexBetween>
         <Box>
           <Typography
-            variant="h4"
+            variant={isMediumScreen ? "h5" : "h4"}
             fontFamily="Playfair Display"
             fontWeight="bold"
             textAlign="right"
           >
             Let's stay in touch.
           </Typography>
-          <FlexBetween mt="15px" gap="25px">
+          <FlexBetween
+            mt="15px"
+            gap="25px"
+            sx={{ flexDirection: isMediumScreen ? "column" : "" }}
+          >
             <Button
               variant="outlined"
               sx={{ borderRadius: "25px", px: "50px", textAlign: "left" }}
@@ -74,8 +93,8 @@ const Footer = () => {
               </Typography>
             </Button>
           </FlexBetween>
-          <Box display="flex" justifyContent="end">
-            <FlexBetween mt="40px" width="40%">
+          <Box display="flex" justifyContent={isSmallScreen ? "center" : "end"}>
+            <FlexBetween mt="40px" width={isSmallScreen ? "70%" : "40%"}>
               <IconButton>
                 <Facebook />
               </IconButton>
@@ -89,7 +108,10 @@ const Footer = () => {
           </Box>
         </Box>
       </FlexBetween>
-      <FlexBetween width="50%" mt="40px">
+      <FlexBetween
+        width={isSmallScreen ? "100%" : isMediumScreen ? "70%" : "50%"}
+        mt="40px"
+      >
         <Box display="flex">
           <CopyrightOutlined sx={{ fontSize: "14px" }} />
           <Typography fontFamily="Nunito" fontWeight="bold">
