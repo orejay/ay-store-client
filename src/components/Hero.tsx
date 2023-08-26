@@ -24,7 +24,7 @@ const Hero = () => {
 
   return (
     <Box
-      height="100vh"
+      height={isMediumScreen ? "80vh" : "100vh"}
       display={"flex"}
       justifyContent={isMediumScreen ? "center" : "space-between"}
       alignItems="center"
