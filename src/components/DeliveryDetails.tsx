@@ -44,6 +44,9 @@ const DeliveryDetails = () => {
   const deliveryAddress = useSelector(
     (state: RootState) => state.global.deliveryAddress
   );
+  const deliveryInstructions = useSelector(
+    (state: RootState) => state.global.instructions
+  );
   const [data, setData] = useState<AddressData[]>([]);
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const user: UserData | null = JSON.parse(
@@ -263,8 +266,10 @@ const DeliveryDetails = () => {
           <Input
             type="text"
             color="secondary"
+            defaultValue={deliveryInstructions}
             multiline
             onBlur={(e) => dispatch(setInstructions(e.target.value))}
+            onChange={(e) => dispatch(setInstructions(e.target.value))}
           />
         </FormControl>
       </Box>

@@ -278,7 +278,8 @@ const Checkout = () => {
           display="grid"
           sx={{
             width: "100%",
-            height: isSmallScreen ? "90vh" : "75vh",
+            maxHeight: isSmallScreen ? "" : "75vh",
+            minHeight: isSmallScreen ? "80vh" : "75vh",
             gap: isSmallScreen ? "10px" : "40px",
             gridTemplateColumns: "repeat(3,1fr)",
             gridTemplateRows: "repeat(2,1fr)",
@@ -288,7 +289,7 @@ const Checkout = () => {
             sx={{
               gridColumn: isSmallScreen ? "span 3" : "span 2",
               boxShadow: "2px 2px 7px #E0E0E0",
-              gridRow: isSmallScreen ? "span 3" : "span 2",
+              gridRow: "span 2",
               borderRadius: "5px",
               backgroundColor: "white",
               overflow: "hidden",
@@ -368,6 +369,7 @@ const Checkout = () => {
             <Box
               sx={{
                 boxShadow: "2px 2px 7px #E0E0E0",
+                gridColumn: isSmallScreen ? "span 3" : "",
                 gridRow: "span 1",
                 borderRadius: "5px",
                 backgroundColor: "white",
@@ -449,6 +451,7 @@ const Checkout = () => {
               sx={{
                 boxShadow: "2px 2px 7px #E0E0E0",
                 // gridRow: "span 2",
+                gridColumn: isSmallScreen ? "span 3" : "",
                 borderRadius: "5px",
                 backgroundColor: "white",
                 display: "flex",
