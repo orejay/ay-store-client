@@ -58,7 +58,7 @@ interface UserData {
 }
 
 interface OrderData {
-  productId: ProductData;
+  product: ProductData;
   quantity: number;
 }
 
@@ -186,9 +186,11 @@ const ManageOrders = () => {
             mt: "30px",
             px: "3%",
             display: "grid",
+            gap: "20px",
             gridTemplateColumns: "repeat(2,1fr)",
             overflow: "auto",
             maxHeight: "80vh",
+            pb: "15px",
             "&::-webkit-scrollbar": {
               width: "0.4em",
             },
@@ -203,100 +205,101 @@ const ManageOrders = () => {
             },
           }}
         >
-          {data?.map((each) => (
-            <Card
-              key={each._id}
-              sx={{
-                borderRadius: "5px",
-                // border: "1px solid #E0E0E0",
-                backgroundColor: "#f7f7f7",
-                gridColumn: "span 1",
-                p: "15px",
-              }}
-            >
-              <Box display="flex" sx={{}}>
-                <Typography fontSize="15px" fontWeight="bold">
-                  Order:{" "}
-                </Typography>
-                <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each._id}
-                </Typography>
-              </Box>
-              <Box display="flex" sx={{}}>
-                <Typography fontSize="15px" fontWeight="bold">
-                  Status:{" "}
-                </Typography>
-                <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each.status}
-                </Typography>
-              </Box>
-              <Box display="flex" sx={{}}>
-                <Typography fontSize="15px" fontWeight="bold">
-                  Address:{" "}
-                </Typography>
-                <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each.address.address}
-                </Typography>
-              </Box>
-              <Box display="flex" sx={{}}>
-                <Typography fontSize="15px" fontWeight="bold">
-                  Contact:{" "}
-                </Typography>
-                <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                  {each.address.phoneNumber}
-                </Typography>
-              </Box>
-              <CardActions disableSpacing>
-                {each.status !== "completed" && (
-                  <FlexBetween sx={{ width: "50%", alignItems: "end" }}>
-                    <FormControl variant="standard" sx={{ width: "50%" }}>
-                      <InputLabel color="secondary">Set Status</InputLabel>
-                      <Select
-                        onChange={(e) => {
-                          setOrdersStatus(e.target.value as string);
-                        }}
-                        defaultValue={each.status}
-                      >
-                        {orderStatus.map((each, index) => (
-                          <MenuItem key={index} value={each.toLowerCase()}>
-                            {each}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <Button onClick={() => updateStatus(each._id)}>
-                      Update
-                    </Button>
-                  </FlexBetween>
-                )}
-                <ExpandMore
-                  expand={expanded}
-                  onClick={handleExpandClick}
-                  aria-expanded={expanded}
-                  aria-label="show more"
-                >
-                  <ExpandMoreRounded />
-                </ExpandMore>
-              </CardActions>
-              <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <CardContent>
-                  <Typography fontWeight="bold" fontFamily="Playfair Display">
-                    ITEMS:
+          {data.length > 0 &&
+            data?.map((each) => (
+              <Card
+                key={each._id}
+                sx={{
+                  borderRadius: "5px",
+                  // border: "1px solid #E0E0E0",
+                  backgroundColor: "#f7f7f7",
+                  gridColumn: "span 1",
+                  p: "15px",
+                }}
+              >
+                <Box display="flex" sx={{}}>
+                  <Typography fontSize="15px" fontWeight="bold">
+                    Order:{" "}
                   </Typography>
-                  {each.order.map((each) => (
-                    <Box display="flex" mt="10px">
-                      <Typography fontWeight="bold">
-                        Product: {each.productId.name},
-                      </Typography>
-                      <Typography fontWeight="bold" ml="5px">
-                        Quantity: {each.quantity}
-                      </Typography>
-                    </Box>
-                  ))}
-                </CardContent>
-              </Collapse>
-            </Card>
-          ))}
+                  <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                    {each._id}
+                  </Typography>
+                </Box>
+                <Box display="flex" sx={{}}>
+                  <Typography fontSize="15px" fontWeight="bold">
+                    Status:{" "}
+                  </Typography>
+                  <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                    {each.status}
+                  </Typography>
+                </Box>
+                <Box display="flex" sx={{}}>
+                  <Typography fontSize="15px" fontWeight="bold">
+                    Address:{" "}
+                  </Typography>
+                  <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                    {each.address.address}
+                  </Typography>
+                </Box>
+                <Box display="flex" sx={{}}>
+                  <Typography fontSize="15px" fontWeight="bold">
+                    Contact:{" "}
+                  </Typography>
+                  <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                    {each.address.phoneNumber}
+                  </Typography>
+                </Box>
+                <CardActions disableSpacing>
+                  {each.status !== "completed" && (
+                    <FlexBetween sx={{ width: "50%", alignItems: "end" }}>
+                      <FormControl variant="standard" sx={{ width: "50%" }}>
+                        <InputLabel color="secondary">Set Status</InputLabel>
+                        <Select
+                          onChange={(e) => {
+                            setOrdersStatus(e.target.value as string);
+                          }}
+                          defaultValue={each.status}
+                        >
+                          {orderStatus.map((each, index) => (
+                            <MenuItem key={index} value={each.toLowerCase()}>
+                              {each}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <Button onClick={() => updateStatus(each._id)}>
+                        Update
+                      </Button>
+                    </FlexBetween>
+                  )}
+                  <ExpandMore
+                    expand={expanded}
+                    onClick={handleExpandClick}
+                    aria-expanded={expanded}
+                    aria-label="show more"
+                  >
+                    <ExpandMoreRounded />
+                  </ExpandMore>
+                </CardActions>
+                <Collapse in={expanded} timeout="auto" unmountOnExit>
+                  <CardContent>
+                    <Typography fontWeight="bold" fontFamily="Playfair Display">
+                      ITEMS:
+                    </Typography>
+                    {each.order.map((each) => (
+                      <Box display="flex" mt="10px">
+                        <Typography fontWeight="bold">
+                          Product: {each.product.name},
+                        </Typography>
+                        <Typography fontWeight="bold" ml="5px">
+                          Quantity: {each.quantity}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </CardContent>
+                </Collapse>
+              </Card>
+            ))}
         </Box>
       </Box>
     </Box>

@@ -53,7 +53,7 @@ interface UserData {
 }
 
 interface OrderData {
-  productId: ProductData;
+  product: ProductData;
   quantity: number;
 }
 
@@ -168,120 +168,121 @@ const Orders = () => {
                 },
               }}
             >
-              {data?.map((each) => (
-                <Card
-                  key={each._id}
-                  sx={{
-                    borderRadius: "5px",
-                    // border: "1px solid #E0E0E0",
-                    backgroundColor: "#f7f7f7",
-                    gridColumn: "span 1",
-                    p: "15px",
-                  }}
-                >
-                  <Box display="flex" sx={{}}>
-                    <Typography fontSize="15px" fontWeight="bold">
-                      Order:{" "}
-                    </Typography>
-                    <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                      {each._id}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" sx={{}}>
-                    <Typography fontSize="15px" fontWeight="bold">
-                      Status:{" "}
-                    </Typography>
-                    <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                      {each.status}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" sx={{}}>
-                    <Typography fontSize="15px" fontWeight="bold">
-                      Address:{" "}
-                    </Typography>
-                    <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                      {each.address.address}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" sx={{}}>
-                    <Typography fontSize="15px" fontWeight="bold">
-                      Contact:{" "}
-                    </Typography>
-                    <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                      {each.address.phoneNumber}
-                    </Typography>
-                  </Box>
-                  <CardActions disableSpacing>
-                    {each.status === "new" && toCancel !== each._id ? (
-                      <Button onClick={() => setToCancel(each._id)}>
-                        <Typography fontWeight="bold" textTransform="none">
-                          Cancel Order
-                        </Typography>
-                      </Button>
-                    ) : toCancel === each._id ? (
-                      <FlexBetween gap="10px">
+              {data.length > 0 &&
+                data?.map((each) => (
+                  <Card
+                    key={each._id}
+                    sx={{
+                      borderRadius: "5px",
+                      // border: "1px solid #E0E0E0",
+                      backgroundColor: "#f7f7f7",
+                      gridColumn: "span 1",
+                      p: "15px",
+                    }}
+                  >
+                    <Box display="flex" sx={{}}>
+                      <Typography fontSize="15px" fontWeight="bold">
+                        Order:{" "}
+                      </Typography>
+                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                        {each._id}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" sx={{}}>
+                      <Typography fontSize="15px" fontWeight="bold">
+                        Status:{" "}
+                      </Typography>
+                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                        {each.status}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" sx={{}}>
+                      <Typography fontSize="15px" fontWeight="bold">
+                        Address:{" "}
+                      </Typography>
+                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                        {each.address.address}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" sx={{}}>
+                      <Typography fontSize="15px" fontWeight="bold">
+                        Contact:{" "}
+                      </Typography>
+                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
+                        {each.address.phoneNumber}
+                      </Typography>
+                    </Box>
+                    <CardActions disableSpacing>
+                      {each.status === "new" && toCancel !== each._id ? (
+                        <Button onClick={() => setToCancel(each._id)}>
+                          <Typography fontWeight="bold" textTransform="none">
+                            Cancel Order
+                          </Typography>
+                        </Button>
+                      ) : toCancel === each._id ? (
+                        <FlexBetween gap="10px">
+                          <Typography
+                            fontWeight="bold"
+                            fontStyle="italic"
+                            color="primary"
+                          >
+                            Confirm
+                          </Typography>
+                          <Button
+                            variant="contained"
+                            sx={{ borderRadius: "20px" }}
+                            color="warning"
+                            onClick={() => cancelOrder(each._id)}
+                          >
+                            <Typography color="white" fontSize="12px">
+                              Yes
+                            </Typography>
+                          </Button>
+                          <Button
+                            onClick={() => setToCancel("")}
+                            variant="contained"
+                            sx={{ borderRadius: "20px" }}
+                            color="success"
+                          >
+                            <Typography color="white" fontSize="12px">
+                              No
+                            </Typography>
+                          </Button>
+                        </FlexBetween>
+                      ) : (
+                        ""
+                      )}
+                      <ExpandMore
+                        expand={expanded}
+                        onClick={handleExpandClick}
+                        aria-expanded={expanded}
+                        aria-label="show more"
+                      >
+                        <ExpandMoreRounded />
+                      </ExpandMore>
+                    </CardActions>
+                    <Collapse in={expanded} timeout="auto" unmountOnExit>
+                      <CardContent>
                         <Typography
                           fontWeight="bold"
-                          fontStyle="italic"
-                          color="primary"
+                          fontFamily="Playfair Display"
                         >
-                          Confirm
+                          ITEMS:
                         </Typography>
-                        <Button
-                          variant="contained"
-                          sx={{ borderRadius: "20px" }}
-                          color="warning"
-                          onClick={() => cancelOrder(each._id)}
-                        >
-                          <Typography color="white" fontSize="12px">
-                            Yes
-                          </Typography>
-                        </Button>
-                        <Button
-                          onClick={() => setToCancel("")}
-                          variant="contained"
-                          sx={{ borderRadius: "20px" }}
-                          color="success"
-                        >
-                          <Typography color="white" fontSize="12px">
-                            No
-                          </Typography>
-                        </Button>
-                      </FlexBetween>
-                    ) : (
-                      ""
-                    )}
-                    <ExpandMore
-                      expand={expanded}
-                      onClick={handleExpandClick}
-                      aria-expanded={expanded}
-                      aria-label="show more"
-                    >
-                      <ExpandMoreRounded />
-                    </ExpandMore>
-                  </CardActions>
-                  <Collapse in={expanded} timeout="auto" unmountOnExit>
-                    <CardContent>
-                      <Typography
-                        fontWeight="bold"
-                        fontFamily="Playfair Display"
-                      >
-                        ITEMS:
-                      </Typography>
-                      {each.order.map((each) => (
-                        <Box display="flex" mt="10px">
-                          <Typography fontWeight="bold">
-                            Product: {each.productId.name},
-                          </Typography>
-                          <Typography fontWeight="bold" ml="5px">
-                            Quantity: {each.quantity}
-                          </Typography>
-                        </Box>
-                      ))}
-                    </CardContent>
-                  </Collapse>
-                </Card>
-              ))}
+                        {each.order.map((each) => (
+                          <Box display="flex" mt="10px">
+                            <Typography fontWeight="bold">
+                              Product: {each.product.name},
+                            </Typography>
+                            <Typography fontWeight="bold" ml="5px">
+                              Quantity: {each.quantity}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </CardContent>
+                    </Collapse>
+                  </Card>
+                ))}
             </Box>
           ) : (
             <Box

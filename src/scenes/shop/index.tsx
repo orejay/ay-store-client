@@ -405,17 +405,41 @@ const Shop = () => {
                       transition: "0.5s ease-in",
                     }}
                   >
-                    <Typography
-                      fontFamily="Nunito"
-                      fontWeight="bold"
-                      color="primary"
-                      my="10px"
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="start"
                     >
-                      $
-                      {formatNumberWithCommas(
-                        (each.price * ((100 - each.discount) / 100)).toFixed(2)
+                      <Typography
+                        fontFamily="Nunito"
+                        fontWeight="bold"
+                        color="primary"
+                        mt="10px"
+                      >
+                        $
+                        {formatNumberWithCommas(
+                          (each.price * ((100 - each.discount) / 100)).toFixed(
+                            2
+                          )
+                        )}
+                      </Typography>
+                      {each.discount > 0 && (
+                        <Typography
+                          fontFamily="Nunito"
+                          fontWeight="bold"
+                          color="primary"
+                          mb="10px"
+                          sx={{
+                            fontStyle: "italic",
+                            fontSize: "12px",
+                            textDecoration: "line-through",
+                            opacity: "80%",
+                          }}
+                        >
+                          ${formatNumberWithCommas(String(each.price))}
+                        </Typography>
                       )}
-                    </Typography>
+                    </Box>
                     {!cart.some((item) => item._id === each._id) ? (
                       <IconButton
                         onClick={() => {

@@ -32,6 +32,9 @@ interface UserData {
 const AccManagement = () => {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const [closeModal, setCloseModal] = useState<boolean>(true);
+  const [updatedMessage, setUpdatedMessage] = useState<string>(
+    "Details Updated Successfully!"
+  );
   const [updated, setUpdated] = useState<boolean>(false);
   const firstNameRef = useRef(null);
   const user: UserData | null = JSON.parse(
@@ -58,12 +61,20 @@ const AccManagement = () => {
       });
       const jsonData = await response.json();
       if (response.ok) {
+        setUpdatedMessage("Details Updated Successfully!");
         setCloseModal(false);
         setUpdated(true);
+        console.log(jsonData.userData);
         localStorage.setItem("user", JSON.stringify(jsonData.userData));
+      } else {
+        setUpdatedMessage(jsonData.message);
+        setUpdated(false);
+        setCloseModal(false);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setUpdated(false);
+      setUpdatedMessage("Something went wrong!");
     }
   };
 
@@ -114,9 +125,8 @@ const AccManagement = () => {
                   fontStyle: "italic",
                 }}
               >
-                {updated
-                  ? "Details Updated Successfully!"
-                  : "Something Went Wrong!"}
+                {/* {updated ? updatedMessage : "Something Went Wrong!"} */}
+                {updatedMessage}
               </Typography>
               <IconButton
                 onClick={() => {
@@ -190,6 +200,14 @@ const AccManagement = () => {
             variant="contained"
             sx={{ borderRadius: "20px", mt: "15px", width: "40%" }}
             onClick={editDetails}
+            disabled={
+              body.lastName === "" &&
+              body.firstName === "" &&
+              body.email === "" &&
+              body.phoneNumber === ""
+                ? true
+                : false
+            }
           >
             <Typography color="#ffffff">Confirm</Typography>
           </Button>
