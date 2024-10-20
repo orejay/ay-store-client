@@ -76,6 +76,7 @@ const AddProduct = () => {
       formData.append("category", body.category);
       formData.append("supply", body.supply);
       formData.append("description", body.description);
+      console.log(formData);
       const response = await fetch(`${baseUrl}/post/products`, {
         method: "POST",
         headers: {
