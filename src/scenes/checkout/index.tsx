@@ -1,4 +1,4 @@
-import { ArrowBackIosRounded, Close } from "@mui/icons-material";
+﻿import { ArrowBackIosRounded, Close } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -42,7 +42,7 @@ const Checkout = () => {
   ) as UserData | null;
   const token = user?.token;
   const { pathname } = useLocation();
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -275,24 +275,22 @@ const Checkout = () => {
           </Box>
         </Box>
         <Box
-          display="grid"
           sx={{
             width: "100%",
-            maxHeight: isSmallScreen ? "" : "75vh",
-            minHeight: isSmallScreen ? "80vh" : "75vh",
-            gap: isSmallScreen ? "10px" : "40px",
-            gridTemplateColumns: "repeat(3,1fr)",
-            gridTemplateRows: "repeat(2,1fr)",
+            display: "flex",
+            flexDirection: isSmallScreen ? "column" : "row",
+            gap: isSmallScreen ? "16px" : "24px",
+            minHeight: isSmallScreen ? "auto" : "75vh",
           }}
         >
           <Box
             sx={{
-              gridColumn: isSmallScreen ? "span 3" : "span 2",
+              flex: isSmallScreen ? "none" : "2",
               boxShadow: "2px 2px 7px #E0E0E0",
-              gridRow: "span 2",
               borderRadius: "5px",
               backgroundColor: "white",
               overflow: "hidden",
+              minHeight: isSmallScreen ? "300px" : "auto",
             }}
           >
             {tab === 0 || tab === 2 ? <CheckoutCart /> : <DeliveryDetails />}
@@ -301,8 +299,7 @@ const Checkout = () => {
             <Box
               sx={{
                 boxShadow: "2px 2px 7px #E0E0E0",
-                gridRow: "span 1",
-                gridColumn: isSmallScreen ? "span 3" : "",
+                flex: isSmallScreen ? "none" : "1",
                 borderRadius: "5px",
                 backgroundColor: "white",
                 p: "20px",
@@ -369,8 +366,7 @@ const Checkout = () => {
             <Box
               sx={{
                 boxShadow: "2px 2px 7px #E0E0E0",
-                gridColumn: isSmallScreen ? "span 3" : "",
-                gridRow: "span 1",
+                flex: isSmallScreen ? "none" : "1",
                 borderRadius: "5px",
                 backgroundColor: "white",
                 p: "20px",
@@ -450,8 +446,7 @@ const Checkout = () => {
             <Box
               sx={{
                 boxShadow: "2px 2px 7px #E0E0E0",
-                // gridRow: "span 2",
-                gridColumn: isSmallScreen ? "span 3" : "",
+                flex: isSmallScreen ? "none" : "1",
                 borderRadius: "5px",
                 backgroundColor: "white",
                 display: "flex",

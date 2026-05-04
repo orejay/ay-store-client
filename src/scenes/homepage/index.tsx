@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography } from "@mui/material";
+﻿import { Box, IconButton, Typography } from "@mui/material";
 import Header from "components/Header";
 import React, { useEffect } from "react";
 import Footer from "components/Footer";
@@ -26,7 +26,7 @@ const Homepage = () => {
     localStorage.getItem("user") || "null"
   ) as UserData | null;
   const token = user?.token;
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const dispatch = useAppDispatch();
   const closeModal = useSelector((state: RootState) => state.global.closeModal);
   const modalMessage = useSelector(

@@ -4,8 +4,8 @@ import {
   FormControl,
   Input,
   InputLabel,
-  TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -39,6 +39,7 @@ interface UserData {
 }
 
 const DeliveryDetails = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const deliveryAddress = useSelector(
@@ -48,7 +49,7 @@ const DeliveryDetails = () => {
     (state: RootState) => state.global.instructions
   );
   const [data, setData] = useState<AddressData[]>([]);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
@@ -71,7 +72,6 @@ const DeliveryDetails = () => {
         );
       }
       dispatch(setDeliveryAddress(defaultAddress[0]));
-      console.log(jsonData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -90,9 +90,8 @@ const DeliveryDetails = () => {
       );
       if (response.ok) {
       }
-      const jsonData = await response.json();
+      await response.json();
       getAddresses();
-      console.log(jsonData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -107,8 +106,8 @@ const DeliveryDetails = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          gridAutoRows: "220px",
+          gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
+          gridAutoRows: "auto",
           gap: "20px",
         }}
       >
@@ -124,6 +123,7 @@ const DeliveryDetails = () => {
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
+                    minHeight: "200px",
                   }}
                 >
                   <Box
@@ -141,7 +141,6 @@ const DeliveryDetails = () => {
                       {each.contactName}
                     </Typography>
                   </Box>
-
                   <Box sx={{ px: "20px", pt: "15px" }}>
                     <Typography fontSize="15px" pb="2px" fontFamily="Nunito">
                       {each.address}
@@ -186,6 +185,7 @@ const DeliveryDetails = () => {
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
+                    minHeight: "200px",
                   }}
                 >
                   <Box
@@ -203,7 +203,6 @@ const DeliveryDetails = () => {
                       {each.contactName}
                     </Typography>
                   </Box>
-
                   <Box sx={{ px: "20px", pt: "15px" }}>
                     <Typography fontSize="15px" pb="2px" fontFamily="Nunito">
                       {each.address}
@@ -259,7 +258,7 @@ const DeliveryDetails = () => {
         >
           Additional Information
         </Typography>
-        <FormControl variant="outlined" sx={{ mt: "20px", width: "90%" }}>
+        <FormControl variant="outlined" sx={{ mt: "20px", width: "100%" }}>
           <InputLabel color="secondary" sx={{ fontStyle: "italic" }}>
             Additional instructions about your order...
           </InputLabel>

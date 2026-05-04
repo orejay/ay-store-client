@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Button,
   FormControl,
@@ -43,7 +43,7 @@ const SignIn = () => {
   const [isUser, setIsUser] = useState<boolean>(true);
   const [wrongPass, setWrongPass] = useState<boolean>(false);
   const [data, setData] = useState<UserData | null>(null);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const prevPage = useSelector((state: RootState) => state.global.prevPage);
   const navigate = useNavigate();
   const [body, setBody] = useState<BodyState>({

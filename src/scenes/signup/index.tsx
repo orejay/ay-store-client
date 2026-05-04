@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Button,
   FormControl,
@@ -30,7 +30,7 @@ const SignUp = () => {
   const [isSignedUp, setIsSignedUp] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const [body, setBody] = useState<BodyState>({
     firstName: "",

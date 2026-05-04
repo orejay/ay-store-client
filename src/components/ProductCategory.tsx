@@ -26,14 +26,23 @@ const ProductCategory = () => {
   const isSmallScreen = useMediaQuery("(max-width: 450px)");
   const isMediumScreen = useMediaQuery("(max-width: 768px)");
 
+  const imgSize = isSmallScreen ? "130px" : isMediumScreen ? "150px" : "180px";
+  const gridCols = isSmallScreen
+    ? "repeat(2,1fr)"
+    : isMediumScreen
+    ? "repeat(3,1fr)"
+    : "repeat(3,1fr)";
+  const gridWidth = isSmallScreen ? "95%" : isMediumScreen ? "90%" : "40%";
+  const gapSize = isSmallScreen ? "20px" : isMediumScreen ? "30px" : "60px";
+
   return (
     <Box
       display="flex"
       flexDirection="column"
-      py={isMediumScreen ? "" : "50px"}
+      py={isMediumScreen ? "30px" : "50px"}
       alignItems="center"
       sx={{
-        minHeight: "100vh",
+        minHeight: isMediumScreen ? "auto" : "100vh",
         width: "100%",
       }}
       id="shop"
@@ -42,7 +51,7 @@ const ProductCategory = () => {
         sx={{
           width: "90%",
           display: "flex",
-          mb: "70px",
+          mb: isMediumScreen ? "40px" : "70px",
           ml: isMediumScreen ? "" : "10%",
         }}
       >
@@ -70,26 +79,22 @@ const ProductCategory = () => {
       </Box>
       <Box
         sx={{
-          width: !isSmallScreen ? "40%" : "80%",
+          width: gridWidth,
           display: "grid",
-          gridTemplateColumns: !isSmallScreen
-            ? "repeat(3,1fr)"
-            : "repeat(1,1fr)",
-          gap: "80px",
-          gridAutoRows: "180px",
+          gridTemplateColumns: gridCols,
+          gap: gapSize,
+          gridAutoRows: "auto",
           justifyContent: "center",
           justifyItems: "center",
-          flexWrap: "wrap",
         }}
-        gap="15px"
       >
         {category.map((each, index) => (
           <Link
             to={`/shop`}
             key={index}
             style={{
-              height: !isSmallScreen ? "180px" : "200px",
-              width: !isSmallScreen ? "180px" : "200px",
+              height: imgSize,
+              width: imgSize,
             }}
             onClick={() => dispatch(setCategories([each.title]))}
           >
@@ -98,22 +103,22 @@ const ProductCategory = () => {
               alt="product-category-img"
               src={each.image}
               width="100%"
+              height="100%"
               borderRadius="20px"
               sx={{
                 objectFit: "cover",
                 transform: "rotate(-10deg)",
                 transformOrigin: "left",
-                zIndex: 1,
               }}
             />
             <Typography
               variant="h6"
               fontFamily="Playfair Display"
-              fontSize="16px"
+              fontSize={isSmallScreen ? "13px" : "16px"}
               textAlign="center"
               fontWeight="bold"
               color="secondary"
-              mt={!isSmallScreen ? "10px" : "6px"}
+              mt={isSmallScreen ? "4px" : "8px"}
             >
               {each.title[0].toUpperCase()}
               {each.title.slice(1)}

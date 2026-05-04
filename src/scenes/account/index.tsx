@@ -1,5 +1,5 @@
-import { ManageAccountsRounded } from "@mui/icons-material";
-import { Box, Button, Card, Typography } from "@mui/material";
+﻿import { ManageAccountsRounded } from "@mui/icons-material";
+import { Box, Button, Card, Typography, useMediaQuery } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React, { useEffect, useState } from "react";
@@ -31,10 +31,11 @@ interface AddressData {
 }
 
 const Account = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<AddressData[]>([]);
   console.log(user);
 
@@ -70,8 +71,8 @@ const Account = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          gridAutoRows: "200px",
+          gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
+          gridAutoRows: "auto",
           gap: "20px",
           p: "20px",
         }}

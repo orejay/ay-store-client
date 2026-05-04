@@ -1,4 +1,4 @@
-import { Close, DeleteOutlineRounded, EditRounded } from "@mui/icons-material";
+﻿import { Close, DeleteOutlineRounded, EditRounded } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   InputLabel,
   Select,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -41,10 +42,12 @@ interface UserData {
 }
 
 const Catalog = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const isMediumScreen = useMediaQuery("(max-width:768px)");
   const [added, setAdded] = useState<boolean>(false);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<ProductData[]>([]);
-  const imageUrl = process.env.REACT_APP_IMAGE_URL;
+  const imageUrl = import.meta.env.VITE_IMAGE_URL;
   const [confirm, setConfirm] = useState<string>("");
   const [deleted, setDeleted] = useState<boolean>(false);
   const [closeModal, setCloseModal] = useState<boolean>(true);
@@ -169,7 +172,11 @@ const Catalog = () => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "repeat(3,1fr)",
+              gridTemplateColumns: isSmallScreen
+                ? "1fr"
+                : isMediumScreen
+                ? "repeat(2,1fr)"
+                : "repeat(3,1fr)",
               gridAutoRows: "180px",
               gap: "20px",
               py: "20px",

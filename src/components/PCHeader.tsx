@@ -14,17 +14,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import FlexBetween from "./FlexBetween";
 import {
-  BorderRight,
   CloseRounded,
   DeleteOutlineRounded,
-  DeleteRounded,
-  KeyboardArrowDownRounded,
-  MenuRounded,
   PermIdentityRounded,
   SearchRounded,
   ShoppingCartOutlined,
 } from "@mui/icons-material";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useAppDispatch, RootState } from "store";
 import { setCart, setShowCart, setShowSearches } from "state";
 
@@ -47,13 +43,13 @@ const nav = ["About", "Shop", "Contact"];
 
 const PCHeader = () => {
   const theme = useTheme();
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const isMediumScreen = useMediaQuery("(max-width:1024px)");
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
   const [searchText, setSearchText] = useState("");
   const [active, setActive] = useState("");
-  const [openMenu, setOpenMenu] = useState<Boolean>(false);
   const [data, setData] = useState<ProductData[]>([]);
   const showSearches = useSelector(
     (state: RootState) => state.global.showSearches
@@ -80,7 +76,6 @@ const PCHeader = () => {
   const total = () => {
     let x = 0;
     for (let i = 0; i < cart.length; i++) {
-      console.log(cart[i]);
       x += cart[i].price * ((100 - cart[i].discount) / 100);
     }
     return x;
@@ -88,13 +83,11 @@ const PCHeader = () => {
 
   const search = async () => {
     try {
-      console.log(searchText);
       const response = await fetch(
         `${baseUrl}/get/products/search?name=${searchText}`
       );
       const jsonData = await response.json();
       setData(jsonData.products);
-      console.log(jsonData.products);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -103,9 +96,10 @@ const PCHeader = () => {
   return (
     <Box
       py="15px"
-      px="60px"
-      width="100vw"
+      px={isMediumScreen ? "24px" : "60px"}
       sx={{
+        width: "100%",
+        boxSizing: "border-box",
         position: "fixed",
         backgroundColor: theme.palette.background.default,
         zIndex: "100",
@@ -118,7 +112,7 @@ const PCHeader = () => {
           </h1>
         </Box>
 
-        <FlexBetween width="20%" gap="15px">
+        <FlexBetween gap={isMediumScreen ? "12px" : "25px"}>
           {nav.map((each, index) => (
             <Link
               key={index}
@@ -189,7 +183,7 @@ const PCHeader = () => {
             </Button>
           </FlexBetween>
         )}
-        <FlexBetween gap="5px">
+        <FlexBetween gap="5px" sx={{ position: "relative" }}>
           <Box
             sx={{
               display: "flex",
@@ -219,10 +213,13 @@ const PCHeader = () => {
               style={{
                 backgroundColor: "white",
                 position: "absolute",
-                width: "200px",
-                top: 60,
-                padding: "1% 0",
+                width: "220px",
+                top: 45,
+                right: 0,
+                padding: "8px 0",
                 borderRadius: "5px",
+                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
+                zIndex: 200,
               }}
             >
               {data.map((each) => (
@@ -240,10 +237,13 @@ const PCHeader = () => {
               style={{
                 backgroundColor: "white",
                 position: "absolute",
-                width: "200px",
-                top: 60,
-                padding: "1% 0",
+                width: "220px",
+                top: 45,
+                right: 0,
+                padding: "8px 0",
                 borderRadius: "5px",
+                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
+                zIndex: 200,
               }}
             >
               <span className="pl-3 Nunito font-semibold">
@@ -258,6 +258,7 @@ const PCHeader = () => {
             sx={{
               backgroundColor: showCart ? "white" : "",
               borderRadius: "20px 20px 0 0",
+              position: "relative",
             }}
           >
             <Box
@@ -279,8 +280,8 @@ const PCHeader = () => {
                     width: "14px",
                     height: "14px",
                     backgroundColor: "#F4f7fc",
-                    ml: "12px",
-                    mb: "10px",
+                    top: 4,
+                    right: 4,
                   }}
                 >
                   <Typography fontSize="12px" fontWeight="bold" color="primary">
@@ -298,10 +299,13 @@ const PCHeader = () => {
                 position: "absolute",
                 maxHeight: "83vh",
                 width: "300px",
-                top: 60,
-                padding: "1% 0",
+                top: 50,
+                right: 0,
+                padding: "8px 0",
                 borderRadius: "5px",
                 px: "15px",
+                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
+                zIndex: 200,
               }}
             >
               <Box width="100%" sx={{ display: "flex", justifyContent: "end" }}>
@@ -313,26 +317,18 @@ const PCHeader = () => {
                 sx={{
                   overflow: "auto",
                   maxHeight: "50vh",
-                  "&::-webkit-scrollbar": {
-                    width: "0.4em",
-                  },
-                  "&::-webkit-scrollbar-track": {
-                    background: "transparent",
-                  },
-                  "&::-webkit-scrollbar-thumb": {
-                    background: "gray",
-                  },
-                  "&::-webkit-scrollbar-thumb:hover": {
-                    background: "darkgray",
-                  },
+                  "&::-webkit-scrollbar": { width: "0.4em" },
+                  "&::-webkit-scrollbar-track": { background: "transparent" },
+                  "&::-webkit-scrollbar-thumb": { background: "gray" },
+                  "&::-webkit-scrollbar-thumb:hover": { background: "darkgray" },
                 }}
               >
                 {cart.map((each) => (
                   <Box
+                    key={each._id}
                     sx={{
                       py: "10px",
                       borderBottom: "2px solid #E0E0E0",
-                      "& hover": { bgcolor: "#F0F0F0" },
                     }}
                   >
                     <Box
@@ -374,7 +370,6 @@ const PCHeader = () => {
                     <Typography fontSize="13px" fontStyle="italic" mb="10px">
                       {each.description.slice(0, 30)}...
                     </Typography>
-
                     <Typography
                       fontFamily="Playfair Display"
                       fontWeight="bold"
@@ -388,7 +383,6 @@ const PCHeader = () => {
                   </Box>
                 ))}
               </Box>
-
               <Box>
                 <Box
                   sx={{
@@ -432,10 +426,13 @@ const PCHeader = () => {
                 backgroundColor: "white",
                 position: "absolute",
                 width: "300px",
-                top: 60,
-                padding: "1% 0",
+                top: 50,
+                right: 0,
+                padding: "8px 0",
                 borderRadius: "5px",
                 px: "15px",
+                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
+                zIndex: 200,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",

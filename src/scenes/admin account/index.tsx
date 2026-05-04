@@ -1,4 +1,4 @@
-import { ManageAccountsRounded } from "@mui/icons-material";
+﻿import { ManageAccountsRounded } from "@mui/icons-material";
 import { Box, Button, Card, Typography } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
@@ -34,7 +34,7 @@ const AdminManagement = () => {
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<AddressData[]>([]);
   console.log(user);
 

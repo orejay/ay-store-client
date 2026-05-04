@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Button,
   Card,
@@ -10,6 +10,7 @@ import {
   MenuItem,
   Select,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import IconButton, { IconButtonProps } from "@mui/material/IconButton";
@@ -87,13 +88,14 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 }));
 
 const ManageOrders = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const [expanded, setExpanded] = useState(false);
   const [tab, setTab] = useState("new");
   const [ordersStatus, setOrdersStatus] = useState("");
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<OrdersData[]>([]);
   const token = user?.token;
 
@@ -163,7 +165,7 @@ const ManageOrders = () => {
         </Typography>
       </Box>
       <Box sx={{ p: "20px", width: "100%", height: "100%" }}>
-        <Box sx={{ mt: "20px", px: "3%", width: "50%" }}>
+        <Box sx={{ mt: "20px", px: "3%", width: isSmallScreen ? "100%" : "50%" }}>
           <FormControl variant="standard" sx={{ width: "50%" }}>
             <InputLabel color="secondary">Category</InputLabel>
             <Select
@@ -187,7 +189,7 @@ const ManageOrders = () => {
             px: "3%",
             display: "grid",
             gap: "20px",
-            gridTemplateColumns: "repeat(2,1fr)",
+            gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
             overflow: "auto",
             maxHeight: "80vh",
             pb: "15px",

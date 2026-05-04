@@ -1,4 +1,4 @@
-import {
+﻿import {
   ArrowBackRounded,
   CheckBoxOutlineBlankRounded,
   CheckBoxRounded,
@@ -19,6 +19,7 @@ import {
   MenuItem,
   Select,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -65,8 +66,9 @@ interface UserData {
 }
 
 const AddressBook = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const { pathname } = useLocation();
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<AddressData[]>([]);
   const [closeModal, setCloseModal] = useState<boolean>(true);
   const [added, setAdded] = useState<boolean>(false);
@@ -253,8 +255,8 @@ const AddressBook = () => {
               sx={{
                 width: "100%",
                 display: "grid",
-                gridTemplateColumns: "repeat(2,1fr)",
-                gridAutoRows: "210px",
+                gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
+                gridAutoRows: "auto",
                 gap: "30px",
                 p: "30px",
               }}

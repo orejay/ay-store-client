@@ -1,4 +1,4 @@
-import { Close } from "@mui/icons-material";
+﻿import { Close } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -30,7 +30,7 @@ interface UserData {
 }
 
 const AccManagement = () => {
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [closeModal, setCloseModal] = useState<boolean>(true);
   const [updatedMessage, setUpdatedMessage] = useState<string>(
     "Details Updated Successfully!"

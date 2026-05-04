@@ -1,4 +1,4 @@
-import { Close, Visibility, VisibilityOff } from "@mui/icons-material";
+﻿import { Close, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -34,7 +34,7 @@ const ChangePassword = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [passwordChanged, setPasswordChanged] = useState<boolean>(false);
   const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [checkPass, setCheckPass] = useState<string>("");
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"

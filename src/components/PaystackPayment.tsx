@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+﻿import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -22,8 +22,8 @@ const PaystackPayment = () => {
     localStorage.getItem("user") || "null"
   ) as UserData | null;
   const token = user?.token;
-  const key = String(process.env.REACT_APP_PAYSTACK_KEY);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const key = String(import.meta.env.VITE_PAYSTACK_KEY);
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const cart = useSelector((state: RootState) => state.global.cart);
   const instructions = useSelector(
     (state: RootState) => state.global.instructions

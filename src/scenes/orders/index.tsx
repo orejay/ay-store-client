@@ -1,4 +1,4 @@
-import { ExpandMoreRounded, ShoppingCart } from "@mui/icons-material";
+﻿import { ExpandMoreRounded, ShoppingCart } from "@mui/icons-material";
 import {
   Box,
   Typography,
@@ -7,6 +7,7 @@ import {
   CardActions,
   Collapse,
   CardContent,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -82,12 +83,13 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 }));
 
 const Orders = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const [expanded, setExpanded] = useState(false);
   const [toCancel, setToCancel] = useState("");
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<OrdersData[]>([]);
   const token = user?.token;
   const handleExpandClick = () => {
@@ -148,7 +150,7 @@ const Orders = () => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "repeat(2,1fr)",
+                gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
                 // gridAutoRows: "180px",
                 gap: "20px",
                 overflow: "auto",

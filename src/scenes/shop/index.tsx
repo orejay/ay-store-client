@@ -1,4 +1,4 @@
-import {
+﻿import {
   AddShoppingCartRounded,
   CheckBox,
   CheckBoxOutlineBlankRounded,
@@ -49,8 +49,8 @@ const Shop = () => {
   const isMediumScreen = useMediaQuery("(max-width: 768px)");
   const isSmallScreen = useMediaQuery("(max-width: 450px)");
   const [data, setData] = useState<ProductData[]>([]);
-  const baseUrl = process.env.REACT_APP_BASE_URL;
-  const imageUrl = process.env.REACT_APP_IMAGE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const imageUrl = import.meta.env.VITE_IMAGE_URL;
   const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
   const [hovered, setHovered] = useState("");
   const dispatch = useAppDispatch();
@@ -121,14 +121,12 @@ const Shop = () => {
       >
         <Box
           display="flex"
-          width="74%"
+          width={isSmallScreen ? "95%" : isMediumScreen ? "95%" : "74%"}
           justifyContent={isSmallScreen ? "center" : "start"}
           gap={isSmallScreen ? "12px" : "20px"}
           my="15px"
-          ml={isSmallScreen ? "" : "auto"}
-          mr="0"
           sx={{
-            flexWrap: isSmallScreen ? "wrap" : "",
+            flexWrap: "wrap",
           }}
         >
           {categoryList?.map((each, index) => (
@@ -315,7 +313,7 @@ const Shop = () => {
                 ? "repeat(2,1fr)"
                 : "repeat(4,1fr)",
               gap: isSmallScreen ? "10px" : "45px",
-              gridAutoRows: "350px",
+              gridAutoRows: isSmallScreen ? "280px" : "350px",
               justifyContent: "center",
               flexWrap: "wrap",
             }}
@@ -327,7 +325,7 @@ const Shop = () => {
                 sx={{
                   boxShadow: "2px 2px 7px #E0E0E0",
                   borderRadius: "5px",
-                  height: "350px",
+                  height: isSmallScreen ? "280px" : "350px",
                 }}
                 onMouseEnter={() => setHovered(each._id)}
                 onMouseLeave={() => setHovered("")}

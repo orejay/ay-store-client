@@ -1,4 +1,4 @@
-import {
+﻿import {
   Box,
   Card,
   CardActions,
@@ -8,6 +8,7 @@ import {
   InputLabel,
   Select,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import IconButton, { IconButtonProps } from "@mui/material/IconButton";
@@ -42,10 +43,11 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 }));
 
 const Users = () => {
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<UserData[]>([]);
   const [expanded, setExpanded] = useState(false);
   const token = user?.token;
@@ -101,7 +103,7 @@ const Users = () => {
             mt: "30px",
             px: "3%",
             display: "grid",
-            gridTemplateColumns: "repeat(2,1fr)",
+            gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
             gap: "20px",
             overflow: "auto",
             maxHeight: "80vh",

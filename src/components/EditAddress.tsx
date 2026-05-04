@@ -1,4 +1,4 @@
-import {
+﻿import {
   CheckBoxOutlineBlankRounded,
   CheckBoxRounded,
   Close,
@@ -11,6 +11,7 @@ import {
   Input,
   InputLabel,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { CSSTransition } from "react-transition-group";
@@ -54,7 +55,8 @@ interface BodyState {
 }
 
 const EditAddress = () => {
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const addressList = useSelector((state: RootState) => state.global.addresses);
   const [isDefault, setIsDefault] = useState<boolean>(addressList[0].isDefault);
   const [closeModal, setCloseModal] = useState<boolean>(true);
@@ -156,7 +158,7 @@ const EditAddress = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
+          gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
           gap: "30px",
           pt: "20px",
           width: "90%",
@@ -272,7 +274,7 @@ const EditAddress = () => {
         <Button
           onClick={editAddress}
           variant="contained"
-          sx={{ borderRadius: "20px", mt: "15px", width: "40%" }}
+          sx={{ borderRadius: "20px", mt: "15px", width: isSmallScreen ? "100%" : "40%" }}
         >
           <Typography color="#ffffff">Confirm</Typography>
         </Button>

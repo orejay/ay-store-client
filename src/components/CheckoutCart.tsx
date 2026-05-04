@@ -1,4 +1,4 @@
-import {
+﻿import {
   AddRounded,
   DeleteOutlineRounded,
   RemoveRounded,
@@ -23,7 +23,7 @@ import { RootState, useAppDispatch } from "store";
 const CheckoutCart = () => {
   const isSmallScreen = useMediaQuery("(max-width:450px)");
   const isMediumScreen = useMediaQuery("(max-width:768px)");
-  const imageUrl = process.env.REACT_APP_IMAGE_URL;
+  const imageUrl = import.meta.env.VITE_IMAGE_URL;
   const cart = useSelector((state: RootState) => state.global.cart);
   const dispatch = useAppDispatch();
   const formatNumberWithCommas = (number: string) => {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   AddAPhotoRounded,
   Close,
   DriveFolderUploadRounded,
@@ -13,6 +13,7 @@ import {
   MenuItem,
   Select,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -38,7 +39,9 @@ interface UserData {
 }
 
 const AddProduct = () => {
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const isMediumScreen = useMediaQuery("(max-width:768px)");
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [expired, setExpired] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [closeModal, setCloseModal] = useState<boolean>(true);
@@ -166,7 +169,11 @@ const AddProduct = () => {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "repeat(4,1fr)",
+            gridTemplateColumns: isSmallScreen
+              ? "1fr"
+              : isMediumScreen
+              ? "repeat(2,1fr)"
+              : "repeat(4,1fr)",
             gap: "30px",
             pt: "20px",
             width: "90%",

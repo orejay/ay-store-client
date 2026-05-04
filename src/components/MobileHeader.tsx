@@ -45,7 +45,7 @@ const nav = ["About", "Shop", "Contact"];
 const MobileHeader = () => {
   const isSmallScreen = useMediaQuery("(max-width:450px)");
   const theme = useTheme();
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
@@ -77,7 +77,6 @@ const MobileHeader = () => {
   const total = () => {
     let x = 0;
     for (let i = 0; i < cart.length; i++) {
-      console.log(cart[i]);
       x += cart[i].price * ((100 - cart[i].discount) / 100);
     }
     return x;
@@ -85,13 +84,11 @@ const MobileHeader = () => {
 
   const search = async () => {
     try {
-      console.log(searchText);
       const response = await fetch(
         `${baseUrl}/get/products/search?name=${searchText}`
       );
       const jsonData = await response.json();
       setData(jsonData.products);
-      console.log(jsonData.products);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -100,15 +97,17 @@ const MobileHeader = () => {
   return (
     <Box
       py="5px"
-      px="20px"
-      width="100vw"
+      px="16px"
       sx={{
+        width: "100%",
+        boxSizing: "border-box",
         position: "fixed",
         backgroundColor: theme.palette.background.default,
         zIndex: "100",
+        overflowX: "hidden",
       }}
     >
-      <Box sx={{ position: "absolute", top: 8, left: 20 }}>
+      <Box sx={{ position: "absolute", top: 8, left: 12 }}>
         <IconButton onClick={() => setOpenMenu(!openMenu)}>
           <MenuRounded />
         </IconButton>
@@ -116,19 +115,19 @@ const MobileHeader = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "end",
+          justifyContent: "flex-end",
         }}
       >
         <FlexBetween
-          gap="45px"
-          sx={{ width: isSmallScreen ? "75%" : "60%", height: "fit" }}
+          gap="8px"
+          sx={{ width: isSmallScreen ? "80%" : "65%", height: "fit" }}
         >
           <Box>
             <h1 className="Nunito text-primary font-bold">
               <Link to="/">BEAUTY</Link>
             </h1>
           </Box>
-          <FlexBetween>
+          <FlexBetween sx={{ position: "relative" }}>
             <Box
               sx={{
                 display: "flex",
@@ -140,6 +139,7 @@ const MobileHeader = () => {
                 variant="standard"
                 color="secondary"
                 placeholder="search..."
+                sx={{ width: isSmallScreen ? "90px" : "120px" }}
                 onChange={(e) => {
                   setSearchText(e.target.value);
                   dispatch(setShowCart(false));
@@ -158,10 +158,14 @@ const MobileHeader = () => {
                 style={{
                   backgroundColor: "white",
                   position: "absolute",
-                  width: "100px",
-                  top: 60,
-                  padding: "1% 0",
+                  width: "calc(100vw - 32px)",
+                  maxWidth: "300px",
+                  top: 45,
+                  right: 0,
+                  padding: "8px 0",
                   borderRadius: "5px",
+                  boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
+                  zIndex: 200,
                 }}
               >
                 {data.map((each) => (
@@ -179,10 +183,14 @@ const MobileHeader = () => {
                 style={{
                   backgroundColor: "white",
                   position: "absolute",
-                  width: "100px",
-                  top: 60,
-                  padding: "1% 0",
+                  width: "calc(100vw - 32px)",
+                  maxWidth: "300px",
+                  top: 45,
+                  right: 0,
+                  padding: "8px 0",
                   borderRadius: "5px",
+                  boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
+                  zIndex: 200,
                 }}
               >
                 <span className="pl-3 Nunito font-semibold">
@@ -192,10 +200,10 @@ const MobileHeader = () => {
             ) : (
               ""
             )}
-            <Box sx={{}}>
+            <Box>
               <Box
                 p="10px"
-                sx={{ cursor: "pointer", zIndex: "100" }}
+                sx={{ cursor: "pointer", zIndex: "100", position: "relative" }}
                 onClick={() => {
                   if (cart.length > 0) {
                     navigate("/checkout");
@@ -216,8 +224,8 @@ const MobileHeader = () => {
                       width: "14px",
                       height: "14px",
                       backgroundColor: "#F4f7fc",
-                      ml: "12px",
-                      mb: "10px",
+                      top: 4,
+                      right: 4,
                     }}
                   >
                     <Typography
@@ -238,23 +246,23 @@ const MobileHeader = () => {
       {openMenu && (
         <Box
           sx={{
-            height: "100vh",
             width: "100%",
             backgroundColor: theme.palette.background.default,
             p: "20px",
             pt: "40px",
+            boxSizing: "border-box",
           }}
         >
           <Box
-            width="20%"
             gap="15px"
-            sx={{ display: "flex", flexDirection: "column" }}
+            sx={{ display: "flex", flexDirection: "column", width: "100%" }}
           >
             {nav.map((each, index) => (
               <Link
                 key={index}
                 to={`/${each.toLowerCase()}`}
-                className={`Nunito font-semibold ${
+                onClick={() => setOpenMenu(false)}
+                className={`Nunito font-semibold text-lg ${
                   active === each.toLowerCase() ? "text-primary" : "text-drk"
                 }`}
               >
@@ -267,6 +275,7 @@ const MobileHeader = () => {
               gap="10px"
               sx={{
                 flexDirection: "column",
+                alignItems: "flex-start",
                 mt: "40px",
               }}
             >
@@ -299,6 +308,7 @@ const MobileHeader = () => {
               gap="10px"
               sx={{
                 flexDirection: "column",
+                alignItems: "flex-start",
                 mt: "40px",
               }}
             >

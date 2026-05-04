@@ -57,11 +57,13 @@ const About = () => {
           display="flex"
           width="90%"
           sx={{
-            flexDirection: isSmallScreen ? "column-reverse" : "",
+            flexDirection: isSmallScreen ? "column-reverse" : isMediumScreen ? "column-reverse" : "row",
+            alignItems: "center",
+            gap: isMediumScreen ? "30px" : "0",
           }}
         >
           <Box
-            width={isSmallScreen ? "100%" : "50%"}
+            width={isMediumScreen ? "100%" : "50%"}
             pl={isMediumScreen ? "" : "13%"}
             display="flex"
             flexDirection="column"
@@ -100,23 +102,21 @@ const About = () => {
             </Link>
           </Box>
           <Box
-            width={isSmallScreen ? "90%" : "50%"}
-            mb={isSmallScreen ? "30px" : ""}
+            width={isMediumScreen ? "100%" : "50%"}
             display="flex"
             alignItems="center"
             justifyContent="center"
+            mb={isSmallScreen ? "10px" : ""}
           >
             <Box
               sx={{
-                content: "''",
-                top: "-10%",
-                left: "-10%",
-                width: "310px",
-                height: "305px",
+                width: isSmallScreen ? "200px" : isMediumScreen ? "240px" : "310px",
+                height: isSmallScreen ? "200px" : isMediumScreen ? "240px" : "305px",
                 borderRadius: "30% 70% 50% 30% / 10% 30% 50% 70%",
-                borderImageSlice: "1",
                 border: "2px solid #Dfeaec",
                 boxSizing: "border-box",
+                overflow: "hidden",
+                flexShrink: 0,
               }}
             >
               <Box
@@ -125,10 +125,8 @@ const About = () => {
                 src={about}
                 sx={{
                   objectFit: "cover",
-                  width: "300px",
-                  height: "300px",
-                  position: "relative",
-                  overflow: "hidden",
+                  width: "100%",
+                  height: "100%",
                   borderRadius: "50% / 10% 30% 50% 70%",
                 }}
               />

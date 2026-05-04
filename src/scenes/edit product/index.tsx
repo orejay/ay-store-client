@@ -1,4 +1,4 @@
-import {
+﻿import {
   ArrowBackRounded,
   Close,
   DriveFolderUploadRounded,
@@ -40,7 +40,7 @@ interface UserData {
 }
 
 const EditProduct = () => {
-  const baseUrl = process.env.REACT_APP_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [expired, setExpired] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [closeModal, setCloseModal] = useState<boolean>(true);
