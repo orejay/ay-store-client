@@ -1,341 +1,295 @@
-﻿import { ExpandMoreRounded, ShoppingCart } from "@mui/icons-material";
-import {
-  Box,
-  Typography,
-  Button,
-  Card,
-  CardActions,
-  Collapse,
-  CardContent,
-  useMediaQuery,
-} from "@mui/material";
 import React, { useState, useEffect } from "react";
+import {
+  Box, Button, Chip, Collapse, Divider, IconButton,
+  Typography, useTheme, useMediaQuery,
+} from "@mui/material";
+import {
+  ExpandMoreRounded, ShoppingBagOutlined,
+  LocationOnOutlined, LocalShippingOutlined,
+  ReceiptLongOutlined,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import IconButton, { IconButtonProps } from "@mui/material/IconButton";
-import { styled } from "@mui/material/styles";
-import FlexBetween from "components/FlexBetween";
+import { brand } from "../../theme";
 
 interface AddressData {
-  _id: string;
-  contactName: string;
-  phoneNumber: string;
-  user: string;
-  isDefault: boolean;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: string;
+  _id: string; contactName: string; phoneNumber: string;
+  user: string; isDefault: boolean; address: string;
+  city: string; state: string; country: string;
+  createdAt: string; updatedAt: string; __v: string;
 }
 interface ProductData {
-  name: string;
-  quantity: number;
-  price: number;
-  rating: number;
-  discount: number;
-  imageName: string;
-  imagePath: string;
-  description: string;
-  category: string;
-  supply: number;
-  _id: string;
+  name: string; quantity: number; price: number; rating: number;
+  discount: number; imageName: string; imagePath: string;
+  description: string; category: string; supply: number; _id: string;
 }
-
 interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  id: string;
-  token: string;
+  firstName: string; lastName: string; email: string;
+  phoneNumber: string; role: string; id: string; token: string;
 }
-
-interface OrderData {
-  product: ProductData;
-  quantity: number;
-}
-
+interface OrderData { product: ProductData; quantity: number; }
 interface OrdersData {
-  _id: string;
-  order: OrderData[];
-  address: AddressData;
-  instructions: string;
-  userId: string;
-  status: string;
+  _id: string; order: OrderData[]; address: AddressData;
+  instructions: string; userId: string; status: string;
 }
 
-interface ExpandMoreProps extends IconButtonProps {
-  expand: boolean;
-}
+const statusConfig: Record<string, { label: string; color: "warning" | "info" | "success" | "error" | "default" }> = {
+  new: { label: "New", color: "warning" },
+  processing: { label: "Processing", color: "info" },
+  shipped: { label: "Shipped", color: "info" },
+  delivered: { label: "Delivered", color: "success" },
+  cancelled: { label: "Cancelled", color: "error" },
+};
 
-const ExpandMore = styled((props: ExpandMoreProps) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
+const OrderCard = ({
+  order,
+  isDark,
+  borderColor,
+  onCancel,
+}: {
+  order: OrdersData;
+  isDark: boolean;
+  borderColor: string;
+  onCancel: (id: string) => void;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const cfg = statusConfig[order.status] ?? { label: order.status, color: "default" as const };
+
+  const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const orderTotal = order.order.reduce(
+    (acc, i) => acc + i.product.price * i.quantity * ((100 - i.product.discount) / 100),
+    0
+  );
+
+  return (
+    <Box
+      sx={{
+        borderRadius: "16px",
+        border: `1px solid ${borderColor}`,
+        backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+        overflow: "hidden",
+        transition: "box-shadow 0.25s ease",
+        "&:hover": {
+          boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.5)" : "0 8px 28px rgba(0,0,0,0.08)",
+        },
+      }}
+    >
+      {/* Card header */}
+      <Box
+        sx={{
+          px: "18px", py: "14px",
+          borderBottom: `1px solid ${borderColor}`,
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          flexWrap: "wrap", gap: "8px",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <ReceiptLongOutlined sx={{ fontSize: "15px", color: "text.secondary" }} />
+          <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary" fontWeight={600}>
+            #{order._id.slice(-8).toUpperCase()}
+          </Typography>
+        </Box>
+        <Chip
+          label={cfg.label}
+          color={cfg.color}
+          size="small"
+          sx={{ fontFamily: "Nunito", fontWeight: 700, fontSize: "0.72rem" }}
+        />
+      </Box>
+
+      {/* Card body */}
+      <Box sx={{ p: "18px" }}>
+        {/* Item count + total */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: "14px" }}>
+          <Box>
+            <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem" mb="2px">
+              {order.order.length} {order.order.length === 1 ? "item" : "items"}
+            </Typography>
+            <Typography fontFamily="Nunito" fontSize="0.8rem" color="text.secondary">
+              {order.order.map((o) => o.product.name[0].toUpperCase() + o.product.name.slice(1)).join(", ")}
+            </Typography>
+          </Box>
+          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.05rem" color="primary">
+            ${fmt(orderTotal)}
+          </Typography>
+        </Box>
+
+        {/* Delivery address */}
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "8px", mb: "14px" }}>
+          <LocationOnOutlined sx={{ fontSize: "15px", color: brand.secondary, mt: "2px", flexShrink: 0 }} />
+          <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" lineHeight={1.55}>
+            {order.address.address}, {order.address.city}, {order.address.state} · {order.address.phoneNumber}
+          </Typography>
+        </Box>
+
+        {/* Actions row */}
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Box>
+            {order.status === "new" && !confirming && (
+              <Button
+                size="small"
+                color="error"
+                variant="outlined"
+                sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.78rem", py: "4px" }}
+                onClick={() => setConfirming(true)}
+              >
+                Cancel Order
+              </Button>
+            )}
+            {confirming && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.82rem" color="text.secondary">
+                  Confirm cancel?
+                </Typography>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="error"
+                  sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.76rem", py: "3px", minWidth: "auto", px: "12px" }}
+                  onClick={() => { onCancel(order._id); setConfirming(false); }}
+                >
+                  Yes
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.76rem", py: "3px", minWidth: "auto", px: "12px" }}
+                  onClick={() => setConfirming(false)}
+                >
+                  No
+                </Button>
+              </Box>
+            )}
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setExpanded(!expanded)}
+            sx={{
+              transition: "transform 0.25s ease",
+              transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+              color: "text.secondary",
+            }}
+          >
+            <ExpandMoreRounded sx={{ fontSize: "20px" }} />
+          </IconButton>
+        </Box>
+
+        {/* Expanded items */}
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Divider sx={{ borderColor, my: "14px" }} />
+          <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.78rem" color="text.secondary"
+            letterSpacing="0.06em" textTransform="uppercase" mb="12px">
+            Order Items
+          </Typography>
+          {order.order.map((item, i) => (
+            <Box
+              key={i}
+              sx={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                py: "10px",
+                borderBottom: i < order.order.length - 1 ? `1px solid ${borderColor}` : "none",
+              }}
+            >
+              <Box>
+                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem">
+                  {item.product.name[0].toUpperCase()}{item.product.name.slice(1)}
+                </Typography>
+                <Typography fontFamily="Nunito" fontSize="0.76rem" color="text.secondary">
+                  {item.product.category} · Qty {item.quantity}
+                </Typography>
+              </Box>
+              <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary">
+                ${fmt(item.product.price * item.quantity * ((100 - item.product.discount) / 100))}
+              </Typography>
+            </Box>
+          ))}
+        </Collapse>
+      </Box>
+    </Box>
+  );
+};
 
 const Orders = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
-  const [expanded, setExpanded] = useState(false);
-  const [toCancel, setToCancel] = useState("");
-  const user: UserData | null = JSON.parse(
-    localStorage.getItem("user") || "null"
-  ) as UserData | null;
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<OrdersData[]>([]);
-  const token = user?.token;
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
 
-  useEffect(() => {
-    getOrders();
-  }, []);
+  const getOrders = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/get/orders`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      const jsonData = await response.json();
+      setData(jsonData);
+    } catch { /* silent */ }
+  };
 
   const cancelOrder = async (id: string) => {
     try {
       const response = await fetch(`${baseUrl}/edit/orders/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${user?.token}` },
       });
-      const jsonData = await response.json();
       if (response.ok) getOrders();
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error canceling order", error);
-    }
+    } catch { /* silent */ }
   };
 
-  const getOrders = async () => {
-    try {
-      const response = await fetch(`${baseUrl}/get/orders`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const jsonData = await response.json();
-      setData(jsonData);
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  useEffect(() => { getOrders(); }, []);
 
   return (
-    <Box>
-      <Box sx={{ borderBottom: "1px solid #E0E0E0", pl: "30px", py: "10px" }}>
-        <Typography
-          fontFamily="Playfair Display"
-          fontWeight="bold"
-          color="secondary"
-          variant="h5"
-        >
-          Orders
+    <Box sx={{ p: { xs: "16px", md: "28px" } }}>
+      {/* Page header */}
+      <Box sx={{ pb: "20px", borderBottom: `1px solid ${borderColor}`, mb: "24px" }}>
+        <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
+          My Orders
+        </Typography>
+        <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mt="2px">
+          Track and manage your order history
         </Typography>
       </Box>
-      {data && (
-        <Box sx={{ p: "20px" }}>
-          {data?.length > 0 ? (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
-                // gridAutoRows: "180px",
-                gap: "20px",
-                overflow: "auto",
-                maxHeight: "80vh",
-                pb: "15px",
-                "&::-webkit-scrollbar": {
-                  width: "0.4em",
-                },
-                "&::-webkit-scrollbar-track": {
-                  background: "transparent",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "gray",
-                },
-                "&::-webkit-scrollbar-thumb:hover": {
-                  background: "darkgray",
-                },
-              }}
-            >
-              {data.length > 0 &&
-                data?.map((each) => (
-                  <Card
-                    key={each._id}
-                    sx={{
-                      borderRadius: "5px",
-                      // border: "1px solid #E0E0E0",
-                      backgroundColor: "#f7f7f7",
-                      gridColumn: "span 1",
-                      p: "15px",
-                    }}
-                  >
-                    <Box display="flex" sx={{}}>
-                      <Typography fontSize="15px" fontWeight="bold">
-                        Order:{" "}
-                      </Typography>
-                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                        {each._id}
-                      </Typography>
-                    </Box>
-                    <Box display="flex" sx={{}}>
-                      <Typography fontSize="15px" fontWeight="bold">
-                        Status:{" "}
-                      </Typography>
-                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                        {each.status}
-                      </Typography>
-                    </Box>
-                    <Box display="flex" sx={{}}>
-                      <Typography fontSize="15px" fontWeight="bold">
-                        Address:{" "}
-                      </Typography>
-                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                        {each.address.address}
-                      </Typography>
-                    </Box>
-                    <Box display="flex" sx={{}}>
-                      <Typography fontSize="15px" fontWeight="bold">
-                        Contact:{" "}
-                      </Typography>
-                      <Typography fontSize="14px" fontStyle="italic" ml="5px">
-                        {each.address.phoneNumber}
-                      </Typography>
-                    </Box>
-                    <CardActions disableSpacing>
-                      {each.status === "new" && toCancel !== each._id ? (
-                        <Button onClick={() => setToCancel(each._id)}>
-                          <Typography fontWeight="bold" textTransform="none">
-                            Cancel Order
-                          </Typography>
-                        </Button>
-                      ) : toCancel === each._id ? (
-                        <FlexBetween gap="10px">
-                          <Typography
-                            fontWeight="bold"
-                            fontStyle="italic"
-                            color="primary"
-                          >
-                            Confirm
-                          </Typography>
-                          <Button
-                            variant="contained"
-                            sx={{ borderRadius: "20px" }}
-                            color="warning"
-                            onClick={() => cancelOrder(each._id)}
-                          >
-                            <Typography color="white" fontSize="12px">
-                              Yes
-                            </Typography>
-                          </Button>
-                          <Button
-                            onClick={() => setToCancel("")}
-                            variant="contained"
-                            sx={{ borderRadius: "20px" }}
-                            color="success"
-                          >
-                            <Typography color="white" fontSize="12px">
-                              No
-                            </Typography>
-                          </Button>
-                        </FlexBetween>
-                      ) : (
-                        ""
-                      )}
-                      <ExpandMore
-                        expand={expanded}
-                        onClick={handleExpandClick}
-                        aria-expanded={expanded}
-                        aria-label="show more"
-                      >
-                        <ExpandMoreRounded />
-                      </ExpandMore>
-                    </CardActions>
-                    <Collapse in={expanded} timeout="auto" unmountOnExit>
-                      <CardContent>
-                        <Typography
-                          fontWeight="bold"
-                          fontFamily="Playfair Display"
-                        >
-                          ITEMS:
-                        </Typography>
-                        {each.order.map((each) => (
-                          <Box display="flex" mt="10px">
-                            <Typography fontWeight="bold">
-                              Product: {each.product.name},
-                            </Typography>
-                            <Typography fontWeight="bold" ml="5px">
-                              Quantity: {each.quantity}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </CardContent>
-                    </Collapse>
-                  </Card>
-                ))}
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
-                pt: "50px",
-              }}
-            >
-              <ShoppingCart
-                sx={{
-                  fontSize: "90px",
-                  color: "#Ed981b",
-                  transform: "rotate(-15deg)",
-                }}
-              />
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                fontSize="20px"
-                pt="20px"
-              >
-                You have placed no orders yet!
-              </Typography>
-              <Typography
-                pt="10px"
-                fontSize="14px"
-                sx={{ maxWidth: "40%", textAlign: "center" }}
-              >
-                All your orders will be saved here for you to access their state
-                anytime.
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{ px: "30px", mt: "15px", borderRadius: "20px" }}
-              >
-                <Link to="/shop" className="w-full h-full">
-                  <Typography
-                    color="#FFFFFF"
-                    fontWeight="bold"
-                    fontFamily="Nunito"
-                  >
-                    Continue Shopping
-                  </Typography>
-                </Link>
-              </Button>
-            </Box>
-          )}
+
+      {data.length > 0 ? (
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)",
+            gap: "16px",
+          }}
+        >
+          {data.map((order) => (
+            <OrderCard
+              key={order._id}
+              order={order}
+              isDark={isDark}
+              borderColor={borderColor}
+              onCancel={cancelOrder}
+            />
+          ))}
+        </Box>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", pt: "60px", textAlign: "center" }}>
+          <Box sx={{
+            width: "80px", height: "80px", borderRadius: "50%",
+            backgroundColor: `${brand.primary}12`,
+            display: "flex", alignItems: "center", justifyContent: "center", mb: "20px",
+          }}>
+            <ShoppingBagOutlined sx={{ fontSize: "38px", color: brand.primary }} />
+          </Box>
+          <Typography fontFamily="Playfair Display" fontWeight={700} fontSize="1.3rem" mb="10px">
+            No orders yet
+          </Typography>
+          <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.9rem" mb="28px" sx={{ maxWidth: "340px" }}>
+            When you place an order, it will appear here. All your order details and status updates are saved in one place.
+          </Typography>
+          <Link to="/shop">
+            <Button variant="contained" sx={{ px: "32px", py: "12px" }}>
+              Start Shopping
+            </Button>
+          </Link>
         </Box>
       )}
     </Box>

@@ -1,80 +1,60 @@
-﻿import {
-  Box,
-  Button,
-  FormControl,
-  IconButton,
-  Input,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-  useMediaQuery,
+import React, { useState, useEffect } from "react";
+import {
+  Box, Button, TextField, Typography, useTheme,
+  InputAdornment, IconButton, Alert, LinearProgress,
 } from "@mui/material";
-import { VisibilityOff, Visibility, Warning } from "@mui/icons-material";
+import { VisibilityOff, Visibility, CheckCircleRounded, StorefrontRounded } from "@mui/icons-material";
 import Header from "components/Header";
 import { Link, useNavigate } from "react-router-dom";
-import { CSSTransition } from "react-transition-group";
-import React, { useState, useEffect } from "react";
 import Footer from "components/Footer";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
-
-interface BodyState {
-  password: string;
-  email: string;
-}
+import { brand } from "../../theme";
 
 interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  _id: string;
-  token: string;
+  firstName: string; lastName: string; email: string;
+  phoneNumber: string; role: string; _id: string; token: string;
 }
 
 const SignIn = () => {
-  const isMediumScreen = useMediaQuery("(max-width: 768px)");
-  const isSmallScreen = useMediaQuery("(max-width: 450px)");
-  const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [isUser, setIsUser] = useState<boolean>(true);
-  const [wrongPass, setWrongPass] = useState<boolean>(false);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState<UserData | null>(null);
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const prevPage = useSelector((state: RootState) => state.global.prevPage);
   const navigate = useNavigate();
-  const [body, setBody] = useState<BodyState>({
-    password: "",
-    email: "",
-  });
+  const [body, setBody] = useState({ password: "", email: "" });
+
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
 
   const signIn = async () => {
+    setError("");
+    setLoading(true);
     try {
-      console.log(body);
-      console.log(JSON.stringify(body));
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const jsonData = await response.json();
-
-      if (response.status === 404) setIsUser(false);
-      if (response.status === 401) setWrongPass(true);
-
-      if (response.ok) {
+      if (response.status === 404) setError("No account found with this email.");
+      else if (response.status === 401) setError("Incorrect password. Please try again.");
+      else if (response.ok) {
         setData(jsonData.userData);
         setIsSignedIn(true);
         localStorage.setItem("token", jsonData.userData.token);
         localStorage.setItem("user", JSON.stringify(jsonData.userData));
+      } else {
+        setError("Something went wrong. Please try again.");
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch {
+      setError("Unable to connect. Please check your network.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,148 +66,135 @@ const SignIn = () => {
         } else {
           navigate("/admin/account");
         }
-      }, 3000);
+      }, 2500);
     }
   }, [isSignedIn, navigate]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: theme.palette.background.default }}>
       <Header />
-      <Box
-        height="100vh"
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-      >
-        <CSSTransition
-          in={!isSignedIn}
-          timeout={1000}
-          classNames="fade"
-          unmountOnExit
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              border: !isSmallScreen ? "2px solid #E0E0E0" : "",
-              borderRadius: "30px",
-              width: isSmallScreen ? "90%" : isMediumScreen ? "50%" : "35%",
-              p: "4%",
-              mt: isMediumScreen ? "60px" : "",
-            }}
-          >
-            <Typography
-              variant="h4"
-              fontFamily="Playfair Display"
-              fontWeight="bold"
-              color="secondary"
-              mb="35px"
-            >
+      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", pt: "90px", pb: "60px", px: "16px" }}>
+
+        {isSignedIn ? (
+          <Box sx={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "20px", maxWidth: "360px" }}>
+            <Box sx={{
+              width: "90px", height: "90px", borderRadius: "50%",
+              background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: `0 12px 40px ${brand.primary}45`,
+              animation: "pop 0.4s ease",
+              "@keyframes pop": { "0%": { transform: "scale(0.6)", opacity: 0 }, "100%": { transform: "scale(1)", opacity: 1 } },
+            }}>
+              <CheckCircleRounded sx={{ fontSize: "50px", color: "#fff" }} />
+            </Box>
+            <Box>
+              <Typography variant="h4" fontFamily="Playfair Display" fontWeight={900} mb="8px">
+                Welcome back, {data?.firstName}!
+              </Typography>
+              <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.95rem">
+                Taking you to your dashboard…
+              </Typography>
+            </Box>
+            <LinearProgress
+              color="primary"
+              sx={{ width: "180px", borderRadius: "100px", height: "5px", backgroundColor: `${brand.primary}25` }}
+            />
+          </Box>
+        ) : (
+          <Box sx={{
+            width: "100%", maxWidth: "460px",
+            backgroundColor: isDark ? "#16161A" : "#fff",
+            borderRadius: "20px",
+            border: `1px solid ${borderColor}`,
+            boxShadow: isDark ? "0 8px 48px rgba(0,0,0,0.45)" : "0 8px 48px rgba(0,0,0,0.08)",
+            p: { xs: "28px 24px", md: "44px 40px" },
+          }}>
+            {/* Brand mark */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "32px" }}>
+              <Box sx={{
+                width: "38px", height: "38px", borderRadius: "10px",
+                background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: `0 4px 12px ${brand.primary}40`,
+              }}>
+                <StorefrontRounded sx={{ fontSize: "20px", color: "#fff" }} />
+              </Box>
+              <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.15rem">
+                AY Store
+              </Typography>
+            </Box>
+
+            <Typography variant="h5" fontFamily="Playfair Display" fontWeight={700} mb="6px">
               Sign In
             </Typography>
-            <CSSTransition
-              in={!isUser || wrongPass}
-              timeout={1000}
-              classNames="elastic-bounce"
-              unmountOnExit
-            >
-              <Typography
-                fontStyle="italic"
-                fontFamily="Nunito"
-                sx={{
-                  backgroundColor: "#ff5316",
-                  p: "5px 5px 5px 10px",
-                  borderRadius: "5px",
-                  mb: "20px",
-                  color: "white",
-                }}
-              >
-                {!isUser
-                  ? "User does not exist!"
-                  : wrongPass
-                  ? "Incorrect password!"
-                  : ""}
-              </Typography>
-            </CSSTransition>
+            <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.9rem" mb="28px">
+              Welcome back! Enter your credentials to continue.
+            </Typography>
 
-            <FormControl variant="outlined" sx={{ mb: "20px" }}>
-              <InputLabel color="secondary">Email</InputLabel>
-              <Input
-                required
-                type="email"
-                color="secondary"
-                onChange={(e) =>
-                  setBody((body) => ({ ...body, email: e.target.value }))
-                }
-              />
-            </FormControl>
-            <FormControl variant="outlined" sx={{ mb: "20px" }}>
-              <InputLabel color="secondary">Password</InputLabel>
-              <Input
-                required
-                type={showPassword ? "text" : "password"}
-                color="secondary"
-                onChange={(e) =>
-                  setBody((body) => ({ ...body, password: e.target.value }))
-                }
-                endAdornment={
+            {error && (
+              <Alert
+                severity="error"
+                sx={{ mb: "20px", borderRadius: "10px", fontFamily: "Nunito", fontSize: "0.85rem" }}
+                onClose={() => setError("")}
+              >
+                {error}
+              </Alert>
+            )}
+
+            <TextField
+              label="Email address"
+              type="email"
+              fullWidth
+              required
+              value={body.email}
+              onChange={(e) => setBody((b) => ({ ...b, email: e.target.value }))}
+              sx={{ mb: "16px" }}
+            />
+            <TextField
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              fullWidth
+              required
+              value={body.password}
+              onChange={(e) => setBody((b) => ({ ...b, password: e.target.value }))}
+              onKeyDown={(e) => e.key === "Enter" && signIn()}
+              InputProps={{
+                endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    <IconButton onClick={() => setShowPassword(!showPassword)} size="small" edge="end">
+                      {showPassword ? <VisibilityOff sx={{ fontSize: "19px" }} /> : <Visibility sx={{ fontSize: "19px" }} />}
                     </IconButton>
                   </InputAdornment>
-                }
-              />
-            </FormControl>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              sx={{ width: "100%" }}
-            >
-              <Typography fontSize="14px" fontStyle="italic">
-                Don't have an account?
-              </Typography>
-              <Link
-                to="/signup"
-                className="underline italic text-sm text-secondary"
-              >
-                Signup
+                ),
+              }}
+              sx={{ mb: "10px" }}
+            />
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: "28px" }}>
+              <Link to="/forgot-password" style={{ color: brand.secondary, fontFamily: "Nunito", fontSize: "0.83rem", fontStyle: "italic", fontWeight: 600 }}>
+                Forgot password?
               </Link>
             </Box>
-            <Link
-              to="/forgot-password"
-              className="underline italic text-sm text-secondary mt-1"
-              style={{ alignSelf: "flex-end" }}
-            >
-              Forgot password?
-            </Link>
+
             <Button
               variant="contained"
-              sx={{ borderRadius: "20px", mt: "15px" }}
+              fullWidth
+              size="large"
               onClick={signIn}
+              disabled={loading}
+              sx={{ py: "14px", fontSize: "1rem", mb: "22px", letterSpacing: "0.02em" }}
             >
-              <Typography color="#ffffff">Sign In</Typography>
+              {loading ? "Signing in…" : "Sign In"}
             </Button>
+
+            <Typography fontFamily="Nunito" fontSize="0.88rem" textAlign="center" color="text.secondary">
+              Don't have an account?{" "}
+              <Link to="/signup" style={{ color: brand.primary, fontWeight: 700 }}>
+                Create account
+              </Link>
+            </Typography>
           </Box>
-        </CSSTransition>
-        <CSSTransition
-          in={isSignedIn}
-          timeout={1000}
-          classNames="elastic-bounce"
-          unmountOnExit
-        >
-          <Typography
-            variant="h4"
-            fontFamily="Playfair Display"
-            fontWeight="bold"
-          >
-            Welcome! {data?.firstName}
-          </Typography>
-        </CSSTransition>
+        )}
       </Box>
       <Footer />
     </Box>

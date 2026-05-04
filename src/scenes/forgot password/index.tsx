@@ -1,16 +1,24 @@
-import { Box, Button, Input, InputLabel, FormControl, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box, Button, TextField, Typography, useTheme, Alert, CircularProgress,
+} from "@mui/material";
+import { MarkEmailReadRounded, StorefrontRounded } from "@mui/icons-material";
 import Footer from "components/Footer";
 import Header from "components/Header";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { brand } from "../../theme";
 
 const ForgotPassword = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +32,7 @@ const ForgotPassword = () => {
       const data = await res.json();
       if (res.ok) {
         setStatus("success");
-        setMessage(data.resetToken
-          ? `Reset token: ${data.resetToken}`
-          : "Check your email for a reset link."
-        );
+        setMessage(data.resetToken ? `Reset token: ${data.resetToken}` : "Check your email for a reset link.");
       } else {
         setStatus("error");
         setMessage(data.message || "Something went wrong.");
@@ -41,114 +46,114 @@ const ForgotPassword = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: theme.palette.background.default }}>
       <Header />
-      <Box
-        sx={{
-          pt: "120px",
-          pb: "80px",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: "420px",
-            backgroundColor: "white",
-            borderRadius: "8px",
-            boxShadow: "2px 2px 12px #E0E0E0",
-            p: "36px",
-          }}
-        >
-          <Typography
-            variant="h5"
-            fontFamily="Playfair Display"
-            fontWeight="bold"
-            color="secondary"
-            mb="8px"
-          >
-            Forgot Password
-          </Typography>
-          <Typography fontFamily="Nunito" fontSize="14px" color="text.secondary" mb="24px">
-            Enter your account email and we'll send you a reset link.
-          </Typography>
+      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", pt: "90px", pb: "60px", px: "16px" }}>
+
+        <Box sx={{
+          width: "100%", maxWidth: "460px",
+          backgroundColor: isDark ? "#16161A" : "#fff",
+          borderRadius: "20px",
+          border: `1px solid ${borderColor}`,
+          boxShadow: isDark ? "0 8px 48px rgba(0,0,0,0.45)" : "0 8px 48px rgba(0,0,0,0.08)",
+          p: { xs: "28px 24px", md: "44px 40px" },
+        }}>
+          {/* Brand mark */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "32px" }}>
+            <Box sx={{
+              width: "38px", height: "38px", borderRadius: "10px",
+              background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: `0 4px 12px ${brand.primary}40`,
+            }}>
+              <StorefrontRounded sx={{ fontSize: "20px", color: "#fff" }} />
+            </Box>
+            <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.15rem">
+              AY Store
+            </Typography>
+          </Box>
 
           {status === "success" ? (
-            <Box>
-              <Typography
-                fontFamily="Nunito"
-                fontSize="14px"
-                sx={{
-                  backgroundColor: "#e8f5e9",
-                  p: "12px",
-                  borderRadius: "6px",
-                  wordBreak: "break-all",
-                  mb: "16px",
-                }}
-              >
-                {message}
+            <Box sx={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+              <Box sx={{
+                width: "72px", height: "72px", borderRadius: "50%",
+                backgroundColor: `${brand.secondary}18`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <MarkEmailReadRounded sx={{ fontSize: "38px", color: brand.secondary }} />
+              </Box>
+              <Typography variant="h5" fontFamily="Playfair Display" fontWeight={700}>
+                Check Your Email
               </Typography>
+              <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.9rem" textAlign="center">
+                We've sent password reset instructions to <strong>{email}</strong>
+              </Typography>
+              {message.startsWith("Reset token:") && (
+                <Box sx={{
+                  backgroundColor: isDark ? "#1E2A1F" : "#F0FAF4",
+                  border: `1px solid ${isDark ? "#2D4A2F" : "#BBF7D0"}`,
+                  borderRadius: "10px", p: "14px", width: "100%",
+                }}>
+                  <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mb="4px">Reset Token</Typography>
+                  <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.9rem" sx={{ wordBreak: "break-all" }}>
+                    {message.replace("Reset token: ", "")}
+                  </Typography>
+                </Box>
+              )}
               <Button
                 variant="contained"
                 fullWidth
-                sx={{ borderRadius: "20px", textTransform: "none" }}
+                size="large"
                 onClick={() => navigate("/reset-password")}
+                sx={{ py: "14px", mt: "8px" }}
               >
-                <Typography color="white" fontFamily="Nunito" fontWeight="bold">
-                  Enter Reset Code
-                </Typography>
+                Enter Reset Code
               </Button>
             </Box>
           ) : (
-            <form onSubmit={handleSubmit}>
-              <FormControl fullWidth variant="outlined" sx={{ mb: "24px" }}>
-                <InputLabel color="secondary">Email address</InputLabel>
-                <Input
-                  type="email"
-                  required
-                  color="secondary"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </FormControl>
+            <>
+              <Typography variant="h5" fontFamily="Playfair Display" fontWeight={700} mb="6px">
+                Forgot Password?
+              </Typography>
+              <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.9rem" mb="28px">
+                Enter your account email and we'll send you a reset link.
+              </Typography>
 
               {status === "error" && (
-                <Typography
-                  fontFamily="Nunito"
-                  fontSize="13px"
-                  sx={{ color: "#d32f2f", mb: "12px" }}
-                >
+                <Alert severity="error" sx={{ mb: "20px", borderRadius: "10px", fontFamily: "Nunito", fontSize: "0.85rem" }} onClose={() => setStatus("idle")}>
                   {message}
-                </Typography>
+                </Alert>
               )}
 
-              <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                disabled={loading}
-                sx={{ borderRadius: "20px", textTransform: "none" }}
-              >
-                <Typography color="white" fontFamily="Nunito" fontWeight="bold">
-                  {loading ? "Sending…" : "Send Reset Link"}
-                </Typography>
-              </Button>
-            </form>
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  label="Email address"
+                  type="email"
+                  fullWidth
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  sx={{ mb: "24px" }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  disabled={loading}
+                  sx={{ py: "14px", fontSize: "1rem", mb: "22px" }}
+                >
+                  {loading ? <CircularProgress size={22} sx={{ color: "#fff" }} /> : "Send Reset Link"}
+                </Button>
+              </form>
+            </>
           )}
 
-          <Typography
-            fontFamily="Nunito"
-            fontSize="13px"
-            textAlign="center"
-            mt="20px"
-            sx={{ cursor: "pointer", color: "#077488" }}
-            onClick={() => navigate("/signin")}
-          >
-            Back to Sign In
+          <Typography fontFamily="Nunito" fontSize="0.87rem" textAlign="center" color="text.secondary" mt="8px">
+            Remember your password?{" "}
+            <Link to="/signin" style={{ color: brand.primary, fontWeight: 700 }}>
+              Sign in
+            </Link>
           </Typography>
         </Box>
       </Box>

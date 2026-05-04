@@ -1,52 +1,39 @@
-import { Email } from "@mui/icons-material";
-import { Box, Typography } from "@mui/material";
 import React from "react";
+import { Box, Typography, useTheme } from "@mui/material";
+import { MailOutlineRounded } from "@mui/icons-material";
+import { brand } from "../../theme";
 
 const Inbox = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
+
   return (
-    <Box>
-      <Box sx={{ borderBottom: "1px solid #E0E0E0", pl: "30px", py: "10px" }}>
-        <Typography
-          fontFamily="Playfair Display"
-          fontWeight="bold"
-          color="secondary"
-          variant="h5"
-        >
+    <Box sx={{ p: { xs: "16px", md: "28px" } }}>
+      {/* Page header */}
+      <Box sx={{ pb: "20px", borderBottom: `1px solid ${borderColor}`, mb: "24px" }}>
+        <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
           Inbox
         </Typography>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
-          pt: "60px",
-        }}
-      >
-        <Email
-          sx={{
-            fontSize: "90px",
-            color: "#Ed981b",
-            transform: "rotate(-15deg)",
-          }}
-        />
-        <Typography
-          fontFamily="Nunito"
-          fontWeight="bold"
-          fontSize="20px"
-          pt="20px"
-        >
-          You have no message at the moment!
+        <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mt="2px">
+          Messages and notifications from the store
         </Typography>
-        <Typography
-          pt="10px"
-          fontSize="14px"
-          sx={{ maxWidth: "40%", textAlign: "center" }}
-        >
-          Here you will be able to see all the messages that we send you. Stay
-          tuned.
+      </Box>
+
+      {/* Empty state */}
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", pt: "60px", textAlign: "center" }}>
+        <Box sx={{
+          width: "80px", height: "80px", borderRadius: "50%",
+          backgroundColor: `${brand.secondary}12`,
+          display: "flex", alignItems: "center", justifyContent: "center", mb: "20px",
+        }}>
+          <MailOutlineRounded sx={{ fontSize: "38px", color: brand.secondary }} />
+        </Box>
+        <Typography fontFamily="Playfair Display" fontWeight={700} fontSize="1.3rem" mb="10px">
+          No messages yet
+        </Typography>
+        <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.9rem" sx={{ maxWidth: "340px" }}>
+          When we have updates, promotions, or news for you, they'll appear right here. Stay tuned!
         </Typography>
       </Box>
     </Box>
