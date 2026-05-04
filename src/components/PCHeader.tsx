@@ -28,10 +28,18 @@ import { RootState, useAppDispatch } from "store";
 import { setCart, setShowCart, setShowSearches, setThemeMode } from "state";
 import { brand } from "../theme";
 
-interface ProductData { name: string; _id: string; }
+interface ProductData {
+  name: string;
+  _id: string;
+}
 interface UserData {
-  firstName: string; lastName: string; email: string;
-  phoneNumber: string; role: string; id: string; token: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  id: string;
+  token: string;
 }
 
 const nav = [
@@ -50,11 +58,15 @@ const PCHeader = () => {
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const imageUrl = import.meta.env.VITE_IMAGE_URL;
-  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
+  const user: UserData | null = JSON.parse(
+    localStorage.getItem("user") || "null",
+  );
 
   const cart = useSelector((state: RootState) => state.global.cart);
   const showCart = useSelector((state: RootState) => state.global.showCart);
-  const showSearches = useSelector((state: RootState) => state.global.showSearches);
+  const showSearches = useSelector(
+    (state: RootState) => state.global.showSearches,
+  );
   const themeMode = useSelector((state: RootState) => state.global.themeMode);
 
   const [searchText, setSearchText] = useState("");
@@ -62,21 +74,38 @@ const PCHeader = () => {
   const [searchFocused, setSearchFocused] = useState(false);
 
   const formatNum = (n: string) => n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  const cartTotal = cart.reduce((acc, item) => acc + item.price * item.quantity * ((100 - item.discount) / 100), 0);
+  const cartTotal = cart.reduce(
+    (acc, item) =>
+      acc + item.price * item.quantity * ((100 - item.discount) / 100),
+    0,
+  );
 
-  const logout = () => { localStorage.removeItem("user"); navigate("/signin"); };
+  const logout = () => {
+    localStorage.removeItem("user");
+    navigate("/signin");
+  };
 
   const search = async (val: string) => {
-    if (val.length < 2) { setSearchResults([]); dispatch(setShowSearches(false)); return; }
+    if (val.length < 2) {
+      setSearchResults([]);
+      dispatch(setShowSearches(false));
+      return;
+    }
     try {
       const res = await fetch(`${baseUrl}/get/products/search?name=${val}`);
       const data = await res.json();
       setSearchResults(data.products || []);
       dispatch(setShowSearches(true));
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
-  useEffect(() => { dispatch(setShowSearches(false)); setSearchText(""); setSearchResults([]); }, [pathname]);
+  useEffect(() => {
+    dispatch(setShowSearches(false));
+    setSearchText("");
+    setSearchResults([]);
+  }, [pathname]);
 
   const glassStyle = {
     backdropFilter: "blur(20px)",
@@ -85,7 +114,8 @@ const PCHeader = () => {
     borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
   };
 
-  const accountPath = user?.role === "user" ? "/customer/account" : "/admin/account";
+  const accountPath =
+    user?.role === "user" ? "/customer/account" : "/admin/account";
 
   return (
     <Box
@@ -115,12 +145,14 @@ const PCHeader = () => {
             lineHeight: 1,
           }}
         >
-          BEAUTY
+          FASHIONERO
         </Typography>
       </Link>
 
       {/* Nav links */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: "4px", ml: "40px" }}>
+      <Box
+        sx={{ display: "flex", alignItems: "center", gap: "4px", ml: "40px" }}
+      >
         {nav.map(({ label, path }) => {
           const isActive = pathname === path || pathname.startsWith(path + "/");
           return (
@@ -134,7 +166,9 @@ const PCHeader = () => {
                   fontWeight: isActive ? 800 : 600,
                   fontSize: "0.9rem",
                   color: isActive ? brand.primary : theme.palette.text.primary,
-                  backgroundColor: isActive ? `${brand.primary}14` : "transparent",
+                  backgroundColor: isActive
+                    ? `${brand.primary}14`
+                    : "transparent",
                   transition: "all 0.2s ease",
                   "&:hover": {
                     backgroundColor: `${brand.primary}0D`,
@@ -168,17 +202,39 @@ const PCHeader = () => {
             width: searchFocused ? "240px" : "180px",
           }}
         >
-          <SearchRounded sx={{ fontSize: "18px", color: theme.palette.text.secondary, flexShrink: 0 }} />
+          <SearchRounded
+            sx={{
+              fontSize: "18px",
+              color: theme.palette.text.secondary,
+              flexShrink: 0,
+            }}
+          />
           <InputBase
             placeholder="Search products…"
             value={searchText}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-            onChange={(e) => { setSearchText(e.target.value); search(e.target.value); }}
-            sx={{ fontFamily: "Nunito", fontSize: "0.88rem", flex: 1, "& input": { p: 0 } }}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              search(e.target.value);
+            }}
+            sx={{
+              fontFamily: "Nunito",
+              fontSize: "0.88rem",
+              flex: 1,
+              "& input": { p: 0 },
+            }}
           />
           {searchText && (
-            <IconButton size="small" sx={{ p: "2px" }} onClick={() => { setSearchText(""); setSearchResults([]); dispatch(setShowSearches(false)); }}>
+            <IconButton
+              size="small"
+              sx={{ p: "2px" }}
+              onClick={() => {
+                setSearchText("");
+                setSearchResults([]);
+                dispatch(setShowSearches(false));
+              }}
+            >
               <CloseRounded sx={{ fontSize: "14px" }} />
             </IconButton>
           )}
@@ -195,7 +251,9 @@ const PCHeader = () => {
               width: "280px",
               borderRadius: "12px",
               overflow: "hidden",
-              boxShadow: isDark ? "0 8px 32px rgba(0,0,0,0.5)" : "0 8px 32px rgba(0,0,0,0.12)",
+              boxShadow: isDark
+                ? "0 8px 32px rgba(0,0,0,0.5)"
+                : "0 8px 32px rgba(0,0,0,0.12)",
               border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "#EBEBEB"}`,
               backgroundColor: isDark ? "#1A1A1F" : "#FFFFFF",
               zIndex: 200,
@@ -206,7 +264,10 @@ const PCHeader = () => {
                 <Link
                   key={item._id}
                   to={`/products/${item._id}`}
-                  onClick={() => { dispatch(setShowSearches(false)); setSearchText(""); }}
+                  onClick={() => {
+                    dispatch(setShowSearches(false));
+                    setSearchText("");
+                  }}
                 >
                   <Box
                     sx={{
@@ -215,11 +276,20 @@ const PCHeader = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: "10px",
-                      "&:hover": { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#F9FAFB" },
+                      "&:hover": {
+                        backgroundColor: isDark
+                          ? "rgba(255,255,255,0.05)"
+                          : "#F9FAFB",
+                      },
                       transition: "background 0.15s",
                     }}
                   >
-                    <SearchRounded sx={{ fontSize: "15px", color: theme.palette.text.secondary }} />
+                    <SearchRounded
+                      sx={{
+                        fontSize: "15px",
+                        color: theme.palette.text.secondary,
+                      }}
+                    />
                     <Typography fontFamily="Nunito" fontSize="0.88rem">
                       {item.name}
                     </Typography>
@@ -228,7 +298,11 @@ const PCHeader = () => {
               ))
             ) : (
               <Box sx={{ px: "16px", py: "14px" }}>
-                <Typography fontFamily="Nunito" fontSize="0.85rem" color="text.secondary">
+                <Typography
+                  fontFamily="Nunito"
+                  fontSize="0.85rem"
+                  color="text.secondary"
+                >
                   No results for "{searchText}"
                 </Typography>
               </Box>
@@ -246,13 +320,24 @@ const PCHeader = () => {
             size="small"
             sx={{ color: theme.palette.text.secondary, p: "8px" }}
           >
-            {isDark ? <LightModeRounded sx={{ fontSize: "20px" }} /> : <DarkModeRounded sx={{ fontSize: "20px" }} />}
+            {isDark ? (
+              <LightModeRounded sx={{ fontSize: "20px" }} />
+            ) : (
+              <DarkModeRounded sx={{ fontSize: "20px" }} />
+            )}
           </IconButton>
         </Tooltip>
 
         {/* Auth */}
         {!user ? (
-          <Box sx={{ display: "flex", alignItems: "center", gap: "8px", ml: "8px" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              ml: "8px",
+            }}
+          >
             <Link to="/signin">
               <Typography
                 sx={{
@@ -290,16 +375,33 @@ const PCHeader = () => {
             </Link>
           </Box>
         ) : (
-          <Box sx={{ display: "flex", alignItems: "center", gap: "4px", ml: "4px" }}>
-            <Tooltip title={user.role === "user" ? "My Account" : "Admin Panel"} arrow>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              ml: "4px",
+            }}
+          >
+            <Tooltip
+              title={user.role === "user" ? "My Account" : "Admin Panel"}
+              arrow
+            >
               <Link to={accountPath}>
-                <IconButton size="small" sx={{ color: brand.secondary, p: "8px" }}>
+                <IconButton
+                  size="small"
+                  sx={{ color: brand.secondary, p: "8px" }}
+                >
                   <PersonOutlineRounded sx={{ fontSize: "22px" }} />
                 </IconButton>
               </Link>
             </Tooltip>
             <Tooltip title="Sign Out" arrow>
-              <IconButton size="small" onClick={logout} sx={{ color: theme.palette.text.secondary, p: "8px" }}>
+              <IconButton
+                size="small"
+                onClick={logout}
+                sx={{ color: theme.palette.text.secondary, p: "8px" }}
+              >
                 <LogoutRounded sx={{ fontSize: "19px" }} />
               </IconButton>
             </Tooltip>
@@ -309,7 +411,10 @@ const PCHeader = () => {
         {/* Cart */}
         <Tooltip title="Cart" arrow>
           <IconButton
-            onClick={() => { dispatch(setShowCart(!showCart)); dispatch(setShowSearches(false)); }}
+            onClick={() => {
+              dispatch(setShowCart(!showCart));
+              dispatch(setShowSearches(false));
+            }}
             sx={{
               ml: "4px",
               color: showCart ? brand.primary : theme.palette.text.primary,
@@ -349,7 +454,9 @@ const PCHeader = () => {
             maxHeight: "80vh",
             borderRadius: "16px",
             overflow: "hidden",
-            boxShadow: isDark ? "0 16px 48px rgba(0,0,0,0.6)" : "0 16px 48px rgba(0,0,0,0.14)",
+            boxShadow: isDark
+              ? "0 16px 48px rgba(0,0,0,0.6)"
+              : "0 16px 48px rgba(0,0,0,0.14)",
             border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "#EBEBEB"}`,
             backgroundColor: isDark ? "#1A1A1F" : "#FFFFFF",
             zIndex: 999,
@@ -358,46 +465,132 @@ const PCHeader = () => {
           }}
         >
           {/* Cart header */}
-          <Box sx={{ px: "20px", py: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` }}>
-            <Typography fontFamily="Playfair Display" fontWeight={700} fontSize="1.05rem">
+          <Box
+            sx={{
+              px: "20px",
+              py: "16px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}`,
+            }}
+          >
+            <Typography
+              fontFamily="Playfair Display"
+              fontWeight={700}
+              fontSize="1.05rem"
+            >
               My Bag ({cart.length})
             </Typography>
-            <IconButton size="small" onClick={() => dispatch(setShowCart(false))} sx={{ color: theme.palette.text.secondary }}>
+            <IconButton
+              size="small"
+              onClick={() => dispatch(setShowCart(false))}
+              sx={{ color: theme.palette.text.secondary }}
+            >
               <CloseRounded sx={{ fontSize: "18px" }} />
             </IconButton>
           </Box>
 
           {cart.length === 0 ? (
             <Box sx={{ p: "32px", textAlign: "center" }}>
-              <ShoppingBagOutlined sx={{ fontSize: "48px", color: theme.palette.text.disabled, mb: "12px" }} />
-              <Typography fontFamily="Nunito" fontWeight={700} color="text.secondary">Your bag is empty</Typography>
-              <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mt="4px">Add items to get started</Typography>
+              <ShoppingBagOutlined
+                sx={{
+                  fontSize: "48px",
+                  color: theme.palette.text.disabled,
+                  mb: "12px",
+                }}
+              />
+              <Typography
+                fontFamily="Nunito"
+                fontWeight={700}
+                color="text.secondary"
+              >
+                Your bag is empty
+              </Typography>
+              <Typography
+                fontFamily="Nunito"
+                fontSize="0.82rem"
+                color="text.secondary"
+                mt="4px"
+              >
+                Add items to get started
+              </Typography>
             </Box>
           ) : (
             <>
               {/* Cart items */}
               <Box sx={{ overflowY: "auto", flex: 1, px: "16px", py: "8px" }}>
                 {cart.map((item, i) => (
-                  <Box key={item._id} sx={{ py: "12px", borderBottom: i < cart.length - 1 ? `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` : "none", display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <Box
+                    key={item._id}
+                    sx={{
+                      py: "12px",
+                      borderBottom:
+                        i < cart.length - 1
+                          ? `1px solid ${isDark ? "#27272E" : "#F3F4F6"}`
+                          : "none",
+                      display: "flex",
+                      gap: "12px",
+                      alignItems: "flex-start",
+                    }}
+                  >
                     <Box
                       component="img"
                       src={`${imageUrl}/uploads/${item.imageName}`}
                       alt={item.name}
-                      sx={{ width: "52px", height: "52px", borderRadius: "8px", objectFit: "cover", flexShrink: 0, backgroundColor: isDark ? "#27272E" : "#F3F4F6" }}
+                      sx={{
+                        width: "52px",
+                        height: "52px",
+                        borderRadius: "8px",
+                        objectFit: "cover",
+                        flexShrink: 0,
+                        backgroundColor: isDark ? "#27272E" : "#F3F4F6",
+                      }}
                     />
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" noWrap>
-                        {item.name[0].toUpperCase()}{item.name.slice(1)}
+                      <Typography
+                        fontFamily="Nunito"
+                        fontWeight={700}
+                        fontSize="0.88rem"
+                        noWrap
+                      >
+                        {item.name[0].toUpperCase()}
+                        {item.name.slice(1)}
                       </Typography>
-                      <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary">{item.category}</Typography>
-                      <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary" mt="4px">
-                        {item.quantity} × ${formatNum((item.price * ((100 - item.discount) / 100)).toFixed(2))}
+                      <Typography
+                        fontFamily="Nunito"
+                        fontSize="0.78rem"
+                        color="text.secondary"
+                      >
+                        {item.category}
+                      </Typography>
+                      <Typography
+                        fontFamily="Nunito"
+                        fontWeight={700}
+                        fontSize="0.88rem"
+                        color="primary"
+                        mt="4px"
+                      >
+                        {item.quantity} × $
+                        {formatNum(
+                          (item.price * ((100 - item.discount) / 100)).toFixed(
+                            2,
+                          ),
+                        )}
                       </Typography>
                     </Box>
                     <IconButton
                       size="small"
-                      onClick={() => dispatch(setCart(cart.filter((c) => c._id !== item._id)))}
-                      sx={{ color: theme.palette.text.secondary, p: "4px", "&:hover": { color: brand.error ?? "#EF4444" } }}
+                      onClick={() =>
+                        dispatch(
+                          setCart(cart.filter((c) => c._id !== item._id)),
+                        )
+                      }
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        p: "4px",
+                        "&:hover": { color: brand.error ?? "#EF4444" },
+                      }}
                     >
                       <DeleteOutlineRounded sx={{ fontSize: "17px" }} />
                     </IconButton>
@@ -406,10 +599,29 @@ const PCHeader = () => {
               </Box>
 
               {/* Cart footer */}
-              <Box sx={{ px: "20px", py: "16px", borderTop: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", mb: "14px" }}>
-                  <Typography fontFamily="Nunito" fontWeight={700}>Total</Typography>
-                  <Typography fontFamily="Nunito" fontWeight={800} color="primary" fontSize="1.05rem">
+              <Box
+                sx={{
+                  px: "20px",
+                  py: "16px",
+                  borderTop: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}`,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: "14px",
+                  }}
+                >
+                  <Typography fontFamily="Nunito" fontWeight={700}>
+                    Total
+                  </Typography>
+                  <Typography
+                    fontFamily="Nunito"
+                    fontWeight={800}
+                    color="primary"
+                    fontSize="1.05rem"
+                  >
                     ${formatNum(cartTotal.toFixed(2))}
                   </Typography>
                 </Box>
@@ -417,7 +629,10 @@ const PCHeader = () => {
                   variant="contained"
                   fullWidth
                   endIcon={<ArrowForwardRounded />}
-                  onClick={() => { navigate("/checkout"); dispatch(setShowCart(false)); }}
+                  onClick={() => {
+                    navigate("/checkout");
+                    dispatch(setShowCart(false));
+                  }}
                   sx={{ borderRadius: "100px", py: "10px", fontSize: "0.9rem" }}
                 >
                   Checkout

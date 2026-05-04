@@ -83,7 +83,7 @@ const Footer = () => {
                 display: "block",
               }}
             >
-              BEAUTY
+              FASHIONERO
             </Typography>
           </Link>
           <Typography
@@ -94,8 +94,8 @@ const Footer = () => {
             mb="24px"
             maxWidth="280px"
           >
-            Premium beauty products crafted for every skin type. Look and feel
-            your best, every day.
+            Premium fashion &amp; lifestyle products for every occasion. Look and
+            feel your best, every day.
           </Typography>
           {/* Social icons */}
           <Box sx={{ display: "flex", gap: "8px" }}>
@@ -178,7 +178,7 @@ const Footer = () => {
             lineHeight={1.65}
             mb="20px"
           >
-            Get exclusive offers, beauty tips and new arrivals delivered to your inbox.
+            Get exclusive offers, style tips and new arrivals delivered to your inbox.
           </Typography>
           <Box
             sx={{
@@ -236,7 +236,7 @@ const Footer = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>
           <CopyrightOutlined sx={{ fontSize: "13px", color: subtleText }} />
           <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">
-            {new Date().getFullYear()} Beauty. All rights reserved.
+            {new Date().getFullYear()} Fashionero. All rights reserved.
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: "20px" }}>

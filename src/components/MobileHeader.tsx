@@ -25,12 +25,24 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store";
-import { setCloseModal, setModalMessage, setShowSearches, setThemeMode } from "state";
+import {
+  setCloseModal,
+  setModalMessage,
+  setShowSearches,
+  setThemeMode,
+} from "state";
 import { brand } from "../theme";
 
-interface ProductData { name: string; _id: string; }
+interface ProductData {
+  name: string;
+  _id: string;
+}
 interface UserData {
-  firstName: string; lastName: string; role: string; token: string; id: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  token: string;
+  id: string;
 }
 
 const nav = [
@@ -47,29 +59,49 @@ const MobileHeader = () => {
   const { pathname } = useLocation();
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
+  const user: UserData | null = JSON.parse(
+    localStorage.getItem("user") || "null",
+  );
   const cart = useSelector((state: RootState) => state.global.cart);
-  const showSearches = useSelector((state: RootState) => state.global.showSearches);
+  const showSearches = useSelector(
+    (state: RootState) => state.global.showSearches,
+  );
   const themeMode = useSelector((state: RootState) => state.global.themeMode);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<ProductData[]>([]);
 
-  const logout = () => { localStorage.removeItem("user"); navigate("/signin"); setDrawerOpen(false); };
-  const accountPath = user?.role === "user" ? "/customer/account" : "/admin/account";
+  const logout = () => {
+    localStorage.removeItem("user");
+    navigate("/signin");
+    setDrawerOpen(false);
+  };
+  const accountPath =
+    user?.role === "user" ? "/customer/account" : "/admin/account";
 
   const search = async (val: string) => {
-    if (val.length < 2) { setSearchResults([]); dispatch(setShowSearches(false)); return; }
+    if (val.length < 2) {
+      setSearchResults([]);
+      dispatch(setShowSearches(false));
+      return;
+    }
     try {
       const res = await fetch(`${baseUrl}/get/products/search?name=${val}`);
       const data = await res.json();
       setSearchResults(data.products || []);
       dispatch(setShowSearches(true));
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
-  useEffect(() => { setDrawerOpen(false); dispatch(setShowSearches(false)); setSearchText(""); setSearchResults([]); }, [pathname]);
+  useEffect(() => {
+    setDrawerOpen(false);
+    dispatch(setShowSearches(false));
+    setSearchText("");
+    setSearchResults([]);
+  }, [pathname]);
 
   const glassStyle = {
     backdropFilter: "blur(20px)",
@@ -96,7 +128,11 @@ const MobileHeader = () => {
         }}
       >
         {/* Hamburger */}
-        <IconButton onClick={() => setDrawerOpen(true)} size="small" sx={{ color: theme.palette.text.primary }}>
+        <IconButton
+          onClick={() => setDrawerOpen(true)}
+          size="small"
+          sx={{ color: theme.palette.text.primary }}
+        >
           <MenuRounded />
         </IconButton>
 
@@ -112,7 +148,7 @@ const MobileHeader = () => {
                 letterSpacing: "-0.02em",
               }}
             >
-              BEAUTY
+              FASHIONERO
             </Typography>
           </Link>
         </Box>
@@ -123,21 +159,36 @@ const MobileHeader = () => {
           onClick={() => dispatch(setThemeMode(isDark ? "light" : "dark"))}
           sx={{ color: theme.palette.text.secondary }}
         >
-          {isDark ? <LightModeRounded sx={{ fontSize: "19px" }} /> : <DarkModeRounded sx={{ fontSize: "19px" }} />}
+          {isDark ? (
+            <LightModeRounded sx={{ fontSize: "19px" }} />
+          ) : (
+            <DarkModeRounded sx={{ fontSize: "19px" }} />
+          )}
         </IconButton>
 
         <IconButton
           size="small"
           onClick={() => {
             if (cart.length > 0) navigate("/checkout");
-            else { dispatch(setModalMessage("Your cart is empty!")); dispatch(setCloseModal(false)); }
+            else {
+              dispatch(setModalMessage("Your cart is empty!"));
+              dispatch(setCloseModal(false));
+            }
           }}
           sx={{ color: theme.palette.text.primary }}
         >
           <Badge
             badgeContent={cart.length}
             color="primary"
-            sx={{ "& .MuiBadge-badge": { fontSize: "9px", height: "15px", minWidth: "15px", fontFamily: "Nunito", fontWeight: 800 } }}
+            sx={{
+              "& .MuiBadge-badge": {
+                fontSize: "9px",
+                height: "15px",
+                minWidth: "15px",
+                fontFamily: "Nunito",
+                fontWeight: 800,
+              },
+            }}
           >
             <ShoppingBagOutlined sx={{ fontSize: "21px" }} />
           </Badge>
@@ -160,13 +211,33 @@ const MobileHeader = () => {
         }}
       >
         {/* Drawer header */}
-        <Box sx={{ px: "20px", py: "18px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` }}>
+        <Box
+          sx={{
+            px: "20px",
+            py: "18px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}`,
+          }}
+        >
           <Link to="/" onClick={() => setDrawerOpen(false)}>
-            <Typography sx={{ fontFamily: "Playfair Display", fontWeight: 900, fontSize: "1.3rem", color: brand.primary }}>
-              BEAUTY
+            <Typography
+              sx={{
+                fontFamily: "Playfair Display",
+                fontWeight: 900,
+                fontSize: "1.3rem",
+                color: brand.primary,
+              }}
+            >
+              FASHIONERO
             </Typography>
           </Link>
-          <IconButton size="small" onClick={() => setDrawerOpen(false)} sx={{ color: theme.palette.text.secondary }}>
+          <IconButton
+            size="small"
+            onClick={() => setDrawerOpen(false)}
+            sx={{ color: theme.palette.text.secondary }}
+          >
             <CloseRounded sx={{ fontSize: "20px" }} />
           </IconButton>
         </Box>
@@ -185,15 +256,33 @@ const MobileHeader = () => {
               backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB",
             }}
           >
-            <SearchRounded sx={{ fontSize: "17px", color: theme.palette.text.secondary }} />
+            <SearchRounded
+              sx={{ fontSize: "17px", color: theme.palette.text.secondary }}
+            />
             <InputBase
               placeholder="Search products…"
               value={searchText}
-              onChange={(e) => { setSearchText(e.target.value); search(e.target.value); }}
-              sx={{ fontFamily: "Nunito", fontSize: "0.88rem", flex: 1, "& input": { p: 0 } }}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                search(e.target.value);
+              }}
+              sx={{
+                fontFamily: "Nunito",
+                fontSize: "0.88rem",
+                flex: 1,
+                "& input": { p: 0 },
+              }}
             />
             {searchText && (
-              <IconButton size="small" sx={{ p: "2px" }} onClick={() => { setSearchText(""); setSearchResults([]); dispatch(setShowSearches(false)); }}>
+              <IconButton
+                size="small"
+                sx={{ p: "2px" }}
+                onClick={() => {
+                  setSearchText("");
+                  setSearchResults([]);
+                  dispatch(setShowSearches(false));
+                }}
+              >
                 <CloseRounded sx={{ fontSize: "13px" }} />
               </IconButton>
             )}
@@ -216,16 +305,46 @@ const MobileHeader = () => {
             >
               {searchResults.length > 0 ? (
                 searchResults.map((item) => (
-                  <Link key={item._id} to={`/products/${item._id}`} onClick={() => setDrawerOpen(false)}>
-                    <Box sx={{ px: "14px", py: "10px", display: "flex", alignItems: "center", gap: "8px", "&:hover": { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#F9FAFB" } }}>
-                      <SearchRounded sx={{ fontSize: "14px", color: theme.palette.text.secondary }} />
-                      <Typography fontFamily="Nunito" fontSize="0.85rem">{item.name}</Typography>
+                  <Link
+                    key={item._id}
+                    to={`/products/${item._id}`}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <Box
+                      sx={{
+                        px: "14px",
+                        py: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        "&:hover": {
+                          backgroundColor: isDark
+                            ? "rgba(255,255,255,0.05)"
+                            : "#F9FAFB",
+                        },
+                      }}
+                    >
+                      <SearchRounded
+                        sx={{
+                          fontSize: "14px",
+                          color: theme.palette.text.secondary,
+                        }}
+                      />
+                      <Typography fontFamily="Nunito" fontSize="0.85rem">
+                        {item.name}
+                      </Typography>
                     </Box>
                   </Link>
                 ))
               ) : (
                 <Box sx={{ px: "14px", py: "12px" }}>
-                  <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">No results for "{searchText}"</Typography>
+                  <Typography
+                    fontFamily="Nunito"
+                    fontSize="0.82rem"
+                    color="text.secondary"
+                  >
+                    No results for "{searchText}"
+                  </Typography>
                 </Box>
               )}
             </Box>
@@ -248,11 +367,18 @@ const MobileHeader = () => {
                     fontFamily: "Nunito",
                     fontWeight: isActive ? 800 : 600,
                     fontSize: "1rem",
-                    color: isActive ? brand.primary : theme.palette.text.primary,
-                    backgroundColor: isActive ? `${brand.primary}12` : "transparent",
+                    color: isActive
+                      ? brand.primary
+                      : theme.palette.text.primary,
+                    backgroundColor: isActive
+                      ? `${brand.primary}12`
+                      : "transparent",
                     mb: "2px",
                     transition: "all 0.15s ease",
-                    "&:hover": { backgroundColor: `${brand.primary}0A`, color: brand.primary },
+                    "&:hover": {
+                      backgroundColor: `${brand.primary}0A`,
+                      color: brand.primary,
+                    },
                   }}
                 >
                   {label}
@@ -269,12 +395,20 @@ const MobileHeader = () => {
           {!user ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <Link to="/signin" onClick={() => setDrawerOpen(false)}>
-                <Button variant="outlined" fullWidth sx={{ borderRadius: "100px", py: "9px" }}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{ borderRadius: "100px", py: "9px" }}
+                >
                   Sign In
                 </Button>
               </Link>
               <Link to="/signup" onClick={() => setDrawerOpen(false)}>
-                <Button variant="contained" fullWidth sx={{ borderRadius: "100px", py: "9px" }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{ borderRadius: "100px", py: "9px" }}
+                >
                   Sign Up
                 </Button>
               </Link>
@@ -290,16 +424,28 @@ const MobileHeader = () => {
                     px: "14px",
                     py: "10px",
                     borderRadius: "10px",
-                    backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB",
+                    backgroundColor: isDark
+                      ? "rgba(255,255,255,0.04)"
+                      : "#F9FAFB",
                     border: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
                   }}
                 >
-                  <PersonOutlineRounded sx={{ fontSize: "20px", color: brand.secondary }} />
+                  <PersonOutlineRounded
+                    sx={{ fontSize: "20px", color: brand.secondary }}
+                  />
                   <Box>
-                    <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.9rem">
+                    <Typography
+                      fontFamily="Nunito"
+                      fontWeight={700}
+                      fontSize="0.9rem"
+                    >
                       {user.firstName}
                     </Typography>
-                    <Typography fontFamily="Nunito" fontSize="0.75rem" color="text.secondary">
+                    <Typography
+                      fontFamily="Nunito"
+                      fontSize="0.75rem"
+                      color="text.secondary"
+                    >
                       {user.role === "user" ? "My Account" : "Admin Panel"}
                     </Typography>
                   </Box>
@@ -310,7 +456,11 @@ const MobileHeader = () => {
                 color="error"
                 onClick={logout}
                 startIcon={<LogoutRounded />}
-                sx={{ borderRadius: "100px", py: "9px", borderColor: "error.main" }}
+                sx={{
+                  borderRadius: "100px",
+                  py: "9px",
+                  borderColor: "error.main",
+                }}
               >
                 Sign Out
               </Button>
@@ -319,7 +469,14 @@ const MobileHeader = () => {
         </Box>
 
         {/* Theme toggle at bottom */}
-        <Box sx={{ position: "absolute", bottom: "20px", left: "16px", right: "16px" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "20px",
+            left: "16px",
+            right: "16px",
+          }}
+        >
           <Box
             onClick={() => dispatch(setThemeMode(isDark ? "light" : "dark"))}
             sx={{
@@ -331,13 +488,21 @@ const MobileHeader = () => {
               borderRadius: "10px",
               border: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
               cursor: "pointer",
-              "&:hover": { backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB" },
+              "&:hover": {
+                backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB",
+              },
               transition: "background 0.15s",
             }}
           >
-            {isDark
-              ? <LightModeRounded sx={{ fontSize: "18px", color: brand.primary }} />
-              : <DarkModeRounded sx={{ fontSize: "18px", color: brand.secondary }} />}
+            {isDark ? (
+              <LightModeRounded
+                sx={{ fontSize: "18px", color: brand.primary }}
+              />
+            ) : (
+              <DarkModeRounded
+                sx={{ fontSize: "18px", color: brand.secondary }}
+              />
+            )}
             <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.88rem">
               {isDark ? "Light mode" : "Dark mode"}
             </Typography>
