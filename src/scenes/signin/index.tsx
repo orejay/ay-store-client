@@ -198,6 +198,13 @@ const SignIn = () => {
                 Signup
               </Link>
             </Box>
+            <Link
+              to="/forgot-password"
+              className="underline italic text-sm text-secondary mt-1"
+              style={{ alignSelf: "flex-end" }}
+            >
+              Forgot password?
+            </Link>
             <Button
               variant="contained"
               sx={{ borderRadius: "20px", mt: "15px" }}

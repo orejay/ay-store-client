@@ -1,67 +1,73 @@
-﻿import { ArrowBackIosRounded, Close } from "@mui/icons-material";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
+  Divider,
   IconButton,
+  InputBase,
   Typography,
+  useTheme,
   useMediaQuery,
 } from "@mui/material";
+import {
+  ArrowBackRounded,
+  ArrowForwardRounded,
+  CheckRounded,
+  LocalOfferOutlined,
+} from "@mui/icons-material";
 import CheckoutCart from "components/CheckoutCart";
 import DeliveryDetails from "components/DeliveryDetails";
-import FlexBetween from "components/FlexBetween";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import PaystackPayment from "components/PaystackPayment";
-import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { CSSTransition } from "react-transition-group";
-import { setCart, setCloseModal, setModalMessage, setPrevPage } from "state";
+import { setCoupon, clearCoupon, setPrevPage } from "state";
 import { RootState, useAppDispatch } from "store";
+import { brand } from "../../theme";
 
 interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  id: string;
-  token: string;
+  firstName: string; lastName: string; email: string;
+  phoneNumber: string; role: string; id: string; token: string;
 }
 
+const steps = ["My Bag", "Delivery", "Confirm"];
+
 const Checkout = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
-  const isMediumScreen = useMediaQuery("(max-width:768px)");
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const isMobile = useMediaQuery("(max-width:768px)");
   const cart = useSelector((state: RootState) => state.global.cart);
+  const deliveryAddress = useSelector((state: RootState) => state.global.deliveryAddress);
+  const couponCode = useSelector((state: RootState) => state.global.couponCode);
+  const couponDiscount = useSelector((state: RootState) => state.global.couponDiscount);
+
   const [tab, setTab] = useState(0);
-  const deliveryAddress = useSelector(
-    (state: RootState) => state.global.deliveryAddress
-  );
-  const user: UserData | null = JSON.parse(
-    localStorage.getItem("user") || "null"
-  ) as UserData | null;
-  const token = user?.token;
+  const [couponInput, setCouponInput] = useState(couponCode);
+  const [couponError, setCouponError] = useState("");
+  const [couponApplying, setCouponApplying] = useState(false);
+
+  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
   const { pathname } = useLocation();
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
+  const panelBg = isDark ? "#16161A" : "#FFFFFF";
+
+  const fmt = (n: string) => n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const subtotal = cart.reduce((acc, i) => acc + i.price * i.quantity * ((100 - i.discount) / 100), 0);
+  const total = couponDiscount > 0 ? subtotal * ((100 - couponDiscount) / 100) : subtotal;
+
   const auth = async () => {
     try {
-      const response = await fetch(`${baseUrl}/auth/authenticate`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetch(`${baseUrl}/auth/authenticate`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
       });
-      if (response.status === 401) signout();
-    } catch (error) {
-      console.error("Error fetching data", error);
-    }
-  };
-  const signout = () => {
-    dispatch(setPrevPage(pathname));
-    localStorage.removeItem("user");
-    navigate("/signin");
+      if (res.status === 401) { dispatch(setPrevPage(pathname)); localStorage.removeItem("user"); navigate("/signin"); }
+    } catch { /* silent */ }
   };
 
   useEffect(() => {
@@ -69,446 +75,340 @@ const Checkout = () => {
     if (cart.length < 1) navigate("/");
   }, []);
 
-  const formatNumberWithCommas = (number: string) => {
-    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const applyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponApplying(true);
+    setCouponError("");
+    try {
+      const res = await fetch(`${baseUrl}/get/coupon/${couponInput.trim()}`);
+      const data = await res.json();
+      if (res.ok) {
+        dispatch(setCoupon({ code: data.code, discount: data.discountPercent }));
+      } else {
+        dispatch(clearCoupon());
+        setCouponError(data.message || "Invalid coupon.");
+      }
+    } catch {
+      setCouponError("Could not validate coupon.");
+    } finally {
+      setCouponApplying(false);
+    }
   };
 
-  const total = () => {
-    let x = 0;
-    for (let i = 0; i < cart.length; i++) {
-      console.log(cart[i]);
-      x += cart[i].price * cart[i].quantity * ((100 - cart[i].discount) / 100);
-    }
-    return x;
-  };
+  /* ── Order summary sidebar ── */
+  const OrderSummary = () => (
+    <Box
+      sx={{
+        borderRadius: "16px",
+        border: `1px solid ${borderColor}`,
+        backgroundColor: panelBg,
+        p: "20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+        alignSelf: "flex-start",
+        position: { md: "sticky" },
+        top: { md: "88px" },
+      }}
+    >
+      {tab > 0 && (
+        <IconButton
+          size="small"
+          onClick={() => setTab(tab - 1)}
+          sx={{ alignSelf: "flex-start", color: brand.primary, border: `1px solid ${brand.primary}30`, borderRadius: "10px", p: "6px" }}
+        >
+          <ArrowBackRounded sx={{ fontSize: "18px" }} />
+        </IconButton>
+      )}
+
+      <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem">Order Summary</Typography>
+
+      {/* Subtotal */}
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography fontFamily="Nunito" fontSize="0.88rem" color="text.secondary">Subtotal</Typography>
+        <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem">
+          ${fmt(subtotal.toFixed(2))}
+        </Typography>
+      </Box>
+
+      {/* Coupon input */}
+      <Box>
+        <Box
+          sx={{
+            display: "flex", gap: "8px", alignItems: "center",
+            border: `1.5px solid ${borderColor}`,
+            borderRadius: "100px", overflow: "hidden",
+            backgroundColor: isDark ? "rgba(255,255,255,0.03)" : "#F9FAFB",
+            pr: "4px",
+            "&:focus-within": { borderColor: brand.primary },
+            transition: "border-color 0.2s",
+          }}
+        >
+          <LocalOfferOutlined sx={{ fontSize: "16px", ml: "12px", color: theme.palette.text.disabled }} />
+          <InputBase
+            placeholder="Coupon code"
+            value={couponInput}
+            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+            sx={{ flex: 1, fontFamily: "Nunito", fontSize: "0.85rem", py: "8px" }}
+          />
+          <Button
+            size="small"
+            onClick={applyCoupon}
+            disabled={couponApplying}
+            sx={{
+              borderRadius: "100px",
+              fontFamily: "Nunito",
+              fontWeight: 700,
+              fontSize: "0.78rem",
+              color: brand.primary,
+              minWidth: "54px",
+              py: "5px",
+            }}
+          >
+            {couponApplying ? <CircularProgress size={12} /> : "Apply"}
+          </Button>
+        </Box>
+        {couponError && (
+          <Typography fontSize="0.75rem" color="error" mt="6px" fontFamily="Nunito">{couponError}</Typography>
+        )}
+        {couponCode && couponDiscount > 0 && (
+          <Typography fontSize="0.75rem" color="success.main" mt="6px" fontFamily="Nunito">
+            {couponCode} — {couponDiscount}% off applied!
+          </Typography>
+        )}
+      </Box>
+
+      {couponDiscount > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography fontFamily="Nunito" fontSize="0.85rem" color="success.main">Discount</Typography>
+          <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.85rem" color="success.main">
+            -{couponDiscount}%
+          </Typography>
+        </Box>
+      )}
+
+      <Divider sx={{ borderColor }} />
+
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography fontFamily="Nunito" fontWeight={700}>Total</Typography>
+        <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="primary">
+          ${fmt(total.toFixed(2))}
+        </Typography>
+      </Box>
+
+      {tab < 2 && (
+        <Button
+          variant="contained"
+          fullWidth
+          endIcon={<ArrowForwardRounded />}
+          onClick={() => setTab(tab + 1)}
+          sx={{
+            borderRadius: "100px",
+            py: "12px",
+            fontFamily: "Nunito",
+            fontWeight: 700,
+            background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+            boxShadow: `0 6px 20px ${brand.primary}35`,
+          }}
+        >
+          {tab === 0 ? "Proceed to Delivery" : "Review Order"}
+        </Button>
+      )}
+    </Box>
+  );
+
+  /* ── Confirm panel (tab 2 right side) ── */
+  const ConfirmPanel = () => (
+    <Box
+      sx={{
+        borderRadius: "16px",
+        border: `1px solid ${borderColor}`,
+        backgroundColor: panelBg,
+        p: "20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "14px",
+        alignSelf: "flex-start",
+        position: { md: "sticky" },
+        top: { md: "88px" },
+      }}
+    >
+      <IconButton
+        size="small"
+        onClick={() => setTab(1)}
+        sx={{ alignSelf: "flex-start", color: brand.primary, border: `1px solid ${brand.primary}30`, borderRadius: "10px", p: "6px" }}
+      >
+        <ArrowBackRounded sx={{ fontSize: "18px" }} />
+      </IconButton>
+
+      <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem">Order Confirmation</Typography>
+
+      {/* Total */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography fontFamily="Nunito" fontWeight={700}>Total</Typography>
+        <Box sx={{ textAlign: "right" }}>
+          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="primary">
+            ${fmt(total.toFixed(2))}
+          </Typography>
+          {couponDiscount > 0 && (
+            <Typography fontFamily="Nunito" fontSize="0.72rem" color="success.main">
+              {couponCode} ({couponDiscount}% off)
+            </Typography>
+          )}
+        </Box>
+      </Box>
+
+      <Divider sx={{ borderColor }} />
+
+      {/* Address summary */}
+      <Box>
+        <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.82rem" color="text.secondary" mb="6px">
+          Deliver to
+        </Typography>
+        <Typography fontFamily="Nunito" fontSize="0.85rem" lineHeight={1.6}>
+          {deliveryAddress?.address}, {deliveryAddress?.city}<br />
+          {deliveryAddress?.state}, {deliveryAddress?.country}<br />
+          {deliveryAddress?.phoneNumber}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ borderColor }} />
+
+      <PaystackPayment />
+    </Box>
+  );
+
+  /* ── Step items for confirm tab cart preview ── */
+  const CartPreview = () => (
+    <Box sx={{ borderRadius: "16px", border: `1px solid ${borderColor}`, backgroundColor: panelBg, overflow: "hidden" }}>
+      {cart.map((each, i) => (
+        <Box
+          key={each._id}
+          sx={{
+            px: "16px", py: "12px",
+            borderBottom: i < cart.length - 1 ? `1px solid ${borderColor}` : "none",
+          }}
+        >
+          <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.9rem">
+            {each.name[0].toUpperCase()}{each.name.slice(1)}
+          </Typography>
+          <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary">
+            {each.category} · qty {each.quantity}
+          </Typography>
+          <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary" mt="2px">
+            ${fmt((each.price * each.quantity * ((100 - each.discount) / 100)).toFixed(2))}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
 
   return (
-    <Box>
+    <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
       <Header />
-      <Box
-        sx={{
-          pt: "100px",
-          pb: "80px",
-          minHeight: "100vh",
-          width: isSmallScreen ? "95%" : isMediumScreen ? "90%" : "80%",
-          mx: "auto",
-        }}
-      >
-        <Box
-          sx={{
-            display: "grid",
-            mx: "auto",
-            gap: isSmallScreen ? "20px" : "40px",
-            width: isSmallScreen ? "95%" : isMediumScreen ? "90%" : "75%",
-            gridTemplateColumns: "repeat(7,1fr)",
-            gridAutoRows: "50px",
-            mb: "35px",
-          }}
-        >
-          <Box
-            sx={{
-              gridColumn: isSmallScreen ? "span 3" : "span 2",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Box
-              onClick={() => {
-                tab > 0 && setTab(0);
-              }}
-              sx={{
-                backgroundColor: tab >= 0 ? "#Ed981b" : "#Dfeaec",
-                borderRadius: "4px",
-                width: isSmallScreen
-                  ? "28px"
-                  : isMediumScreen
-                  ? "35px"
-                  : "55px",
-                height: isSmallScreen
-                  ? "28px"
-                  : isMediumScreen
-                  ? "35px"
-                  : "55px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                transform: "rotate(45deg)",
-                cursor: "pointer",
-              }}
-            >
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                fontSize="12px"
-                color="white"
-                sx={{ transform: "rotate(-45deg)" }}
-              >
-                01
-              </Typography>
-            </Box>
-            <Typography
-              fontFamily="Nunito"
-              fontWeight="bold"
-              fontSize={isSmallScreen ? "14px" : "16px"}
-            >
-              My bag
-            </Typography>
-            <Box
-              sx={{
-                width: "30px",
-                height: "2px",
-                backgroundColor: tab >= 0 ? "#Ed981b" : "#Dfeaec",
-              }}
-            ></Box>
-          </Box>
-          <Box
-            sx={{
-              gridColumn: isSmallScreen ? "span 4" : "span 3",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Box
-              onClick={() => {
-                tab > 1 && setTab(1);
-              }}
-              sx={{
-                backgroundColor: tab > 0 ? "#Ed981b" : "#Dfeaec",
-                borderRadius: "4px",
-                width: isSmallScreen
-                  ? "28px"
-                  : isMediumScreen
-                  ? "35px"
-                  : "55px",
-                height: isSmallScreen
-                  ? "28px"
-                  : isMediumScreen
-                  ? "35px"
-                  : "55px",
-                cursor: "pointer",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                transform: "rotate(45deg)",
-              }}
-            >
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                fontSize="12px"
-                color="white"
-                sx={{ transform: "rotate(-45deg)" }}
-              >
-                02
-              </Typography>
-            </Box>
-            <Typography
-              fontFamily="Nunito"
-              fontSize={isSmallScreen ? "14px" : "16px"}
-              fontWeight="bold"
-            >
-              Delivery & Payment
-            </Typography>
-            <Box
-              sx={{
-                width: "30px",
-                height: "2px",
-                backgroundColor: tab > 0 ? "#Ed981b" : "#Dfeaec",
-              }}
-            ></Box>
-          </Box>
-          <Box
-            sx={{
-              gridColumn: isSmallScreen ? "span 3" : "span 2",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: tab > 1 ? "#Ed981b" : "#Dfeaec",
-                borderRadius: "4px",
-                width: isSmallScreen
-                  ? "28px"
-                  : isMediumScreen
-                  ? "35px"
-                  : "55px",
-                height: isSmallScreen
-                  ? "28px"
-                  : isMediumScreen
-                  ? "35px"
-                  : "55px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                transform: "rotate(45deg)",
-                cursor: "pointer",
-              }}
-            >
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                fontSize="12px"
-                color="white"
-                sx={{ transform: "rotate(-45deg)" }}
-              >
-                03
-              </Typography>
-            </Box>
-            <Typography
-              fontFamily="Nunito"
-              fontWeight="bold"
-              fontSize={isSmallScreen ? "14px" : "16px"}
-            >
-              Confirm
-            </Typography>
-            <Box
-              sx={{
-                width: "30px",
-                height: "2px",
-                backgroundColor: tab > 1 ? "#Ed981b" : "#Dfeaec",
-              }}
-            ></Box>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            flexDirection: isSmallScreen ? "column" : "row",
-            gap: isSmallScreen ? "16px" : "24px",
-            minHeight: isSmallScreen ? "auto" : "75vh",
-          }}
-        >
-          <Box
-            sx={{
-              flex: isSmallScreen ? "none" : "2",
-              boxShadow: "2px 2px 7px #E0E0E0",
-              borderRadius: "5px",
-              backgroundColor: "white",
-              overflow: "hidden",
-              minHeight: isSmallScreen ? "300px" : "auto",
-            }}
-          >
-            {tab === 0 || tab === 2 ? <CheckoutCart /> : <DeliveryDetails />}
-          </Box>
-          {[0, 1].includes(tab) && (
-            <Box
-              sx={{
-                boxShadow: "2px 2px 7px #E0E0E0",
-                flex: isSmallScreen ? "none" : "1",
-                borderRadius: "5px",
-                backgroundColor: "white",
-                p: "20px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <Box>
-                {tab > 0 && (
-                  <Box>
-                    <IconButton onClick={() => setTab(tab - 1)}>
-                      <ArrowBackIosRounded sx={{ color: "#Ed981b" }} />
-                    </IconButton>
-                  </Box>
-                )}
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  sx={{ borderBottom: "2px solid #E0E0E0", py: "10px" }}
-                >
-                  <Typography fontFamily="Nunito" fontWeight="bold">
-                    Sub Total
-                  </Typography>
-                  <Typography fontFamily="Nunito" fontWeight="bold">
-                    ${formatNumberWithCommas(total().toFixed(2))}
-                  </Typography>
-                </Box>
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  sx={{ py: "10px", mt: "10px" }}
-                >
-                  <Typography fontFamily="Nunito" fontWeight="bold">
-                    Total
-                  </Typography>
-                  <Typography fontFamily="Nunito" fontWeight="bold">
-                    ${formatNumberWithCommas(total().toFixed(2))}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box sx={{ mx: "auto", width: "100%" }}>
-                <Button
-                  variant="contained"
-                  sx={{
-                    textTransform: "none",
-                    borderRadius: "20px",
-                    width: "100%",
-                  }}
-                  onClick={() => setTab(tab + 1)}
-                >
-                  <Typography
-                    color="white"
-                    fontFamily="Nunito"
-                    fontWeight="bold"
-                  >
-                    Next Step
-                  </Typography>
-                </Button>
-              </Box>
-            </Box>
-          )}
-          {tab === 1 && (
-            <Box
-              sx={{
-                boxShadow: "2px 2px 7px #E0E0E0",
-                flex: isSmallScreen ? "none" : "1",
-                borderRadius: "5px",
-                backgroundColor: "white",
-                p: "20px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                overflow: "auto",
-                maxHeight: "50vh",
-                "&::-webkit-scrollbar": {
-                  width: "0.4em",
-                },
-                "&::-webkit-scrollbar-track": {
-                  background: "transparent",
-                },
-                "&::-webkit-scrollbar-thumb": {
-                  background: "gray",
-                },
-                "&::-webkit-scrollbar-thumb:hover": {
-                  background: "darkgray",
-                },
-              }}
-            >
-              {cart.map((each, i) => (
-                <Box
-                  key={each._id}
-                  sx={{
-                    borderBottom: "2px solid #E0E0E0",
-                    mt: i > 0 ? "10px" : "",
-                    "& hover": { bgcolor: "#F0F0F0" },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Box sx={{ mb: "5px" }}>
-                      <Typography
-                        fontWeight="bold"
-                        fontSize="17px"
-                        fontFamily="Nunito"
-                      >
-                        {each.name}
-                      </Typography>
-                      <Typography
-                        fontFamily="Playfair Display"
-                        fontWeight="bold"
-                        fontSize="14px"
-                        color="secondary"
-                      >
-                        {each.category}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Typography fontSize="13px" fontStyle="italic" mb="5px">
-                    {each.description.slice(0, 30)}...
-                  </Typography>
+      <Box sx={{ pt: { xs: "60px", md: "68px" }, pb: "80px" }}>
 
-                  <Typography
-                    fontFamily="Playfair Display"
-                    fontWeight="bold"
-                    fontSize="14px"
-                    mb="5px"
-                  >
-                    {each.quantity} x{" "}
-                    {formatNumberWithCommas(
-                      (each.price * ((100 - each.discount) / 100)).toFixed(2)
-                    )}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          )}
-          {tab === 2 && (
-            <Box
-              sx={{
-                boxShadow: "2px 2px 7px #E0E0E0",
-                flex: isSmallScreen ? "none" : "1",
-                borderRadius: "5px",
-                backgroundColor: "white",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <Box>
-                {tab === 2 && (
-                  <Box sx={{ p: "10px 0 0 10px" }}>
-                    <IconButton onClick={() => setTab(tab - 1)}>
-                      <ArrowBackIosRounded sx={{ color: "#Ed981b" }} />
-                    </IconButton>
-                  </Box>
-                )}
+        {/* Step indicator */}
+        <Box
+          sx={{
+            px: { xs: "20px", md: "60px" },
+            py: "24px",
+            borderBottom: `1px solid ${borderColor}`,
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          {steps.map((step, i) => (
+            <React.Fragment key={step}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <Box
+                  onClick={() => tab > i && setTab(i)}
                   sx={{
-                    p: "20px",
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    backgroundColor:
+                      tab > i ? brand.primary : tab === i ? `${brand.primary}20` : isDark ? "#27272E" : "#F3F4F6",
+                    border: `2px solid ${tab >= i ? brand.primary : borderColor}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: tab > i ? "pointer" : "default",
+                    transition: "all 0.2s",
+                    flexShrink: 0,
                   }}
                 >
-                  <FlexBetween
-                    sx={{
-                      borderBottom: "1px solid #E0E0E0",
-                      pb: "10px",
-                      mb: "10px",
-                    }}
-                  >
-                    <Typography fontWeight="bold">Total</Typography>
-                    <Typography fontWeight="bold">
-                      ${formatNumberWithCommas(total().toFixed(2))}
+                  {tab > i ? (
+                    <CheckRounded sx={{ fontSize: "15px", color: "#fff" }} />
+                  ) : (
+                    <Typography
+                      fontFamily="Nunito"
+                      fontWeight={700}
+                      fontSize="0.75rem"
+                      color={tab === i ? brand.primary : "text.secondary"}
+                    >
+                      {i + 1}
                     </Typography>
-                  </FlexBetween>
-                  <FlexBetween
-                    sx={{
-                      alignItems: "start",
-                      borderBottom: "1px solid #E0E0E0",
-                      pb: "10px",
-                    }}
-                  >
-                    <Typography fontWeight="bold">Contact</Typography>
-                    <Box>
-                      <Typography fontStyle="italic" fontSize="14px">
-                        {deliveryAddress?.address}
-                      </Typography>
-                      <Typography fontStyle="italic" fontSize="14px">
-                        {deliveryAddress?.city}
-                      </Typography>
-                      <Typography fontStyle="italic" fontSize="14px">
-                        {deliveryAddress?.state},{deliveryAddress?.country}
-                      </Typography>
-                      <Typography fontStyle="italic" fontSize="14px">
-                        {deliveryAddress?.phoneNumber}
-                      </Typography>
-                    </Box>
-                  </FlexBetween>
-                  <Box sx={{ mx: "auto", width: "100%", pt: "10px" }}>
-                    <PaystackPayment />
-                  </Box>
+                  )}
                 </Box>
+                <Typography
+                  fontFamily="Nunito"
+                  fontWeight={tab === i ? 700 : 500}
+                  fontSize="0.88rem"
+                  color={tab === i ? "text.primary" : "text.secondary"}
+                  sx={{ display: { xs: i === tab ? "block" : "none", sm: "block" } }}
+                >
+                  {step}
+                </Typography>
               </Box>
-            </Box>
-          )}
+              {i < steps.length - 1 && (
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: "2px",
+                    backgroundColor: tab > i ? brand.primary : borderColor,
+                    borderRadius: "1px",
+                    transition: "background-color 0.3s",
+                    mx: "4px",
+                  }}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </Box>
+
+        {/* Main content */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            gap: "20px",
+            px: { xs: "16px", md: "60px" },
+            pt: "28px",
+            maxWidth: "1100px",
+            mx: "auto",
+          }}
+        >
+          {/* Left panel */}
+          <Box
+            sx={{
+              flex: 2,
+              borderRadius: "16px",
+              border: `1px solid ${borderColor}`,
+              backgroundColor: panelBg,
+              overflow: "hidden",
+            }}
+          >
+            {tab === 0 && <CheckoutCart />}
+            {tab === 1 && <DeliveryDetails />}
+            {tab === 2 && <CartPreview />}
+          </Box>
+
+          {/* Right panel */}
+          <Box sx={{ flex: 1, minWidth: isMobile ? "auto" : "260px" }}>
+            {tab < 2 ? <OrderSummary /> : <ConfirmPanel />}
+          </Box>
         </Box>
       </Box>
       <Footer />

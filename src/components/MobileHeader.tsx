@@ -1,349 +1,350 @@
+import React, { useState, useEffect } from "react";
 import {
   Box,
-  Button,
-  useTheme,
+  Drawer,
   IconButton,
+  InputBase,
+  Badge,
+  Button,
+  Divider,
   Typography,
-  TextField,
-  useMediaQuery,
+  useTheme,
+  Tooltip,
 } from "@mui/material";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import React, { useState, useEffect } from "react";
-import FlexBetween from "./FlexBetween";
 import {
   MenuRounded,
-  PermIdentityRounded,
+  CloseRounded,
   SearchRounded,
-  ShoppingCartOutlined,
+  ShoppingBagOutlined,
+  LightModeRounded,
+  DarkModeRounded,
+  PersonOutlineRounded,
+  LogoutRounded,
+  ArrowForwardRounded,
 } from "@mui/icons-material";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useAppDispatch, RootState } from "store";
-import {
-  setCloseModal,
-  setModalMessage,
-  setShowCart,
-  setShowSearches,
-} from "state";
+import { RootState, useAppDispatch } from "store";
+import { setCloseModal, setModalMessage, setShowSearches, setThemeMode } from "state";
+import { brand } from "../theme";
 
-interface ProductData {
-  name: string;
-  _id: string;
-}
-
+interface ProductData { name: string; _id: string; }
 interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  id: string;
-  token: string;
+  firstName: string; lastName: string; role: string; token: string; id: string;
 }
 
-const nav = ["About", "Shop", "Contact"];
+const nav = [
+  { label: "Shop", path: "/shop" },
+  { label: "About", path: "/about" },
+  { label: "Contact", path: "/contact" },
+];
 
 const MobileHeader = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
   const theme = useTheme();
-  const baseUrl = import.meta.env.VITE_BASE_URL;
-  const user: UserData | null = JSON.parse(
-    localStorage.getItem("user") || "null"
-  ) as UserData | null;
-  const [searchText, setSearchText] = useState("");
-  const [active, setActive] = useState("");
-  const [openMenu, setOpenMenu] = useState<Boolean>(false);
-  const [data, setData] = useState<ProductData[]>([]);
-  const showSearches = useSelector(
-    (state: RootState) => state.global.showSearches
-  );
-  const navigate = useNavigate();
+  const isDark = theme.palette.mode === "dark";
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
   const cart = useSelector((state: RootState) => state.global.cart);
+  const showSearches = useSelector((state: RootState) => state.global.showSearches);
+  const themeMode = useSelector((state: RootState) => state.global.themeMode);
 
-  useEffect(() => {
-    setActive(pathname.substring(1));
-  }, [pathname]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [searchResults, setSearchResults] = useState<ProductData[]>([]);
 
-  const formatNumberWithCommas = (number: string) => {
-    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
+  const logout = () => { localStorage.removeItem("user"); navigate("/signin"); setDrawerOpen(false); };
+  const accountPath = user?.role === "user" ? "/customer/account" : "/admin/account";
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    navigate("/signin");
-  };
-
-  const total = () => {
-    let x = 0;
-    for (let i = 0; i < cart.length; i++) {
-      x += cart[i].price * ((100 - cart[i].discount) / 100);
-    }
-    return x;
-  };
-
-  const search = async () => {
+  const search = async (val: string) => {
+    if (val.length < 2) { setSearchResults([]); dispatch(setShowSearches(false)); return; }
     try {
-      const response = await fetch(
-        `${baseUrl}/get/products/search?name=${searchText}`
-      );
-      const jsonData = await response.json();
-      setData(jsonData.products);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+      const res = await fetch(`${baseUrl}/get/products/search?name=${val}`);
+      const data = await res.json();
+      setSearchResults(data.products || []);
+      dispatch(setShowSearches(true));
+    } catch { /* silent */ }
+  };
+
+  useEffect(() => { setDrawerOpen(false); dispatch(setShowSearches(false)); setSearchText(""); setSearchResults([]); }, [pathname]);
+
+  const glassStyle = {
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    backgroundColor: isDark ? "rgba(12,12,14,0.90)" : "rgba(255,255,255,0.90)",
+    borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
   };
 
   return (
-    <Box
-      py="5px"
-      px="16px"
-      sx={{
-        width: "100%",
-        boxSizing: "border-box",
-        position: "fixed",
-        backgroundColor: theme.palette.background.default,
-        zIndex: "100",
-        overflowX: "hidden",
-      }}
-    >
-      <Box sx={{ position: "absolute", top: 8, left: 12 }}>
-        <IconButton onClick={() => setOpenMenu(!openMenu)}>
-          <MenuRounded />
-        </IconButton>
-      </Box>
+    <>
       <Box
         sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          ...glassStyle,
+          height: "60px",
           display: "flex",
-          justifyContent: "flex-end",
+          alignItems: "center",
+          px: "12px",
+          gap: "8px",
         }}
       >
-        <FlexBetween
-          gap="8px"
-          sx={{ width: isSmallScreen ? "80%" : "65%", height: "fit" }}
+        {/* Hamburger */}
+        <IconButton onClick={() => setDrawerOpen(true)} size="small" sx={{ color: theme.palette.text.primary }}>
+          <MenuRounded />
+        </IconButton>
+
+        {/* Logo — centered */}
+        <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+          <Link to="/">
+            <Typography
+              sx={{
+                fontFamily: "Playfair Display",
+                fontWeight: 900,
+                fontSize: "1.3rem",
+                color: brand.primary,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              BEAUTY
+            </Typography>
+          </Link>
+        </Box>
+
+        {/* Right: theme toggle + cart */}
+        <IconButton
+          size="small"
+          onClick={() => dispatch(setThemeMode(isDark ? "light" : "dark"))}
+          sx={{ color: theme.palette.text.secondary }}
         >
-          <Box>
-            <h1 className="Nunito text-primary font-bold">
-              <Link to="/">BEAUTY</Link>
-            </h1>
+          {isDark ? <LightModeRounded sx={{ fontSize: "19px" }} /> : <DarkModeRounded sx={{ fontSize: "19px" }} />}
+        </IconButton>
+
+        <IconButton
+          size="small"
+          onClick={() => {
+            if (cart.length > 0) navigate("/checkout");
+            else { dispatch(setModalMessage("Your cart is empty!")); dispatch(setCloseModal(false)); }
+          }}
+          sx={{ color: theme.palette.text.primary }}
+        >
+          <Badge
+            badgeContent={cart.length}
+            color="primary"
+            sx={{ "& .MuiBadge-badge": { fontSize: "9px", height: "15px", minWidth: "15px", fontFamily: "Nunito", fontWeight: 800 } }}
+          >
+            <ShoppingBagOutlined sx={{ fontSize: "21px" }} />
+          </Badge>
+        </IconButton>
+      </Box>
+
+      {/* Navigation Drawer */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        PaperProps={{
+          sx: {
+            width: "80vw",
+            maxWidth: "320px",
+            backgroundColor: isDark ? "#0C0C0E" : "#FFFFFF",
+            borderRight: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
+            p: "0",
+          },
+        }}
+      >
+        {/* Drawer header */}
+        <Box sx={{ px: "20px", py: "18px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` }}>
+          <Link to="/" onClick={() => setDrawerOpen(false)}>
+            <Typography sx={{ fontFamily: "Playfair Display", fontWeight: 900, fontSize: "1.3rem", color: brand.primary }}>
+              BEAUTY
+            </Typography>
+          </Link>
+          <IconButton size="small" onClick={() => setDrawerOpen(false)} sx={{ color: theme.palette.text.secondary }}>
+            <CloseRounded sx={{ fontSize: "20px" }} />
+          </IconButton>
+        </Box>
+
+        {/* Search */}
+        <Box sx={{ px: "16px", py: "14px", position: "relative" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              px: "14px",
+              py: "9px",
+              borderRadius: "100px",
+              border: `1.5px solid ${isDark ? "rgba(255,255,255,0.12)" : "#E5E7EB"}`,
+              backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB",
+            }}
+          >
+            <SearchRounded sx={{ fontSize: "17px", color: theme.palette.text.secondary }} />
+            <InputBase
+              placeholder="Search products…"
+              value={searchText}
+              onChange={(e) => { setSearchText(e.target.value); search(e.target.value); }}
+              sx={{ fontFamily: "Nunito", fontSize: "0.88rem", flex: 1, "& input": { p: 0 } }}
+            />
+            {searchText && (
+              <IconButton size="small" sx={{ p: "2px" }} onClick={() => { setSearchText(""); setSearchResults([]); dispatch(setShowSearches(false)); }}>
+                <CloseRounded sx={{ fontSize: "13px" }} />
+              </IconButton>
+            )}
           </Box>
-          <FlexBetween sx={{ position: "relative" }}>
+
+          {showSearches && (
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                position: "absolute",
+                top: "calc(100% - 2px)",
+                left: "16px",
+                right: "16px",
+                borderRadius: "12px",
+                overflow: "hidden",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                border: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
+                backgroundColor: isDark ? "#1A1A1F" : "#FFFFFF",
+                zIndex: 10,
               }}
             >
-              <TextField
-                variant="standard"
-                color="secondary"
-                placeholder="search..."
-                sx={{ width: isSmallScreen ? "90px" : "120px" }}
-                onChange={(e) => {
-                  setSearchText(e.target.value);
-                  dispatch(setShowCart(false));
-                  if (e.target.value.length > 1) {
-                    search();
-                    dispatch(setShowSearches(true));
-                  }
-                }}
-              />
-              <IconButton onClick={search}>
-                <SearchRounded />
-              </IconButton>
-            </Box>
-            {data?.length > 0 && showSearches === true ? (
-              <ul
-                style={{
-                  backgroundColor: "white",
-                  position: "absolute",
-                  width: "calc(100vw - 32px)",
-                  maxWidth: "300px",
-                  top: 45,
-                  right: 0,
-                  padding: "8px 0",
-                  borderRadius: "5px",
-                  boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
-                  zIndex: 200,
-                }}
-              >
-                {data.map((each) => (
-                  <Link
-                    key={each._id}
-                    to={`/products/${each._id}`}
-                    className="w-full h-full pl-3 Nunito font-semibold py-2 hover:bg-hov transition-all ease-in-out duration-400 block"
-                  >
-                    {each.name}
+              {searchResults.length > 0 ? (
+                searchResults.map((item) => (
+                  <Link key={item._id} to={`/products/${item._id}`} onClick={() => setDrawerOpen(false)}>
+                    <Box sx={{ px: "14px", py: "10px", display: "flex", alignItems: "center", gap: "8px", "&:hover": { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#F9FAFB" } }}>
+                      <SearchRounded sx={{ fontSize: "14px", color: theme.palette.text.secondary }} />
+                      <Typography fontFamily="Nunito" fontSize="0.85rem">{item.name}</Typography>
+                    </Box>
                   </Link>
-                ))}
-              </ul>
-            ) : showSearches && searchText.length > 0 ? (
-              <div
-                style={{
-                  backgroundColor: "white",
-                  position: "absolute",
-                  width: "calc(100vw - 32px)",
-                  maxWidth: "300px",
-                  top: 45,
-                  right: 0,
-                  padding: "8px 0",
-                  borderRadius: "5px",
-                  boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
-                  zIndex: 200,
-                }}
-              >
-                <span className="pl-3 Nunito font-semibold">
-                  No results found...
-                </span>
-              </div>
-            ) : (
-              ""
-            )}
-            <Box>
-              <Box
-                p="10px"
-                sx={{ cursor: "pointer", zIndex: "100", position: "relative" }}
-                onClick={() => {
-                  if (cart.length > 0) {
-                    navigate("/checkout");
-                  } else {
-                    dispatch(setModalMessage("Your cart is empty!"));
-                    dispatch(setCloseModal(false));
-                  }
-                }}
-              >
-                {cart?.length > 0 && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "50%",
-                      position: "absolute",
-                      width: "14px",
-                      height: "14px",
-                      backgroundColor: "#F4f7fc",
-                      top: 4,
-                      right: 4,
-                    }}
-                  >
-                    <Typography
-                      fontSize="12px"
-                      fontWeight="bold"
-                      color="primary"
-                    >
-                      {cart?.length}
-                    </Typography>
-                  </Box>
-                )}
-                <ShoppingCartOutlined />
-              </Box>
+                ))
+              ) : (
+                <Box sx={{ px: "14px", py: "12px" }}>
+                  <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">No results for "{searchText}"</Typography>
+                </Box>
+              )}
             </Box>
-          </FlexBetween>
-        </FlexBetween>
-      </Box>
-      {openMenu && (
-        <Box
-          sx={{
-            width: "100%",
-            backgroundColor: theme.palette.background.default,
-            p: "20px",
-            pt: "40px",
-            boxSizing: "border-box",
-          }}
-        >
-          <Box
-            gap="15px"
-            sx={{ display: "flex", flexDirection: "column", width: "100%" }}
-          >
-            {nav.map((each, index) => (
-              <Link
-                key={index}
-                to={`/${each.toLowerCase()}`}
-                onClick={() => setOpenMenu(false)}
-                className={`Nunito font-semibold text-lg ${
-                  active === each.toLowerCase() ? "text-primary" : "text-drk"
-                }`}
-              >
-                {each}
-              </Link>
-            ))}
-          </Box>
-          {!user ? (
-            <FlexBetween
-              gap="10px"
-              sx={{
-                flexDirection: "column",
-                alignItems: "flex-start",
-                mt: "40px",
-              }}
-            >
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                color={`${active === "signin" ? "primary" : ""}`}
-              >
-                <Link to="/signin" className={`hover:text-gry`}>
-                  Sign In
-                </Link>
-              </Typography>
-              <Button
-                variant="outlined"
-                color={`${active === "signup" ? "primary" : "secondary"}`}
-                sx={{ borderRadius: "20px", px: "20px" }}
-              >
-                <Typography
-                  fontFamily="Nunito"
-                  fontWeight="bold"
-                  color={`${active === "signup" ? "primary" : "secondary"}`}
-                  sx={{ textTransform: "none" }}
-                >
-                  <Link to="/signup">Sign Up</Link>
-                </Typography>
-              </Button>
-            </FlexBetween>
-          ) : (
-            <FlexBetween
-              gap="10px"
-              sx={{
-                flexDirection: "column",
-                alignItems: "flex-start",
-                mt: "40px",
-              }}
-            >
-              <Box display="flex">
-                <Typography
-                  fontFamily="Nunito"
-                  fontWeight="bold"
-                  color="secondary"
-                >
-                  <Link to="/customer/account" className={`hover:text-gry`}>
-                    Hi, {user.firstName}
-                    <PermIdentityRounded sx={{ ml: "3px" }} />
-                  </Link>
-                </Typography>
-              </Box>
-              <Button
-                variant="outlined"
-                color="primary"
-                sx={{ borderRadius: "20px", px: "20px" }}
-                onClick={logout}
-              >
-                <Typography
-                  fontFamily="Nunito"
-                  fontWeight="bold"
-                  color="primary"
-                  sx={{ textTransform: "none" }}
-                >
-                  <Link to="/signin">Sign Out</Link>
-                </Typography>
-              </Button>
-            </FlexBetween>
           )}
         </Box>
-      )}
-    </Box>
+
+        <Divider sx={{ borderColor: isDark ? "#27272E" : "#F3F4F6" }} />
+
+        {/* Nav links */}
+        <Box sx={{ px: "12px", py: "12px" }}>
+          {nav.map(({ label, path }) => {
+            const isActive = pathname === path;
+            return (
+              <Link key={path} to={path} onClick={() => setDrawerOpen(false)}>
+                <Box
+                  sx={{
+                    px: "14px",
+                    py: "12px",
+                    borderRadius: "10px",
+                    fontFamily: "Nunito",
+                    fontWeight: isActive ? 800 : 600,
+                    fontSize: "1rem",
+                    color: isActive ? brand.primary : theme.palette.text.primary,
+                    backgroundColor: isActive ? `${brand.primary}12` : "transparent",
+                    mb: "2px",
+                    transition: "all 0.15s ease",
+                    "&:hover": { backgroundColor: `${brand.primary}0A`, color: brand.primary },
+                  }}
+                >
+                  {label}
+                </Box>
+              </Link>
+            );
+          })}
+        </Box>
+
+        <Divider sx={{ borderColor: isDark ? "#27272E" : "#F3F4F6" }} />
+
+        {/* Auth section */}
+        <Box sx={{ px: "16px", py: "16px" }}>
+          {!user ? (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <Link to="/signin" onClick={() => setDrawerOpen(false)}>
+                <Button variant="outlined" fullWidth sx={{ borderRadius: "100px", py: "9px" }}>
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/signup" onClick={() => setDrawerOpen(false)}>
+                <Button variant="contained" fullWidth sx={{ borderRadius: "100px", py: "9px" }}>
+                  Sign Up
+                </Button>
+              </Link>
+            </Box>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <Link to={accountPath} onClick={() => setDrawerOpen(false)}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    px: "14px",
+                    py: "10px",
+                    borderRadius: "10px",
+                    backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB",
+                    border: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
+                  }}
+                >
+                  <PersonOutlineRounded sx={{ fontSize: "20px", color: brand.secondary }} />
+                  <Box>
+                    <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.9rem">
+                      {user.firstName}
+                    </Typography>
+                    <Typography fontFamily="Nunito" fontSize="0.75rem" color="text.secondary">
+                      {user.role === "user" ? "My Account" : "Admin Panel"}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Link>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={logout}
+                startIcon={<LogoutRounded />}
+                sx={{ borderRadius: "100px", py: "9px", borderColor: "error.main" }}
+              >
+                Sign Out
+              </Button>
+            </Box>
+          )}
+        </Box>
+
+        {/* Theme toggle at bottom */}
+        <Box sx={{ position: "absolute", bottom: "20px", left: "16px", right: "16px" }}>
+          <Box
+            onClick={() => dispatch(setThemeMode(isDark ? "light" : "dark"))}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              px: "14px",
+              py: "10px",
+              borderRadius: "10px",
+              border: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
+              cursor: "pointer",
+              "&:hover": { backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB" },
+              transition: "background 0.15s",
+            }}
+          >
+            {isDark
+              ? <LightModeRounded sx={{ fontSize: "18px", color: brand.primary }} />
+              : <DarkModeRounded sx={{ fontSize: "18px", color: brand.secondary }} />}
+            <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.88rem">
+              {isDark ? "Light mode" : "Dark mode"}
+            </Typography>
+          </Box>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 

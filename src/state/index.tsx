@@ -1,5 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+export interface ProductVariant {
+  _id: string;
+  size: string;
+  color: string;
+  stock: number;
+}
+
 interface ProductData {
   name: string;
   quantity: number;
@@ -8,10 +15,17 @@ interface ProductData {
   discount: number;
   imageName: string;
   imagePath: string;
+  images?: string[];
   description: string;
   category: string;
   supply: number;
   _id: string;
+  gender?: string;
+  brand?: string;
+  tags?: string[];
+  featured?: boolean;
+  variants?: ProductVariant[];
+  selectedVariant?: ProductVariant;
 }
 interface InitialState {
   productId: string;
@@ -26,6 +40,13 @@ interface InitialState {
   prevPage: string;
   closeModal: boolean;
   modalMessage: string;
+  lastOrderRef: string;
+  lastOrderTotal: number;
+  lastOrderItems: ProductData[];
+  wishlist: string[];
+  couponCode: string;
+  couponDiscount: number;
+  themeMode: "light" | "dark";
 }
 
 interface AddressData {
@@ -58,6 +79,8 @@ interface DeliveryAddress {
   __v: string;
 }
 
+const savedMode = (typeof window !== "undefined" && localStorage.getItem("themeMode")) as "light" | "dark" | null;
+
 const initialState: InitialState = {
   productId: "",
   products: [],
@@ -71,6 +94,13 @@ const initialState: InitialState = {
   prevPage: "",
   closeModal: true,
   modalMessage: "",
+  lastOrderRef: "",
+  lastOrderTotal: 0,
+  lastOrderItems: [],
+  wishlist: [],
+  couponCode: "",
+  couponDiscount: 0,
+  themeMode: savedMode || "light",
 };
 
 export const globalSlice = createSlice({
@@ -136,6 +166,26 @@ export const globalSlice = createSlice({
     setModalMessage: (state, action) => {
       state.modalMessage = action.payload;
     },
+    setLastOrder: (state, action) => {
+      state.lastOrderRef = action.payload.ref;
+      state.lastOrderTotal = action.payload.total;
+      state.lastOrderItems = action.payload.items;
+    },
+    setWishlist: (state, action) => {
+      state.wishlist = action.payload;
+    },
+    setCoupon: (state, action) => {
+      state.couponCode = action.payload.code;
+      state.couponDiscount = action.payload.discount;
+    },
+    clearCoupon: (state) => {
+      state.couponCode = "";
+      state.couponDiscount = 0;
+    },
+    setThemeMode: (state, action: { payload: "light" | "dark" }) => {
+      state.themeMode = action.payload;
+      localStorage.setItem("themeMode", action.payload);
+    },
   },
 });
 
@@ -155,5 +205,10 @@ export const {
   setPrevPage,
   setCloseModal,
   setModalMessage,
+  setLastOrder,
+  setWishlist,
+  setCoupon,
+  clearCoupon,
+  setThemeMode,
 } = globalSlice.actions;
 export default globalSlice.reducer;

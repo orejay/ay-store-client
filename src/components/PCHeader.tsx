@@ -1,473 +1,432 @@
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
-  Button,
-  useTheme,
   IconButton,
   Typography,
-  TextField,
+  InputBase,
+  Badge,
   Divider,
-  ListItem,
-  List,
-  useMediaQuery,
+  Button,
+  useTheme,
+  Tooltip,
+  Fade,
 } from "@mui/material";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import React, { useState, useEffect } from "react";
-import FlexBetween from "./FlexBetween";
 import {
+  SearchRounded,
+  ShoppingBagOutlined,
   CloseRounded,
   DeleteOutlineRounded,
-  PermIdentityRounded,
-  SearchRounded,
-  ShoppingCartOutlined,
+  LightModeRounded,
+  DarkModeRounded,
+  PersonOutlineRounded,
+  LogoutRounded,
+  ArrowForwardRounded,
 } from "@mui/icons-material";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useAppDispatch, RootState } from "store";
-import { setCart, setShowCart, setShowSearches } from "state";
+import { RootState, useAppDispatch } from "store";
+import { setCart, setShowCart, setShowSearches, setThemeMode } from "state";
+import { brand } from "../theme";
 
-interface ProductData {
-  name: string;
-  _id: string;
-}
-
+interface ProductData { name: string; _id: string; }
 interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  id: string;
-  token: string;
+  firstName: string; lastName: string; email: string;
+  phoneNumber: string; role: string; id: string; token: string;
 }
 
-const nav = ["About", "Shop", "Contact"];
+const nav = [
+  { label: "Shop", path: "/shop" },
+  { label: "About", path: "/about" },
+  { label: "Contact", path: "/contact" },
+];
 
 const PCHeader = () => {
   const theme = useTheme();
-  const isMediumScreen = useMediaQuery("(max-width:1024px)");
-  const baseUrl = import.meta.env.VITE_BASE_URL;
-  const user: UserData | null = JSON.parse(
-    localStorage.getItem("user") || "null"
-  ) as UserData | null;
-  const [searchText, setSearchText] = useState("");
-  const [active, setActive] = useState("");
-  const [data, setData] = useState<ProductData[]>([]);
-  const showSearches = useSelector(
-    (state: RootState) => state.global.showSearches
-  );
-  const showCart = useSelector((state: RootState) => state.global.showCart);
-  const navigate = useNavigate();
+  const isDark = theme.palette.mode === "dark";
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const imageUrl = import.meta.env.VITE_IMAGE_URL;
+  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
+
   const cart = useSelector((state: RootState) => state.global.cart);
+  const showCart = useSelector((state: RootState) => state.global.showCart);
+  const showSearches = useSelector((state: RootState) => state.global.showSearches);
+  const themeMode = useSelector((state: RootState) => state.global.themeMode);
 
-  useEffect(() => {
-    setActive(pathname.substring(1));
-  }, [pathname]);
+  const [searchText, setSearchText] = useState("");
+  const [searchResults, setSearchResults] = useState<ProductData[]>([]);
+  const [searchFocused, setSearchFocused] = useState(false);
 
-  const formatNumberWithCommas = (number: string) => {
-    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
+  const formatNum = (n: string) => n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const cartTotal = cart.reduce((acc, item) => acc + item.price * item.quantity * ((100 - item.discount) / 100), 0);
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    navigate("/signin");
-  };
+  const logout = () => { localStorage.removeItem("user"); navigate("/signin"); };
 
-  const total = () => {
-    let x = 0;
-    for (let i = 0; i < cart.length; i++) {
-      x += cart[i].price * ((100 - cart[i].discount) / 100);
-    }
-    return x;
-  };
-
-  const search = async () => {
+  const search = async (val: string) => {
+    if (val.length < 2) { setSearchResults([]); dispatch(setShowSearches(false)); return; }
     try {
-      const response = await fetch(
-        `${baseUrl}/get/products/search?name=${searchText}`
-      );
-      const jsonData = await response.json();
-      setData(jsonData.products);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+      const res = await fetch(`${baseUrl}/get/products/search?name=${val}`);
+      const data = await res.json();
+      setSearchResults(data.products || []);
+      dispatch(setShowSearches(true));
+    } catch { /* silent */ }
   };
+
+  useEffect(() => { dispatch(setShowSearches(false)); setSearchText(""); setSearchResults([]); }, [pathname]);
+
+  const glassStyle = {
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    backgroundColor: isDark ? "rgba(12,12,14,0.88)" : "rgba(255,255,255,0.88)",
+    borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+  };
+
+  const accountPath = user?.role === "user" ? "/customer/account" : "/admin/account";
 
   return (
     <Box
-      py="15px"
-      px={isMediumScreen ? "24px" : "60px"}
       sx={{
-        width: "100%",
-        boxSizing: "border-box",
         position: "fixed",
-        backgroundColor: theme.palette.background.default,
-        zIndex: "100",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        ...glassStyle,
+        px: { md: "32px", lg: "64px" },
+        py: "0",
+        height: "68px",
+        display: "flex",
+        alignItems: "center",
       }}
     >
-      <FlexBetween>
-        <Box>
-          <h1 className="Nunito text-primary font-bold">
-            <Link to="/">BEAUTY</Link>
-          </h1>
-        </Box>
+      {/* Logo */}
+      <Link to="/" style={{ flexShrink: 0 }}>
+        <Typography
+          sx={{
+            fontFamily: "Playfair Display",
+            fontWeight: 900,
+            fontSize: "1.5rem",
+            color: brand.primary,
+            letterSpacing: "-0.02em",
+            lineHeight: 1,
+          }}
+        >
+          BEAUTY
+        </Typography>
+      </Link>
 
-        <FlexBetween gap={isMediumScreen ? "12px" : "25px"}>
-          {nav.map((each, index) => (
-            <Link
-              key={index}
-              to={`/${each.toLowerCase()}`}
-              className={`Nunito font-semibold ${
-                active === each.toLowerCase() ? "text-primary" : "text-drk"
-              }`}
-            >
-              {each}
-            </Link>
-          ))}
-        </FlexBetween>
-
-        {!user ? (
-          <FlexBetween gap="20px">
-            <Typography
-              fontFamily="Nunito"
-              fontWeight="bold"
-              color={`${active === "signin" ? "primary" : ""}`}
-            >
-              <Link to="/signin" className={`hover:text-gry`}>
-                Sign In
-              </Link>
-            </Typography>
-            <Button
-              variant="outlined"
-              color={`${active === "signup" ? "primary" : "secondary"}`}
-              sx={{ borderRadius: "20px", px: "20px" }}
-            >
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                color={`${active === "signup" ? "primary" : "secondary"}`}
-                sx={{ textTransform: "none" }}
-              >
-                <Link to="/signup">Sign Up</Link>
-              </Typography>
-            </Button>
-          </FlexBetween>
-        ) : (
-          <FlexBetween gap="20px">
-            <Box display="flex">
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                color="secondary"
-              >
-                <Link to="/customer/account" className={`hover:text-gry`}>
-                  Hi, {user.firstName}
-                  <PermIdentityRounded sx={{ ml: "3px" }} />
-                </Link>
-              </Typography>
-            </Box>
-            <Button
-              variant="outlined"
-              color="primary"
-              sx={{ borderRadius: "20px", px: "20px" }}
-              onClick={logout}
-            >
-              <Typography
-                fontFamily="Nunito"
-                fontWeight="bold"
-                color="primary"
-                sx={{ textTransform: "none" }}
-              >
-                <Link to="/signin">Sign Out</Link>
-              </Typography>
-            </Button>
-          </FlexBetween>
-        )}
-        <FlexBetween gap="5px" sx={{ position: "relative" }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <TextField
-              variant="standard"
-              color="secondary"
-              placeholder="search..."
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                dispatch(setShowCart(false));
-                if (e.target.value.length > 1) {
-                  search();
-                  dispatch(setShowSearches(true));
-                }
-              }}
-            />
-            <IconButton onClick={search}>
-              <SearchRounded />
-            </IconButton>
-          </Box>
-          {data?.length > 0 && showSearches === true ? (
-            <ul
-              style={{
-                backgroundColor: "white",
-                position: "absolute",
-                width: "220px",
-                top: 45,
-                right: 0,
-                padding: "8px 0",
-                borderRadius: "5px",
-                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
-                zIndex: 200,
-              }}
-            >
-              {data.map((each) => (
-                <Link
-                  key={each._id}
-                  to={`/products/${each._id}`}
-                  className="w-full h-full pl-3 Nunito font-semibold py-2 hover:bg-hov transition-all ease-in-out duration-400 block"
-                >
-                  {each.name}
-                </Link>
-              ))}
-            </ul>
-          ) : showSearches && searchText.length > 0 ? (
-            <div
-              style={{
-                backgroundColor: "white",
-                position: "absolute",
-                width: "220px",
-                top: 45,
-                right: 0,
-                padding: "8px 0",
-                borderRadius: "5px",
-                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
-                zIndex: 200,
-              }}
-            >
-              <span className="pl-3 Nunito font-semibold">
-                No results found...
-              </span>
-            </div>
-          ) : (
-            ""
-          )}
-
-          <Box
-            sx={{
-              backgroundColor: showCart ? "white" : "",
-              borderRadius: "20px 20px 0 0",
-              position: "relative",
-            }}
-          >
-            <Box
-              p="10px"
-              sx={{ cursor: "pointer", zIndex: "100" }}
-              onClick={() => {
-                dispatch(setShowCart(!showCart));
-                dispatch(setShowSearches(false));
-              }}
-            >
-              {cart?.length > 0 && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "50%",
-                    position: "absolute",
-                    width: "14px",
-                    height: "14px",
-                    backgroundColor: "#F4f7fc",
-                    top: 4,
-                    right: 4,
-                  }}
-                >
-                  <Typography fontSize="12px" fontWeight="bold" color="primary">
-                    {cart?.length}
-                  </Typography>
-                </Box>
-              )}
-              <ShoppingCartOutlined />
-            </Box>
-          </Box>
-          {showCart && cart?.length > 0 ? (
-            <Box
-              sx={{
-                backgroundColor: "white",
-                position: "absolute",
-                maxHeight: "83vh",
-                width: "300px",
-                top: 50,
-                right: 0,
-                padding: "8px 0",
-                borderRadius: "5px",
-                px: "15px",
-                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
-                zIndex: 200,
-              }}
-            >
-              <Box width="100%" sx={{ display: "flex", justifyContent: "end" }}>
-                <IconButton onClick={() => dispatch(setShowCart(false))}>
-                  <CloseRounded sx={{ color: "#ff5316", fontWeight: "bold" }} />
-                </IconButton>
-              </Box>
+      {/* Nav links */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: "4px", ml: "40px" }}>
+        {nav.map(({ label, path }) => {
+          const isActive = pathname === path || pathname.startsWith(path + "/");
+          return (
+            <Link key={path} to={path}>
               <Box
                 sx={{
-                  overflow: "auto",
-                  maxHeight: "50vh",
-                  "&::-webkit-scrollbar": { width: "0.4em" },
-                  "&::-webkit-scrollbar-track": { background: "transparent" },
-                  "&::-webkit-scrollbar-thumb": { background: "gray" },
-                  "&::-webkit-scrollbar-thumb:hover": { background: "darkgray" },
+                  px: "14px",
+                  py: "6px",
+                  borderRadius: "100px",
+                  fontFamily: "Nunito",
+                  fontWeight: isActive ? 800 : 600,
+                  fontSize: "0.9rem",
+                  color: isActive ? brand.primary : theme.palette.text.primary,
+                  backgroundColor: isActive ? `${brand.primary}14` : "transparent",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: `${brand.primary}0D`,
+                    color: brand.primary,
+                  },
                 }}
               >
-                {cart.map((each) => (
+                {label}
+              </Box>
+            </Link>
+          );
+        })}
+      </Box>
+
+      {/* Spacer */}
+      <Box sx={{ flex: 1 }} />
+
+      {/* Search bar */}
+      <Box ref={searchRef} sx={{ position: "relative", mr: "12px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            px: "14px",
+            py: "7px",
+            borderRadius: "100px",
+            border: `1.5px solid ${searchFocused ? brand.primary : isDark ? "rgba(255,255,255,0.12)" : "#E5E7EB"}`,
+            backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "#F9FAFB",
+            transition: "all 0.2s ease",
+            width: searchFocused ? "240px" : "180px",
+          }}
+        >
+          <SearchRounded sx={{ fontSize: "18px", color: theme.palette.text.secondary, flexShrink: 0 }} />
+          <InputBase
+            placeholder="Search products…"
+            value={searchText}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+            onChange={(e) => { setSearchText(e.target.value); search(e.target.value); }}
+            sx={{ fontFamily: "Nunito", fontSize: "0.88rem", flex: 1, "& input": { p: 0 } }}
+          />
+          {searchText && (
+            <IconButton size="small" sx={{ p: "2px" }} onClick={() => { setSearchText(""); setSearchResults([]); dispatch(setShowSearches(false)); }}>
+              <CloseRounded sx={{ fontSize: "14px" }} />
+            </IconButton>
+          )}
+        </Box>
+
+        {/* Search dropdown */}
+        {showSearches && (
+          <Box
+            className="slide-down"
+            sx={{
+              position: "absolute",
+              top: "calc(100% + 8px)",
+              right: 0,
+              width: "280px",
+              borderRadius: "12px",
+              overflow: "hidden",
+              boxShadow: isDark ? "0 8px 32px rgba(0,0,0,0.5)" : "0 8px 32px rgba(0,0,0,0.12)",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "#EBEBEB"}`,
+              backgroundColor: isDark ? "#1A1A1F" : "#FFFFFF",
+              zIndex: 200,
+            }}
+          >
+            {searchResults.length > 0 ? (
+              searchResults.map((item) => (
+                <Link
+                  key={item._id}
+                  to={`/products/${item._id}`}
+                  onClick={() => { dispatch(setShowSearches(false)); setSearchText(""); }}
+                >
                   <Box
-                    key={each._id}
                     sx={{
+                      px: "16px",
                       py: "10px",
-                      borderBottom: "2px solid #E0E0E0",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      "&:hover": { backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "#F9FAFB" },
+                      transition: "background 0.15s",
                     }}
                   >
+                    <SearchRounded sx={{ fontSize: "15px", color: theme.palette.text.secondary }} />
+                    <Typography fontFamily="Nunito" fontSize="0.88rem">
+                      {item.name}
+                    </Typography>
+                  </Box>
+                </Link>
+              ))
+            ) : (
+              <Box sx={{ px: "16px", py: "14px" }}>
+                <Typography fontFamily="Nunito" fontSize="0.85rem" color="text.secondary">
+                  No results for "{searchText}"
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
+
+      {/* Right side icons */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
+        {/* Theme toggle */}
+        <Tooltip title={isDark ? "Light mode" : "Dark mode"} arrow>
+          <IconButton
+            onClick={() => dispatch(setThemeMode(isDark ? "light" : "dark"))}
+            size="small"
+            sx={{ color: theme.palette.text.secondary, p: "8px" }}
+          >
+            {isDark ? <LightModeRounded sx={{ fontSize: "20px" }} /> : <DarkModeRounded sx={{ fontSize: "20px" }} />}
+          </IconButton>
+        </Tooltip>
+
+        {/* Auth */}
+        {!user ? (
+          <Box sx={{ display: "flex", alignItems: "center", gap: "8px", ml: "8px" }}>
+            <Link to="/signin">
+              <Typography
+                sx={{
+                  fontFamily: "Nunito",
+                  fontWeight: 700,
+                  fontSize: "0.88rem",
+                  color: theme.palette.text.primary,
+                  px: "10px",
+                  py: "6px",
+                  borderRadius: "100px",
+                  transition: "color 0.2s",
+                  "&:hover": { color: brand.primary },
+                }}
+              >
+                Sign In
+              </Typography>
+            </Link>
+            <Link to="/signup">
+              <Box
+                sx={{
+                  px: "16px",
+                  py: "7px",
+                  borderRadius: "100px",
+                  background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+                  color: "white",
+                  fontFamily: "Nunito",
+                  fontWeight: 700,
+                  fontSize: "0.88rem",
+                  transition: "opacity 0.2s, transform 0.2s",
+                  "&:hover": { opacity: 0.9, transform: "translateY(-1px)" },
+                }}
+              >
+                Sign Up
+              </Box>
+            </Link>
+          </Box>
+        ) : (
+          <Box sx={{ display: "flex", alignItems: "center", gap: "4px", ml: "4px" }}>
+            <Tooltip title={user.role === "user" ? "My Account" : "Admin Panel"} arrow>
+              <Link to={accountPath}>
+                <IconButton size="small" sx={{ color: brand.secondary, p: "8px" }}>
+                  <PersonOutlineRounded sx={{ fontSize: "22px" }} />
+                </IconButton>
+              </Link>
+            </Tooltip>
+            <Tooltip title="Sign Out" arrow>
+              <IconButton size="small" onClick={logout} sx={{ color: theme.palette.text.secondary, p: "8px" }}>
+                <LogoutRounded sx={{ fontSize: "19px" }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
+
+        {/* Cart */}
+        <Tooltip title="Cart" arrow>
+          <IconButton
+            onClick={() => { dispatch(setShowCart(!showCart)); dispatch(setShowSearches(false)); }}
+            sx={{
+              ml: "4px",
+              color: showCart ? brand.primary : theme.palette.text.primary,
+              backgroundColor: showCart ? `${brand.primary}14` : "transparent",
+              p: "8px",
+              transition: "all 0.2s",
+            }}
+          >
+            <Badge
+              badgeContent={cart.length}
+              color="primary"
+              sx={{
+                "& .MuiBadge-badge": {
+                  fontSize: "10px",
+                  height: "16px",
+                  minWidth: "16px",
+                  fontFamily: "Nunito",
+                  fontWeight: 800,
+                },
+              }}
+            >
+              <ShoppingBagOutlined sx={{ fontSize: "22px" }} />
+            </Badge>
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      {/* Cart panel */}
+      {showCart && (
+        <Box
+          className="slide-down"
+          sx={{
+            position: "fixed",
+            top: "68px",
+            right: "16px",
+            width: "340px",
+            maxHeight: "80vh",
+            borderRadius: "16px",
+            overflow: "hidden",
+            boxShadow: isDark ? "0 16px 48px rgba(0,0,0,0.6)" : "0 16px 48px rgba(0,0,0,0.14)",
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "#EBEBEB"}`,
+            backgroundColor: isDark ? "#1A1A1F" : "#FFFFFF",
+            zIndex: 999,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Cart header */}
+          <Box sx={{ px: "20px", py: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` }}>
+            <Typography fontFamily="Playfair Display" fontWeight={700} fontSize="1.05rem">
+              My Bag ({cart.length})
+            </Typography>
+            <IconButton size="small" onClick={() => dispatch(setShowCart(false))} sx={{ color: theme.palette.text.secondary }}>
+              <CloseRounded sx={{ fontSize: "18px" }} />
+            </IconButton>
+          </Box>
+
+          {cart.length === 0 ? (
+            <Box sx={{ p: "32px", textAlign: "center" }}>
+              <ShoppingBagOutlined sx={{ fontSize: "48px", color: theme.palette.text.disabled, mb: "12px" }} />
+              <Typography fontFamily="Nunito" fontWeight={700} color="text.secondary">Your bag is empty</Typography>
+              <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mt="4px">Add items to get started</Typography>
+            </Box>
+          ) : (
+            <>
+              {/* Cart items */}
+              <Box sx={{ overflowY: "auto", flex: 1, px: "16px", py: "8px" }}>
+                {cart.map((item, i) => (
+                  <Box key={item._id} sx={{ py: "12px", borderBottom: i < cart.length - 1 ? `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` : "none", display: "flex", gap: "12px", alignItems: "flex-start" }}>
                     <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Box sx={{ mb: "7px" }}>
-                        <Typography
-                          fontWeight="bold"
-                          fontSize="17px"
-                          fontFamily="Nunito"
-                        >
-                          {each.name}
-                        </Typography>
-                        <Typography
-                          fontFamily="Playfair Display"
-                          fontWeight="bold"
-                          fontSize="14px"
-                          color="secondary"
-                        >
-                          {each.category}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        onClick={() =>
-                          dispatch(
-                            setCart(
-                              cart.filter((item) => item._id !== each._id)
-                            )
-                          )
-                        }
-                      >
-                        <DeleteOutlineRounded sx={{ color: "#Ed981b" }} />
-                      </IconButton>
+                      component="img"
+                      src={`${imageUrl}/uploads/${item.imageName}`}
+                      alt={item.name}
+                      sx={{ width: "52px", height: "52px", borderRadius: "8px", objectFit: "cover", flexShrink: 0, backgroundColor: isDark ? "#27272E" : "#F3F4F6" }}
+                    />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" noWrap>
+                        {item.name[0].toUpperCase()}{item.name.slice(1)}
+                      </Typography>
+                      <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary">{item.category}</Typography>
+                      <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary" mt="4px">
+                        {item.quantity} × ${formatNum((item.price * ((100 - item.discount) / 100)).toFixed(2))}
+                      </Typography>
                     </Box>
-                    <Typography fontSize="13px" fontStyle="italic" mb="10px">
-                      {each.description.slice(0, 30)}...
-                    </Typography>
-                    <Typography
-                      fontFamily="Playfair Display"
-                      fontWeight="bold"
-                      fontSize="14px"
+                    <IconButton
+                      size="small"
+                      onClick={() => dispatch(setCart(cart.filter((c) => c._id !== item._id)))}
+                      sx={{ color: theme.palette.text.secondary, p: "4px", "&:hover": { color: brand.error ?? "#EF4444" } }}
                     >
-                      {each.quantity} x{" "}
-                      {formatNumberWithCommas(
-                        (each.price * ((100 - each.discount) / 100)).toFixed(2)
-                      )}
-                    </Typography>
+                      <DeleteOutlineRounded sx={{ fontSize: "17px" }} />
+                    </IconButton>
                   </Box>
                 ))}
               </Box>
-              <Box>
-                <Box
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    py: "20px",
-                  }}
-                >
-                  <Typography fontWeight="bold" fontFamily="Nunito">
-                    Total
-                  </Typography>
-                  <Typography fontFamily="Nunito" fontWeight="bold">
-                    ${formatNumberWithCommas(total().toFixed(2))}
+
+              {/* Cart footer */}
+              <Box sx={{ px: "20px", py: "16px", borderTop: `1px solid ${isDark ? "#27272E" : "#F3F4F6"}` }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: "14px" }}>
+                  <Typography fontFamily="Nunito" fontWeight={700}>Total</Typography>
+                  <Typography fontFamily="Nunito" fontWeight={800} color="primary" fontSize="1.05rem">
+                    ${formatNum(cartTotal.toFixed(2))}
                   </Typography>
                 </Box>
-              </Box>
-              <Button
-                variant="outlined"
-                color="primary"
-                sx={{
-                  borderRadius: "20px",
-                  width: "100%",
-                  textTransform: "none",
-                  borderWidth: "2px",
-                  transition: "ease-in-out 0.2s",
-                }}
-                onClick={() => {
-                  navigate("/checkout");
-                  dispatch(setShowCart(false));
-                }}
-              >
-                <Typography fontFamily="Nunito" fontWeight="bold">
-                  Checkout
-                </Typography>
-              </Button>
-            </Box>
-          ) : showCart && cart.length < 1 ? (
-            <Box
-              sx={{
-                backgroundColor: "white",
-                position: "absolute",
-                width: "300px",
-                top: 50,
-                right: 0,
-                padding: "8px 0",
-                borderRadius: "5px",
-                px: "15px",
-                boxShadow: "2px 4px 12px rgba(0,0,0,0.12)",
-                zIndex: 200,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-              }}
-            >
-              <Box
-                width="100%"
-                sx={{ display: "flex", justifyContent: "end", pr: "5px" }}
-              >
-                <IconButton onClick={() => dispatch(setShowCart(false))}>
-                  <CloseRounded sx={{ color: "#ff5316", fontWeight: "bold" }} />
-                </IconButton>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  py: "5px",
-                }}
-              >
-                <Typography
-                  fontFamily="Playfair Display"
-                  color="secondary"
-                  fontWeight="bold"
-                  fontStyle="italic"
+                <Button
+                  variant="contained"
+                  fullWidth
+                  endIcon={<ArrowForwardRounded />}
+                  onClick={() => { navigate("/checkout"); dispatch(setShowCart(false)); }}
+                  sx={{ borderRadius: "100px", py: "10px", fontSize: "0.9rem" }}
                 >
-                  Your cart is empty...
-                </Typography>
+                  Checkout
+                </Button>
               </Box>
-            </Box>
-          ) : (
-            ""
+            </>
           )}
-        </FlexBetween>
-      </FlexBetween>
+        </Box>
+      )}
     </Box>
   );
 };

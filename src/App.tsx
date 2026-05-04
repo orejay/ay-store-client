@@ -2,8 +2,10 @@ import React from "react";
 import Header from "./components/Header";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import { themeSettings } from "./theme";
+import { createAppTheme } from "./theme";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "store";
 import Homepage from "scenes/homepage";
 import "typeface-nunito";
 import "typeface-playfair-display";
@@ -31,15 +33,15 @@ import { setShowCart, setShowSearches } from "state";
 import Checkout from "scenes/checkout";
 import ManageOrders from "scenes/manage orders";
 import ProductDetail from "scenes/product";
+import OrderConfirmation from "scenes/order confirmation";
+import ForgotPassword from "scenes/forgot password";
+import ResetPassword from "scenes/reset password";
 import ProtectedRoute from "components/ProtectedRoute";
+import AdminVouchers from "scenes/admin vouchers";
 
 function App() {
-  const theme = createTheme({
-    typography: {
-      fontFamily: "Nunito, Playfair Display, Arial, sans-serif",
-    },
-    palette: themeSettings(),
-  });
+  const themeMode = useSelector((state: RootState) => state.global.themeMode);
+  const theme = createTheme(createAppTheme(themeMode));
   const dispatch = useAppDispatch();
 
   return (
@@ -57,6 +59,7 @@ function App() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route
               path="/checkout"
               element={
@@ -139,6 +142,14 @@ function App() {
                 }
               />
               <Route
+                path="/admin/vouchers"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <AdminVouchers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin/account/management"
                 element={<AccManagement />}
               />
@@ -146,6 +157,8 @@ function App() {
 
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>

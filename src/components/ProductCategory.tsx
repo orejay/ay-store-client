@@ -1,18 +1,19 @@
-import { Box, Typography, useMediaQuery } from "@mui/material";
 import React from "react";
+import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
+import { Link } from "react-router-dom";
+import { Element } from "react-scroll";
+import { RootState, useAppDispatch } from "store";
+import { setCategories } from "state";
+import { useSelector } from "react-redux";
+import { brand } from "../theme";
 import lips from "../assets/lips.PNG";
 import face from "../assets/face.jpg";
 import skin from "../assets/skin.jpg";
 import perfumery from "../assets/perfumery.jpg";
 import household from "../assets/household.PNG";
 import decorative from "../assets/decorative.jpg";
-import { Link } from "react-router-dom";
-import { Element } from "react-scroll";
-import { RootState, useAppDispatch } from "store";
-import { setCategories } from "state";
-import { useSelector } from "react-redux";
 
-const category = [
+const categories = [
   { title: "skin", image: skin },
   { title: "face", image: face },
   { title: "lips", image: lips },
@@ -22,111 +23,142 @@ const category = [
 ];
 
 const ProductCategory = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const dispatch = useAppDispatch();
-  const isSmallScreen = useMediaQuery("(max-width: 450px)");
-  const isMediumScreen = useMediaQuery("(max-width: 768px)");
-
-  const imgSize = isSmallScreen ? "130px" : isMediumScreen ? "150px" : "180px";
-  const gridCols = isSmallScreen
-    ? "repeat(2,1fr)"
-    : isMediumScreen
-    ? "repeat(3,1fr)"
-    : "repeat(3,1fr)";
-  const gridWidth = isSmallScreen ? "95%" : isMediumScreen ? "90%" : "40%";
-  const gapSize = isSmallScreen ? "20px" : isMediumScreen ? "30px" : "60px";
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const isMedium = useMediaQuery("(max-width:960px)");
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      py={isMediumScreen ? "30px" : "50px"}
-      alignItems="center"
-      sx={{
-        minHeight: isMediumScreen ? "auto" : "100vh",
-        width: "100%",
-      }}
-      id="shop"
-    >
+    <Element name="shop">
       <Box
+        id="shop"
         sx={{
-          width: "90%",
-          display: "flex",
-          mb: isMediumScreen ? "40px" : "70px",
-          ml: isMediumScreen ? "" : "10%",
+          px: { xs: "20px", sm: "40px", md: "64px" },
+          py: { xs: "48px", md: "80px" },
+          backgroundColor: isDark ? "#0C0C0E" : "#F8F9FC",
         }}
       >
-        <Box
-          sx={{
-            width: "2px",
-            height: "50px",
-            mr: "9px",
-            backgroundColor: "#676769",
-            borderRadius: "2px",
-          }}
-        ></Box>
-        <Box>
-          <Typography fontFamily="Nunito" fontWeight="bold" color="GrayText">
+        {/* Section header */}
+        <Box sx={{ mb: { xs: "28px", md: "40px" } }}>
+          <Typography
+            fontFamily="Nunito"
+            fontWeight={700}
+            fontSize="0.78rem"
+            letterSpacing="0.08em"
+            color={brand.secondary}
+            mb="8px"
+            sx={{ textTransform: "uppercase" }}
+          >
             Unique
           </Typography>
           <Typography
-            variant="h5"
-            fontWeight="bold"
             fontFamily="Playfair Display"
+            fontWeight={900}
+            fontSize={{ xs: "1.6rem", md: "2rem" }}
+            color="text.primary"
+            lineHeight={1.1}
           >
-            Categories
+            Shop by Category
           </Typography>
         </Box>
-      </Box>
-      <Box
-        sx={{
-          width: gridWidth,
-          display: "grid",
-          gridTemplateColumns: gridCols,
-          gap: gapSize,
-          gridAutoRows: "auto",
-          justifyContent: "center",
-          justifyItems: "center",
-        }}
-      >
-        {category.map((each, index) => (
-          <Link
-            to={`/shop`}
-            key={index}
-            style={{
-              height: imgSize,
-              width: imgSize,
-            }}
-            onClick={() => dispatch(setCategories([each.title]))}
-          >
-            <Box
-              component="img"
-              alt="product-category-img"
-              src={each.image}
-              width="100%"
-              height="100%"
-              borderRadius="20px"
-              sx={{
-                objectFit: "cover",
-                transform: "rotate(-10deg)",
-                transformOrigin: "left",
-              }}
-            />
-            <Typography
-              variant="h6"
-              fontFamily="Playfair Display"
-              fontSize={isSmallScreen ? "13px" : "16px"}
-              textAlign="center"
-              fontWeight="bold"
-              color="secondary"
-              mt={isSmallScreen ? "4px" : "8px"}
+
+        {/* Category grid */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: isMobile
+              ? "repeat(2, 1fr)"
+              : isMedium
+              ? "repeat(3, 1fr)"
+              : "repeat(6, 1fr)",
+            gap: { xs: "12px", md: "16px" },
+          }}
+        >
+          {categories.map(({ title, image }) => (
+            <Link
+              key={title}
+              to="/shop"
+              onClick={() => dispatch(setCategories([title]))}
             >
-              {each.title[0].toUpperCase()}
-              {each.title.slice(1)}
-            </Typography>
-          </Link>
-        ))}
+              <Box
+                sx={{
+                  position: "relative",
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  aspectRatio: "3/4",
+                  cursor: "pointer",
+                  "&:hover img": { transform: "scale(1.07)" },
+                  "&:hover .overlay": { opacity: 1 },
+                  "&:hover .label": { transform: "translateY(0)", opacity: 1 },
+                }}
+              >
+                <Box
+                  component="img"
+                  src={image}
+                  alt={title}
+                  className="cat-img"
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                    transition: "transform 0.45s ease",
+                  }}
+                />
+
+                {/* Permanent bottom gradient */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "55%",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Hover overlay tint */}
+                <Box
+                  className="overlay"
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundColor: `${brand.primary}30`,
+                    opacity: 0,
+                    transition: "opacity 0.3s ease",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Label */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: "14px",
+                    left: 0,
+                    right: 0,
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography
+                    fontFamily="Playfair Display"
+                    fontWeight={700}
+                    fontSize={{ xs: "0.85rem", md: "0.95rem" }}
+                    color="#FFFFFF"
+                    sx={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
+                  >
+                    {title[0].toUpperCase()}{title.slice(1)}
+                  </Typography>
+                </Box>
+              </Box>
+            </Link>
+          ))}
+        </Box>
       </Box>
-    </Box>
+    </Element>
   );
 };
 

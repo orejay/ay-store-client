@@ -1,58 +1,43 @@
-﻿import { Box, IconButton, Typography } from "@mui/material";
-import Header from "components/Header";
 import React, { useEffect } from "react";
-import Footer from "components/Footer";
-import Hero from "components/Hero";
-import { setCloseModal, setModalMessage, setShowSearches } from "../../state";
-import { RootState, useAppDispatch } from "store";
-import ProductCategory from "components/ProductCategory";
-import AboutSection from "components/AboutSection";
-import { Close } from "@mui/icons-material";
+import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import { CloseRounded } from "@mui/icons-material";
 import { CSSTransition } from "react-transition-group";
 import { useSelector } from "react-redux";
+import Header from "components/Header";
+import Footer from "components/Footer";
+import Hero from "components/Hero";
+import ProductCategory from "components/ProductCategory";
+import AboutSection from "components/AboutSection";
+import FeaturedProducts from "components/FeaturedProducts";
+import { setCloseModal, setModalMessage, setShowSearches } from "../../state";
+import { RootState, useAppDispatch } from "store";
+import { brand } from "../../theme";
 
 interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  id: string;
-  token: string;
+  firstName: string; lastName: string; email: string;
+  phoneNumber: string; role: string; id: string; token: string;
 }
 
 const Homepage = () => {
-  const user: UserData | null = JSON.parse(
-    localStorage.getItem("user") || "null"
-  ) as UserData | null;
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
   const token = user?.token;
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const dispatch = useAppDispatch();
   const closeModal = useSelector((state: RootState) => state.global.closeModal);
-  const modalMessage = useSelector(
-    (state: RootState) => state.global.modalMessage
-  );
+  const modalMessage = useSelector((state: RootState) => state.global.modalMessage);
 
   const auth = async () => {
     try {
-      const response = await fetch(`${baseUrl}/auth/authenticate`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetch(`${baseUrl}/auth/authenticate`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.status === 401) signout();
-    } catch (error) {
-      console.error("Error fetching data", error);
-    }
+      if (res.status === 401) localStorage.removeItem("user");
+    } catch { /* silent */ }
   };
 
-  const signout = () => {
-    localStorage.removeItem("user");
-  };
-
-  useEffect(() => {
-    auth();
-  }, []);
+  useEffect(() => { auth(); }, []);
 
   return (
     <Box
@@ -60,48 +45,36 @@ const Homepage = () => {
       onClick={() => dispatch(setShowSearches(false))}
     >
       <Header />
-      <Box sx={{ pt: "80px" }}>
-        {
-          <CSSTransition
-            in={!closeModal}
-            timeout={1000}
-            classNames="fade"
-            unmountOnExit
+
+      {/* Toast notification */}
+      <Box sx={{ pt: "60px", position: "relative", zIndex: 900 }}>
+        <CSSTransition in={!closeModal} timeout={300} classNames="fade" unmountOnExit>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              px: "20px",
+              py: "10px",
+              background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+            }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: "5px",
-                backgroundColor: "#00C98D",
-                pl: "30px",
-                pr: "10px",
-                width: "100%",
-              }}
+            <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.88rem" color="#fff">
+              {modalMessage}
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={() => { dispatch(setCloseModal(true)); dispatch(setModalMessage("")); }}
+              sx={{ color: "rgba(255,255,255,0.8)", "&:hover": { color: "#fff" }, p: "4px" }}
             >
-              <Typography
-                fontFamily="Nunito"
-                sx={{
-                  color: "white",
-                  fontStyle: "italic",
-                }}
-              >
-                {modalMessage}
-              </Typography>
-              <IconButton
-                onClick={() => {
-                  dispatch(setCloseModal(true));
-                  dispatch(setModalMessage(""));
-                }}
-              >
-                <Close sx={{ color: "white" }} />
-              </IconButton>
-            </Box>
-          </CSSTransition>
-        }
+              <CloseRounded sx={{ fontSize: "16px" }} />
+            </IconButton>
+          </Box>
+        </CSSTransition>
       </Box>
+
       <Hero />
+      <FeaturedProducts />
       <ProductCategory />
       <AboutSection />
       <Footer />

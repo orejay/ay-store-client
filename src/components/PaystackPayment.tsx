@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setCart, setCloseModal, setModalMessage } from "state";
+import { setCart, setCloseModal, setLastOrder, setModalMessage } from "state";
 import { RootState, useAppDispatch } from "store";
 
 interface UserData {
@@ -60,10 +60,12 @@ const PaystackPayment = () => {
     const jsonData = await response.json();
 
     if (response.ok) {
+      dispatch(setLastOrder({ ref, total: total(), items: [...cart] }));
       dispatch(setCart([]));
-      dispatch(setModalMessage("Order Placed Successfully!"));
+      navigate("/order-confirmation");
+    } else {
+      dispatch(setModalMessage("Order could not be placed. Please try again."));
       dispatch(setCloseModal(false));
-      navigate("/");
     }
 
     console.log(jsonData);
@@ -94,7 +96,8 @@ const PaystackPayment = () => {
       amount: Number(amount) * 100,
       ref,
       onClose: function () {
-        alert("You're about to leave without completing your payment.");
+        dispatch(setModalMessage("Payment was cancelled. Your cart is still saved."));
+        dispatch(setCloseModal(false));
       },
       callback: function (response: any) {
         console.log(response);
