@@ -30,6 +30,8 @@ import { useAppDispatch } from "store";
 import { setShowCart, setShowSearches } from "state";
 import Checkout from "scenes/checkout";
 import ManageOrders from "scenes/manage orders";
+import ProductDetail from "scenes/product";
+import ProtectedRoute from "components/ProtectedRoute";
 
 function App() {
   const theme = createTheme({
@@ -54,8 +56,22 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route element={<Layout />}>
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
               <Route path="/customer/account" element={<Account />} />
               <Route path="/customer/orders" element={<Orders />} />
               <Route path="/customer/inbox" element={<Inbox />} />
@@ -73,13 +89,55 @@ function App() {
                 element={<AccManagement />}
               />
 
-              <Route path="/admin/account" element={<AdminManagement />} />
-              <Route path="/admin/products/add" element={<AddProduct />} />
-              <Route path="/admin/products/edit" element={<EditProduct />} />
-              <Route path="/admin/catalog" element={<Catalog />} />
-              <Route path="/admin/users" element={<Users />} />
+              <Route
+                path="/admin/account"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <AdminManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/products/add"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <AddProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/products/edit"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <EditProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/catalog"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <Catalog />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <Users />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/admin/password" element={<ChangePassword />} />
-              <Route path="/admin/orders" element={<ManageOrders />} />
+              <Route
+                path="/admin/orders"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <ManageOrders />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin/account/management"
                 element={<AccManagement />}

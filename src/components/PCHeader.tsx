@@ -225,7 +225,7 @@ const PCHeader = () => {
               {data.map((each) => (
                 <Link
                   key={each._id}
-                  to={`/products/${each.name}`}
+                  to={`/products/${each._id}`}
                   className="w-full h-full pl-3 Nunito font-semibold py-2 hover:bg-hov transition-all ease-in-out duration-400 block"
                 >
                   {each.name}

@@ -38,16 +38,15 @@ const Vouchers = () => {
           fontSize="20px"
           pt="20px"
         >
-          You haven’t saved an item yet!
+          No vouchers yet!
         </Typography>
         <Typography
           pt="10px"
           fontSize="14px"
           sx={{ maxWidth: "40%", textAlign: "center" }}
         >
-          Found something you like? Tap on the heart shaped icon next to the
-          item to add it to your wishlist! All your saved items will appear
-          here.
+          Vouchers and discount codes you receive will appear here. Keep an eye
+          on your email and our promotions for exclusive deals!
         </Typography>
         <Button
           variant="contained"
