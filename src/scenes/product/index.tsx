@@ -1,4 +1,4 @@
-import {
+﻿import {
   AddShoppingCartRounded,
   FavoriteBorderRounded,
   FavoriteRounded,
@@ -175,7 +175,7 @@ const ProductDetail = () => {
                         objectFit: "cover",
                         borderRadius: "6px",
                         cursor: "pointer",
-                        border: mainImage === imgName ? "2px solid #Ed981b" : "2px solid transparent",
+                        border: mainImage === imgName ? "2px solid #0049FF" : "2px solid transparent",
                         opacity: mainImage === imgName ? 1 : 0.7,
                         transition: "0.2s",
                       }}
@@ -189,7 +189,7 @@ const ProductDetail = () => {
             <Box display="flex" flexDirection="column" flex={1} gap="12px">
               <Box display="flex" justifyContent="space-between" alignItems="flex-start">
                 {product.discount > 0 && (
-                  <Chip label={`-${product.discount}% OFF`} sx={{ backgroundColor: "#Ed981b", color: "white", fontFamily: "Nunito", fontWeight: "bold" }} />
+                  <Chip label={`-${product.discount}% OFF`} sx={{ backgroundColor: "#0049FF", color: "white", fontFamily: "Nunito", fontWeight: "bold" }} />
                 )}
                 {user?.token && (
                   <IconButton onClick={toggleWishlist} sx={{ ml: "auto" }}>
@@ -238,7 +238,7 @@ const ProductDetail = () => {
                         sx={{
                           px: "12px",
                           py: "4px",
-                          border: selectedVariant?._id === v._id ? "2px solid #Ed981b" : "1px solid #E0E0E0",
+                          border: selectedVariant?._id === v._id ? "2px solid #0049FF" : "1px solid #E0E0E0",
                           borderRadius: "20px",
                           cursor: v.stock === 0 ? "not-allowed" : "pointer",
                           opacity: v.stock === 0 ? 0.4 : 1,
@@ -261,7 +261,7 @@ const ProductDetail = () => {
                   Out of Stock
                 </Typography>
               ) : availableStock <= 5 ? (
-                <Typography fontFamily="Nunito" fontSize="13px" sx={{ color: "#Ed981b" }}>
+                <Typography fontFamily="Nunito" fontSize="13px" sx={{ color: "#0049FF" }}>
                   <strong>Only {availableStock} left!</strong>
                 </Typography>
               ) : (

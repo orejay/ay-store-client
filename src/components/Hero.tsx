@@ -1,8 +1,14 @@
-import React from "react";
-import { Box, Button, Typography, useTheme, useMediaQuery } from "@mui/material";
+﻿import React from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import { ArrowForwardRounded, ShoppingBagOutlined } from "@mui/icons-material";
-import heroBg from "../assets/hero.png";
+import heroBg from "../assets/hero.webp";
 import { brand } from "../theme";
 
 const Hero = () => {
@@ -119,7 +125,11 @@ const Hero = () => {
             fontFamily="Nunito"
             fontWeight={700}
             fontSize="0.78rem"
-            sx={{ color: brand.primary, letterSpacing: "0.06em", textTransform: "uppercase" }}
+            sx={{
+              color: brand.primary,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+            }}
           >
             New Collection
           </Typography>
@@ -153,8 +163,8 @@ const Hero = () => {
           mb="40px"
           maxWidth="480px"
         >
-          Discover premium clothing, accessories, and lifestyle pieces curated for every occasion.
-          Trusted by thousands of happy customers.
+          Discover premium clothing, accessories, and lifestyle pieces curated
+          for every occasion. Trusted by thousands of happy customers.
         </Typography>
 
         {/* CTAs */}
@@ -168,9 +178,13 @@ const Hero = () => {
                 px: "28px",
                 py: "13px",
                 fontSize: "0.95rem",
-                background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+                background: `linear-gradient(135deg, ${brand.primary} 0%, #0038CC 100%)`,
                 boxShadow: `0 8px 24px ${brand.primary}40`,
-                "&:hover": { opacity: 0.92, transform: "translateY(-2px)", boxShadow: `0 12px 32px ${brand.primary}50` },
+                "&:hover": {
+                  opacity: 0.92,
+                  transform: "translateY(-2px)",
+                  boxShadow: `0 12px 32px ${brand.primary}50`,
+                },
                 transition: "all 0.25s ease",
               }}
             >
@@ -186,7 +200,9 @@ const Hero = () => {
                 px: "28px",
                 py: "13px",
                 fontSize: "0.95rem",
-                borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)",
+                borderColor: isDark
+                  ? "rgba(255,255,255,0.2)"
+                  : "rgba(0,0,0,0.15)",
                 color: theme.palette.text.primary,
                 "&:hover": {
                   borderColor: brand.primary,
@@ -224,7 +240,11 @@ const Hero = () => {
               >
                 {value}
               </Typography>
-              <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">
+              <Typography
+                fontFamily="Nunito"
+                fontSize="0.82rem"
+                color="text.secondary"
+              >
                 {label}
               </Typography>
             </Box>

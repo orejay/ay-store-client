@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { CloseRounded } from "@mui/icons-material";
 import { CSSTransition } from "react-transition-group";
@@ -56,7 +56,7 @@ const Homepage = () => {
               alignItems: "center",
               px: "20px",
               py: "10px",
-              background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+              background: `linear-gradient(135deg, ${brand.primary} 0%, #0038CC 100%)`,
             }}
           >
             <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.88rem" color="#fff">

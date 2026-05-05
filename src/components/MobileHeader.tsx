@@ -32,6 +32,8 @@ import {
   setThemeMode,
 } from "state";
 import { brand } from "../theme";
+import blueLogoFull from "../assets/Blue-logo-full.png";
+import whiteLogoFull from "../assets/White-logo-full.png";
 
 interface ProductData {
   name: string;
@@ -139,17 +141,12 @@ const MobileHeader = () => {
         {/* Logo — centered */}
         <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
           <Link to="/">
-            <Typography
-              sx={{
-                fontFamily: "Playfair Display",
-                fontWeight: 900,
-                fontSize: "1.3rem",
-                color: brand.primary,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              FASHIONERO
-            </Typography>
+            <Box
+              component="img"
+              src={isDark ? whiteLogoFull : blueLogoFull}
+              alt="Fashionero"
+              sx={{ height: "26px", width: "auto", display: "block" }}
+            />
           </Link>
         </Box>
 
@@ -222,16 +219,12 @@ const MobileHeader = () => {
           }}
         >
           <Link to="/" onClick={() => setDrawerOpen(false)}>
-            <Typography
-              sx={{
-                fontFamily: "Playfair Display",
-                fontWeight: 900,
-                fontSize: "1.3rem",
-                color: brand.primary,
-              }}
-            >
-              FASHIONERO
-            </Typography>
+            <Box
+              component="img"
+              src={isDark ? whiteLogoFull : blueLogoFull}
+              alt="Fashionero"
+              sx={{ height: "28px", width: "auto", display: "block" }}
+            />
           </Link>
           <IconButton
             size="small"

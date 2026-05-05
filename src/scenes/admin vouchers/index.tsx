@@ -1,4 +1,4 @@
-import { AddRounded, LocalActivityRounded } from "@mui/icons-material";
+﻿import { AddRounded, LocalActivityRounded } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -167,7 +167,7 @@ const AdminVouchers = () => {
           </Box>
         ) : coupons.length === 0 ? (
           <Box display="flex" flexDirection="column" alignItems="center" pt="60px">
-            <LocalActivityRounded sx={{ fontSize: "80px", color: "#Ed981b" }} />
+            <LocalActivityRounded sx={{ fontSize: "80px", color: "#0049FF" }} />
             <Typography fontFamily="Nunito" fontWeight="bold" fontSize="18px" pt="16px">
               No coupons yet
             </Typography>

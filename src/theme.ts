@@ -1,13 +1,13 @@
-import { PaletteMode, ThemeOptions } from "@mui/material";
+﻿import { PaletteMode, ThemeOptions } from "@mui/material";
 
 // ── Brand tokens ─────────────────────────────────────────────────────────────
 // Change these to retheme the entire app instantly.
 export const brand = {
-  primary: "#E8920A",   // warm amber / gold
-  secondary: "#077488", // teal
-  success: "#00C98D",
-  error: "#EF4444",
-  warning: "#F59E0B",
+  primary: "#0049FF",   // brand blue
+  secondary: "#FF6B00", // vivid orange — complementary contrast
+  success: "#10B981",   // emerald green
+  error: "#EF4444",     // red
+  warning: "#F59E0B",   // amber
 };
 
 // ── Full theme factory ────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ export const createAppTheme = (mode: PaletteMode): ThemeOptions => {
       warning: { main: brand.warning },
       background: {
         default: light ? "#FFFFFF" : "#0C0C0E",
-        paper: light ? "#F8F9FC" : "#16161A",
+        paper: light ? "#F9F9F9" : "#16161A",
       },
       text: {
         primary: light ? "#0A0A0A" : "#EFEFEF",
@@ -34,7 +34,7 @@ export const createAppTheme = (mode: PaletteMode): ThemeOptions => {
       divider: light ? "#EBEBEB" : "#27272E",
       action: {
         hover: light ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.06)",
-        selected: light ? "rgba(232,146,10,0.08)" : "rgba(232,146,10,0.14)",
+        selected: light ? "rgba(0,73,255,0.08)" : "rgba(0,73,255,0.14)",
       },
     },
 
@@ -82,7 +82,7 @@ export const createAppTheme = (mode: PaletteMode): ThemeOptions => {
             transition: "all 0.2s ease",
           },
           containedPrimary: {
-            background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+            background: `linear-gradient(135deg, ${brand.primary} 0%, #0038CC 100%)`,
             "&:hover": { opacity: 0.9, transform: "translateY(-1px)" },
           },
           outlinedPrimary: {

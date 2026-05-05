@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -207,7 +207,7 @@ const Checkout = () => {
             py: "12px",
             fontFamily: "Nunito",
             fontWeight: 700,
-            background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+            background: `linear-gradient(135deg, ${brand.primary} 0%, #0038CC 100%)`,
             boxShadow: `0 6px 20px ${brand.primary}35`,
           }}
         >

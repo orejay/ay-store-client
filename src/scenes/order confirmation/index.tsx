@@ -51,7 +51,7 @@ const OrderConfirmation = () => {
           <Box sx={{ textAlign: "center", mb: "36px" }}>
             <Box sx={{
               width: "88px", height: "88px", borderRadius: "50%",
-              background: `linear-gradient(135deg, #00C98D, #059669)`,
+              background: `linear-gradient(135deg, #10B981, #059669)`,
               display: "flex", alignItems: "center", justifyContent: "center",
               mx: "auto", mb: "20px",
               boxShadow: "0 16px 48px rgba(0,201,141,0.35)",

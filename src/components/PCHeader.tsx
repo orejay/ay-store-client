@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   IconButton,
@@ -27,6 +27,8 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store";
 import { setCart, setShowCart, setShowSearches, setThemeMode } from "state";
 import { brand } from "../theme";
+import blueLogoFull from "../assets/Blue-logo-full.png";
+import whiteLogoFull from "../assets/White-logo-full.png";
 
 interface ProductData {
   name: string;
@@ -135,18 +137,12 @@ const PCHeader = () => {
     >
       {/* Logo */}
       <Link to="/" style={{ flexShrink: 0 }}>
-        <Typography
-          sx={{
-            fontFamily: "Playfair Display",
-            fontWeight: 900,
-            fontSize: "1.5rem",
-            color: brand.primary,
-            letterSpacing: "-0.02em",
-            lineHeight: 1,
-          }}
-        >
-          FASHIONERO
-        </Typography>
+        <Box
+          component="img"
+          src={isDark ? whiteLogoFull : blueLogoFull}
+          alt="Fashionero"
+          sx={{ height: "34px", width: "auto", display: "block" }}
+        />
       </Link>
 
       {/* Nav links */}
@@ -361,7 +357,7 @@ const PCHeader = () => {
                   px: "16px",
                   py: "7px",
                   borderRadius: "100px",
-                  background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+                  background: `linear-gradient(135deg, ${brand.primary} 0%, #0038CC 100%)`,
                   color: "white",
                   fontFamily: "Nunito",
                   fontWeight: 700,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -19,6 +19,8 @@ import {
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { brand } from "../theme";
+import blueLogoFull from "../assets/Blue-logo-full.png";
+import whiteLogoFull from "../assets/White-logo-full.png";
 
 const links = {
   Company: [
@@ -71,20 +73,12 @@ const Footer = () => {
         {/* Brand column */}
         <Box>
           <Link to="/">
-            <Typography
-              sx={{
-                fontFamily: "Playfair Display",
-                fontWeight: 900,
-                fontSize: "1.6rem",
-                color: brand.primary,
-                letterSpacing: "-0.02em",
-                lineHeight: 1,
-                mb: "16px",
-                display: "block",
-              }}
-            >
-              FASHIONERO
-            </Typography>
+            <Box
+              component="img"
+              src={isDark ? whiteLogoFull : blueLogoFull}
+              alt="Fashionero"
+              sx={{ height: "38px", width: "auto", display: "block", mb: "16px" }}
+            />
           </Link>
           <Typography
             fontFamily="Nunito"
@@ -211,7 +205,7 @@ const Footer = () => {
                 color: "#fff",
                 borderRadius: "100px",
                 p: "8px",
-                "&:hover": { backgroundColor: "#D4800A" },
+                "&:hover": { backgroundColor: "#0038CC" },
                 transition: "background 0.2s",
               }}
             >

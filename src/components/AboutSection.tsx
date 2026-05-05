@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Box, Button, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { ArrowForwardRounded, CheckCircleOutlineRounded } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -162,7 +162,7 @@ const AboutSection = () => {
                 borderRadius: "100px",
                 px: "28px",
                 py: "12px",
-                background: `linear-gradient(135deg, ${brand.primary} 0%, #D4800A 100%)`,
+                background: `linear-gradient(135deg, ${brand.primary} 0%, #0038CC 100%)`,
                 boxShadow: `0 8px 24px ${brand.primary}35`,
                 fontFamily: "Nunito",
                 fontWeight: 700,

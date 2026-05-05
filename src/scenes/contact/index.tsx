@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   Box, Button, TextField, Typography, useTheme, useMediaQuery,
   Alert, CircularProgress, Divider,
@@ -129,7 +129,7 @@ const Contact = () => {
             overflow: "hidden",
           }}>
             <Box sx={{
-              background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
+              background: `linear-gradient(135deg, ${brand.primary}, #0038CC)`,
               p: "24px",
             }}>
               <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="#fff" mb="6px">
@@ -199,7 +199,7 @@ const Contact = () => {
               <Box sx={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "18px", py: "24px" }}>
                 <Box sx={{
                   width: "80px", height: "80px", borderRadius: "50%",
-                  background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
+                  background: `linear-gradient(135deg, ${brand.primary}, #0038CC)`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   boxShadow: `0 12px 36px ${brand.primary}40`,
                   animation: "pop 0.4s ease",

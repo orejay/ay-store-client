@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Box, Button, Divider, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Footer from "components/Footer";
 import Header from "components/Header";
@@ -335,8 +335,8 @@ const About = () => {
                   sx={{
                     width: "80px", height: "80px", borderRadius: "50%",
                     background: i % 2 === 0
-                      ? `linear-gradient(135deg, ${brand.primary}, #D4800A)`
-                      : `linear-gradient(135deg, ${brand.secondary}, #059669)`,
+                      ? `linear-gradient(135deg, ${brand.primary}, #0038CC)`
+                      : `linear-gradient(135deg, ${brand.secondary}, #CC4400)`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     mx: "auto", mb: "18px",
                     boxShadow: `0 8px 24px ${i % 2 === 0 ? brand.primary : brand.secondary}40`,

@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import {
   Box, Button, TextField, Typography, useTheme, Alert, CircularProgress,
 } from "@mui/material";
-import { MarkEmailReadRounded, StorefrontRounded } from "@mui/icons-material";
+import { MarkEmailReadRounded } from "@mui/icons-material";
+import blueLogoFull from "../../assets/Blue-logo-full.png";
+import whiteLogoFull from "../../assets/White-logo-full.png";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import { Link, useNavigate } from "react-router-dom";
@@ -59,18 +61,13 @@ const ForgotPassword = () => {
           p: { xs: "28px 24px", md: "44px 40px" },
         }}>
           {/* Brand mark */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "32px" }}>
-            <Box sx={{
-              width: "38px", height: "38px", borderRadius: "10px",
-              background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: `0 4px 12px ${brand.primary}40`,
-            }}>
-              <StorefrontRounded sx={{ fontSize: "20px", color: "#fff" }} />
-            </Box>
-            <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.15rem">
-              FASHIONERO
-            </Typography>
+          <Box sx={{ mb: "32px" }}>
+            <Box
+              component="img"
+              src={isDark ? whiteLogoFull : blueLogoFull}
+              alt="Fashionero"
+              sx={{ height: "32px", width: "auto", display: "block" }}
+            />
           </Box>
 
           {status === "success" ? (

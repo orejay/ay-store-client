@@ -133,7 +133,7 @@ const Catalog = () => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 p: "5px",
-                backgroundColor: added ? "#00C98D" : "#ff5316",
+                backgroundColor: added ? "#10B981" : "#ff5316",
                 pl: "30px",
                 pr: "10px",
                 width: "100%",
@@ -276,14 +276,14 @@ const Catalog = () => {
                                 navigate("/admin/products/edit");
                               }}
                             >
-                              <EditRounded sx={{ color: "#Ed981b" }} />
+                              <EditRounded sx={{ color: "#0049FF" }} />
                             </IconButton>
                             <IconButton
                               onClick={() => {
                                 setConfirm(each._id);
                               }}
                             >
-                              <DeleteOutlineRounded sx={{ color: "#Ed981b" }} />
+                              <DeleteOutlineRounded sx={{ color: "#0049FF" }} />
                             </IconButton>
                           </Box>
                         ) : (
@@ -291,7 +291,7 @@ const Catalog = () => {
                             <Typography
                               fontFamily="Nunito"
                               fontStyle="italic"
-                              sx={{ color: "#Ed981b" }}
+                              sx={{ color: "#0049FF" }}
                             >
                               Confirm?
                             </Typography>
@@ -325,12 +325,12 @@ const Catalog = () => {
                                 setConfirm("");
                               }}
                               sx={{
-                                backgroundColor: "#00C98D",
+                                backgroundColor: "#10B981",
                                 borderRadius: "20px",
                                 display: "flex",
                                 alignItems: "center",
                                 "&:hover": {
-                                  backgroundColor: "#00C98D",
+                                  backgroundColor: "#10B981",
                                 },
                               }}
                             >

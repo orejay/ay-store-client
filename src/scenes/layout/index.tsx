@@ -208,7 +208,7 @@ const Layout = () => {
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
           gap: isMobile ? "0" : "20px",
-          alignItems: "flex-start",
+          alignItems: isMobile ? "stretch" : "flex-start",
           maxWidth: "1200px",
           mx: "auto",
           mt: { xs: "0", md: "24px" },

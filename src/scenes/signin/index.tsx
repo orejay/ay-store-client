@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box, Button, TextField, Typography, useTheme,
   InputAdornment, IconButton, Alert, LinearProgress,
 } from "@mui/material";
-import { VisibilityOff, Visibility, CheckCircleRounded, StorefrontRounded } from "@mui/icons-material";
+import { VisibilityOff, Visibility, CheckCircleRounded } from "@mui/icons-material";
+import blueLogoFull from "../../assets/Blue-logo-full.png";
+import whiteLogoFull from "../../assets/White-logo-full.png";
 import Header from "components/Header";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "components/Footer";
@@ -79,7 +81,7 @@ const SignIn = () => {
           <Box sx={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "20px", maxWidth: "360px" }}>
             <Box sx={{
               width: "90px", height: "90px", borderRadius: "50%",
-              background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
+              background: `linear-gradient(135deg, ${brand.primary}, #0038CC)`,
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: `0 12px 40px ${brand.primary}45`,
               animation: "pop 0.4s ease",
@@ -110,18 +112,13 @@ const SignIn = () => {
             p: { xs: "28px 24px", md: "44px 40px" },
           }}>
             {/* Brand mark */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "32px" }}>
-              <Box sx={{
-                width: "38px", height: "38px", borderRadius: "10px",
-                background: `linear-gradient(135deg, ${brand.primary}, #D4800A)`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                boxShadow: `0 4px 12px ${brand.primary}40`,
-              }}>
-                <StorefrontRounded sx={{ fontSize: "20px", color: "#fff" }} />
-              </Box>
-              <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.15rem">
-                FASHIONERO
-              </Typography>
+            <Box sx={{ mb: "32px" }}>
+              <Box
+                component="img"
+                src={isDark ? whiteLogoFull : blueLogoFull}
+                alt="Fashionero"
+                sx={{ height: "32px", width: "auto", display: "block" }}
+              />
             </Box>
 
             <Typography variant="h5" fontFamily="Playfair Display" fontWeight={700} mb="6px">

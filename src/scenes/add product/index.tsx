@@ -1,4 +1,4 @@
-import { AddAPhotoRounded, AddRounded, Close, DeleteRounded } from "@mui/icons-material";
+﻿import { AddAPhotoRounded, AddRounded, Close, DeleteRounded } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -136,7 +136,7 @@ const AddProduct = () => {
       </Box>
       <Box display="flex" flexDirection="column" alignItems="center">
         <CSSTransition in={!closeModal} timeout={1000} classNames="fade" unmountOnExit>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: "5px", backgroundColor: added ? "#00C98D" : "#ff5316", pl: "30px", pr: "10px", width: "100%" }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: "5px", backgroundColor: added ? "#10B981" : "#ff5316", pl: "30px", pr: "10px", width: "100%" }}>
             <Typography fontFamily="Nunito" sx={{ color: "white", fontStyle: "italic" }}>
               {added ? "Product Added Successfully!" : "Something Went Wrong!"}
             </Typography>
@@ -192,7 +192,7 @@ const AddProduct = () => {
 
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <FormControlLabel
-              control={<Checkbox checked={body.featured} onChange={(e) => setBody((b) => ({ ...b, featured: e.target.checked }))} sx={{ color: "#Ed981b", "&.Mui-checked": { color: "#Ed981b" } }} />}
+              control={<Checkbox checked={body.featured} onChange={(e) => setBody((b) => ({ ...b, featured: e.target.checked }))} sx={{ color: "#0049FF", "&.Mui-checked": { color: "#0049FF" } }} />}
               label={<Typography fontFamily="Nunito" fontWeight="bold">Featured</Typography>}
             />
           </Box>
@@ -223,7 +223,7 @@ const AddProduct = () => {
               ))}
               {selectedImages.length < 10 && (
                 <label htmlFor="upload" style={{ cursor: "pointer" }}>
-                  <Box sx={{ width: "80px", height: "80px", border: "2px dashed #Ed981b", borderRadius: "6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#Ed981b" }}>
+                  <Box sx={{ width: "80px", height: "80px", border: "2px dashed #0049FF", borderRadius: "6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#0049FF" }}>
                     <AddAPhotoRounded sx={{ fontSize: "28px" }} />
                     <Typography fontSize="10px" fontFamily="Nunito">Add</Typography>
                   </Box>
