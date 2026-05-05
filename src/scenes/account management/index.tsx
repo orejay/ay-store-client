@@ -11,6 +11,7 @@ import {
   Divider,
 } from "@mui/material";
 import { brand } from "../../theme";
+import { isValidEmail, isValidPhone } from "../../utils/validate";
 
 interface BodyState {
   firstName: string;
@@ -46,6 +47,12 @@ const AccManagement = () => {
     email: "",
     phoneNumber: "",
   });
+  const [touched, setTouched] = useState({ email: false, phoneNumber: false });
+  const touch = (field: "email" | "phoneNumber") =>
+    setTouched((t) => ({ ...t, [field]: true }));
+
+  const emailError = touched.email && body.email.length > 0 && !isValidEmail(body.email);
+  const phoneError = touched.phoneNumber && body.phoneNumber.length > 0 && !isValidPhone(body.phoneNumber);
 
   const editDetails = async () => {
     try {
@@ -75,7 +82,8 @@ const AccManagement = () => {
   };
 
   const isDisabled =
-    !body.firstName && !body.lastName && !body.email && !body.phoneNumber;
+    (!body.firstName && !body.lastName && !body.email && !body.phoneNumber) ||
+    emailError || phoneError;
 
   return (
     <Box sx={{ p: { xs: "16px", md: "28px" } }}>
@@ -167,18 +175,26 @@ const AccManagement = () => {
           type="email"
           defaultValue={user?.email}
           onChange={(e) => setBody((b) => ({ ...b, email: e.target.value }))}
+          onBlur={() => touch("email")}
+          error={emailError}
+          helperText={emailError ? "Enter a valid email address" : ""}
           fullWidth
           inputProps={{ style: { fontFamily: "Nunito" } }}
           InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+          FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
         />
         <TextField
           label="Phone Number"
           type="tel"
           defaultValue={user?.phoneNumber}
           onChange={(e) => setBody((b) => ({ ...b, phoneNumber: e.target.value }))}
+          onBlur={() => touch("phoneNumber")}
+          error={phoneError}
+          helperText={phoneError ? "Enter a valid phone number" : ""}
           fullWidth
           inputProps={{ style: { fontFamily: "Nunito" } }}
           InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+          FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
         />
       </Box>
 

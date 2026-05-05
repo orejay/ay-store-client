@@ -11,6 +11,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
+import PasswordStrengthMeter from "components/PasswordStrengthMeter";
 import { brand } from "../../theme";
 
 interface BodyState {
@@ -41,6 +42,7 @@ const ChangePassword = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
   const [checkPass, setCheckPass] = useState("");
+  const [newPasswordTouched, setNewPasswordTouched] = useState(false);
 
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
@@ -81,8 +83,9 @@ const ChangePassword = () => {
   };
 
   const passwordMismatch = checkPass.length >= 3 && checkPass !== body.password;
+  const newPasswordTooShort = newPasswordTouched && body.password.length > 0 && body.password.length < 6;
   const isDisabled =
-    !body.oldPassword || !body.password || !checkPass || passwordMismatch;
+    !body.oldPassword || !body.password || !checkPass || passwordMismatch || body.password.length < 6;
 
   return (
     <Box sx={{ p: { xs: "16px", md: "28px" } }}>
@@ -164,32 +167,39 @@ const ChangePassword = () => {
           }}
         />
 
-        <TextField
-          label="New Password"
-          type={showPassword ? "text" : "password"}
-          value={body.password}
-          onChange={(e) => setBody((b) => ({ ...b, password: e.target.value }))}
-          fullWidth
-          inputProps={{ style: { fontFamily: "Nunito" } }}
-          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowPassword(!showPassword)}
-                  edge="end"
-                  size="small"
-                >
-                  {showPassword ? (
-                    <VisibilityOff sx={{ fontSize: "18px" }} />
-                  ) : (
-                    <Visibility sx={{ fontSize: "18px" }} />
-                  )}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Box>
+          <TextField
+            label="New Password"
+            type={showPassword ? "text" : "password"}
+            value={body.password}
+            onChange={(e) => setBody((b) => ({ ...b, password: e.target.value }))}
+            onBlur={() => setNewPasswordTouched(true)}
+            error={newPasswordTooShort}
+            helperText={newPasswordTooShort ? "Password must be at least 6 characters" : ""}
+            fullWidth
+            inputProps={{ style: { fontFamily: "Nunito" } }}
+            InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+            FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                    size="small"
+                  >
+                    {showPassword ? (
+                      <VisibilityOff sx={{ fontSize: "18px" }} />
+                    ) : (
+                      <Visibility sx={{ fontSize: "18px" }} />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <PasswordStrengthMeter password={body.password} />
+        </Box>
 
         <TextField
           label="Confirm New Password"

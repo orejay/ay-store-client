@@ -11,6 +11,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { brand } from "../theme";
+import { isValidPhone } from "../utils/validate";
 
 interface UserData {
   firstName: string;
@@ -40,6 +41,7 @@ const AddAddress = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [phoneTouched, setPhoneTouched] = useState(false);
 
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
@@ -54,6 +56,8 @@ const AddAddress = () => {
     country: "",
     isDefault: false,
   });
+
+  const phoneError = phoneTouched && body.phoneNumber.length > 0 && !isValidPhone(body.phoneNumber);
 
   const addAddress = async () => {
     try {
@@ -127,6 +131,10 @@ const AddAddress = () => {
           type="tel"
           value={body.phoneNumber}
           onChange={(e) => setBody((b) => ({ ...b, phoneNumber: e.target.value }))}
+          onBlur={() => setPhoneTouched(true)}
+          error={phoneError}
+          helperText={phoneError ? "Enter a valid phone number" : ""}
+          FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
           fullWidth
           sx={fieldSx}
         />
@@ -192,7 +200,8 @@ const AddAddress = () => {
               !body.address ||
               !body.city ||
               !body.state ||
-              !body.country
+              !body.country ||
+              phoneError
             }
             sx={{ px: "32px", py: "10px", fontSize: "0.9rem" }}
           >

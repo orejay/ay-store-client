@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box, Button, TextField, Typography, useTheme,
   InputAdornment, IconButton, Alert, LinearProgress, Grid,
@@ -7,9 +7,11 @@ import { VisibilityOff, Visibility, CheckCircleRounded } from "@mui/icons-materi
 import blueLogoFull from "../../assets/Blue-logo-full.png";
 import whiteLogoFull from "../../assets/White-logo-full.png";
 import Header from "components/Header";
+import PasswordStrengthMeter from "components/PasswordStrengthMeter";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "components/Footer";
 import { brand } from "../../theme";
+import { isValidEmail, isValidPhone } from "../../utils/validate";
 
 interface BodyState {
   firstName: string; lastName: string;
@@ -29,11 +31,26 @@ const SignUp = () => {
   const [body, setBody] = useState<BodyState>({
     firstName: "", lastName: "", password: "", email: "", phoneNumber: "",
   });
+  const [touched, setTouched] = useState({
+    firstName: false, lastName: false, email: false, phoneNumber: false, password: false,
+  });
 
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
   const passwordMismatch = confirmPassword.length > 0 && confirmPassword !== body.password;
 
+  const touch = (field: keyof typeof touched) =>
+    setTouched((t) => ({ ...t, [field]: true }));
+
+  const emailError      = touched.email      && !isValidEmail(body.email);
+  const phoneError      = touched.phoneNumber && body.phoneNumber.length > 0 && !isValidPhone(body.phoneNumber);
+  const firstNameError  = touched.firstName  && body.firstName.trim().length === 0;
+  const lastNameError   = touched.lastName   && body.lastName.trim().length === 0;
+  const passwordError   = touched.password   && body.password.length > 0 && body.password.length < 6;
+
   const signUp = async () => {
+    setTouched({ firstName: true, lastName: true, email: true, phoneNumber: true, password: true });
+    if (!body.firstName.trim() || !body.lastName.trim() || !body.email || !body.phoneNumber || !body.password) return;
+    if (!isValidEmail(body.email)) return;
     if (body.password !== confirmPassword) { setError("Passwords do not match."); return; }
     if (body.password.length < 6) { setError("Password must be at least 6 characters."); return; }
     setError("");
@@ -134,6 +151,10 @@ const SignUp = () => {
                   required
                   value={body.firstName}
                   onChange={(e) => setBody((b) => ({ ...b, firstName: e.target.value }))}
+                  onBlur={() => touch("firstName")}
+                  error={firstNameError}
+                  helperText={firstNameError ? "First name is required" : ""}
+                  FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -144,6 +165,10 @@ const SignUp = () => {
                   required
                   value={body.lastName}
                   onChange={(e) => setBody((b) => ({ ...b, lastName: e.target.value }))}
+                  onBlur={() => touch("lastName")}
+                  error={lastNameError}
+                  helperText={lastNameError ? "Last name is required" : ""}
+                  FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
                 />
               </Grid>
             </Grid>
@@ -155,6 +180,10 @@ const SignUp = () => {
               required
               value={body.email}
               onChange={(e) => setBody((b) => ({ ...b, email: e.target.value }))}
+              onBlur={() => touch("email")}
+              error={emailError}
+              helperText={emailError ? "Enter a valid email address" : ""}
+              FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
               sx={{ mb: "16px" }}
             />
             <TextField
@@ -164,6 +193,10 @@ const SignUp = () => {
               required
               value={body.phoneNumber}
               onChange={(e) => setBody((b) => ({ ...b, phoneNumber: e.target.value }))}
+              onBlur={() => touch("phoneNumber")}
+              error={phoneError}
+              helperText={phoneError ? "Enter a valid phone number" : ""}
+              FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
               sx={{ mb: "16px" }}
             />
             <TextField
@@ -173,6 +206,10 @@ const SignUp = () => {
               required
               value={body.password}
               onChange={(e) => setBody((b) => ({ ...b, password: e.target.value }))}
+              onBlur={() => touch("password")}
+              error={passwordError}
+              helperText={passwordError ? "Password must be at least 6 characters" : ""}
+              FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -182,8 +219,10 @@ const SignUp = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={{ mb: "16px" }}
+              sx={{ mb: "4px" }}
             />
+            <PasswordStrengthMeter password={body.password} />
+
             <TextField
               label="Confirm Password"
               type={showPassword ? "text" : "password"}
@@ -193,6 +232,7 @@ const SignUp = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               error={passwordMismatch}
               helperText={passwordMismatch ? "Passwords don't match" : ""}
+              FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -202,7 +242,7 @@ const SignUp = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={{ mb: "28px" }}
+              sx={{ mt: "16px", mb: "28px" }}
             />
 
             <Button

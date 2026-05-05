@@ -12,6 +12,7 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "store";
 import { brand } from "../theme";
+import { isValidPhone } from "../utils/validate";
 
 interface UserData {
   firstName: string;
@@ -41,6 +42,7 @@ const EditAddress = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [phoneTouched, setPhoneTouched] = useState(false);
 
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
@@ -55,6 +57,8 @@ const EditAddress = () => {
     country: addressList[0].country,
     isDefault: addressList[0].isDefault,
   });
+
+  const phoneError = phoneTouched && body.phoneNumber.length > 0 && !isValidPhone(body.phoneNumber);
 
   const editAddress = async () => {
     try {
@@ -121,6 +125,10 @@ const EditAddress = () => {
           type="tel"
           value={body.phoneNumber}
           onChange={(e) => setBody((b) => ({ ...b, phoneNumber: e.target.value }))}
+          onBlur={() => setPhoneTouched(true)}
+          error={phoneError}
+          helperText={phoneError ? "Enter a valid phone number" : ""}
+          FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
           fullWidth
           sx={fieldSx}
         />
@@ -180,6 +188,7 @@ const EditAddress = () => {
           <Button
             variant="contained"
             onClick={editAddress}
+            disabled={phoneError}
             sx={{ px: "32px", py: "10px", fontSize: "0.9rem" }}
           >
             Save Changes

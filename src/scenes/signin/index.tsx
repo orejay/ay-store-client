@@ -12,6 +12,7 @@ import Footer from "components/Footer";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
 import { brand } from "../../theme";
+import { isValidEmail } from "../../utils/validate";
 
 interface UserData {
   firstName: string; lastName: string; email: string;
@@ -30,10 +31,14 @@ const SignIn = () => {
   const prevPage = useSelector((state: RootState) => state.global.prevPage);
   const navigate = useNavigate();
   const [body, setBody] = useState({ password: "", email: "" });
+  const [emailTouched, setEmailTouched] = useState(false);
 
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
+  const emailError = emailTouched && body.email.length > 0 && !isValidEmail(body.email);
 
   const signIn = async () => {
+    setEmailTouched(true);
+    if (body.email && !isValidEmail(body.email)) return;
     setError("");
     setLoading(true);
     try {
@@ -145,6 +150,10 @@ const SignIn = () => {
               required
               value={body.email}
               onChange={(e) => setBody((b) => ({ ...b, email: e.target.value }))}
+              onBlur={() => setEmailTouched(true)}
+              error={emailError}
+              helperText={emailError ? "Enter a valid email address" : ""}
+              FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
               sx={{ mb: "16px" }}
             />
             <TextField
