@@ -1,38 +1,78 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box, Button, Chip, Collapse, Divider, IconButton,
-  Typography, useTheme, useMediaQuery,
+  Box,
+  Button,
+  Chip,
+  Collapse,
+  Divider,
+  IconButton,
+  Typography,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
-  ExpandMoreRounded, ShoppingBagOutlined,
-  LocationOnOutlined, LocalShippingOutlined,
+  ExpandMoreRounded,
+  ShoppingBagOutlined,
+  LocationOnOutlined,
+  LocalShippingOutlined,
   ReceiptLongOutlined,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { brand } from "../../theme";
 
 interface AddressData {
-  _id: string; contactName: string; phoneNumber: string;
-  user: string; isDefault: boolean; address: string;
-  city: string; state: string; country: string;
-  createdAt: string; updatedAt: string; __v: string;
+  _id: string;
+  contactName: string;
+  phoneNumber: string;
+  user: string;
+  isDefault: boolean;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: string;
 }
 interface ProductData {
-  name: string; quantity: number; price: number; rating: number;
-  discount: number; imageName: string; imagePath: string;
-  description: string; category: string; supply: number; _id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  rating: number;
+  discount: number;
+  imageName: string;
+  imagePath: string;
+  description: string;
+  category: string;
+  supply: number;
+  _id: string;
 }
 interface UserData {
-  firstName: string; lastName: string; email: string;
-  phoneNumber: string; role: string; id: string; token: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  id: string;
+  token: string;
 }
-interface OrderData { product: ProductData; quantity: number; }
+interface OrderData {
+  product: ProductData;
+  quantity: number;
+}
 interface OrdersData {
-  _id: string; order: OrderData[]; address: AddressData;
-  instructions: string; userId: string; status: string;
+  _id: string;
+  order: OrderData[];
+  address: AddressData;
+  instructions: string;
+  userId: string;
+  status: string;
 }
 
-const statusConfig: Record<string, { label: string; color: "warning" | "info" | "success" | "error" | "default" }> = {
+const statusConfig: Record<
+  string,
+  { label: string; color: "warning" | "info" | "success" | "error" | "default" }
+> = {
   new: { label: "New", color: "warning" },
   processing: { label: "Processing", color: "info" },
   shipped: { label: "Shipped", color: "info" },
@@ -53,14 +93,19 @@ const OrderCard = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const cfg = statusConfig[order.status] ?? { label: order.status, color: "default" as const };
+  const cfg = statusConfig[order.status] ?? {
+    label: order.status,
+    color: "default" as const,
+  };
 
   const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const orderTotal = order.order.reduce(
-    (acc, i) => i.product
-      ? acc + i.product.price * i.quantity * ((100 - i.product.discount) / 100)
-      : acc,
-    0
+    (acc, i) =>
+      i.product
+        ? acc +
+          i.product.price * i.quantity * ((100 - i.product.discount) / 100)
+        : acc,
+    0,
   );
 
   return (
@@ -72,22 +117,35 @@ const OrderCard = ({
         overflow: "hidden",
         transition: "box-shadow 0.25s ease",
         "&:hover": {
-          boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.5)" : "0 8px 28px rgba(0,0,0,0.08)",
+          boxShadow: isDark
+            ? "0 8px 28px rgba(0,0,0,0.5)"
+            : "0 8px 28px rgba(0,0,0,0.08)",
         },
       }}
     >
       {/* Card header */}
       <Box
         sx={{
-          px: "18px", py: "14px",
+          px: "18px",
+          py: "14px",
           borderBottom: `1px solid ${borderColor}`,
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          flexWrap: "wrap", gap: "8px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "8px",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <ReceiptLongOutlined sx={{ fontSize: "15px", color: "text.secondary" }} />
-          <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary" fontWeight={600}>
+          <ReceiptLongOutlined
+            sx={{ fontSize: "15px", color: "text.secondary" }}
+          />
+          <Typography
+            fontFamily="Nunito"
+            fontSize="0.78rem"
+            color="text.secondary"
+            fontWeight={600}
+          >
             #{order._id.slice(-8).toUpperCase()}
           </Typography>
         </Box>
@@ -102,40 +160,97 @@ const OrderCard = ({
       {/* Card body */}
       <Box sx={{ p: "18px" }}>
         {/* Item count + total */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: "14px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: "14px",
+          }}
+        >
           <Box>
-            <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem" mb="2px">
+            <Typography
+              fontFamily="Nunito"
+              fontWeight={800}
+              fontSize="1rem"
+              mb="2px"
+            >
               {order.order.length} {order.order.length === 1 ? "item" : "items"}
             </Typography>
-            <Typography fontFamily="Nunito" fontSize="0.8rem" color="text.secondary">
+            <Typography
+              fontFamily="Nunito"
+              fontSize="0.8rem"
+              color="text.secondary"
+            >
               {order.order
                 .filter((o) => o.product)
-                .map((o) => o.product.name[0].toUpperCase() + o.product.name.slice(1))
+                .map(
+                  (o) =>
+                    o.product?.name?.[0].toUpperCase() +
+                    o.product.name.slice(1),
+                )
                 .join(", ") || "—"}
             </Typography>
           </Box>
-          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.05rem" color="primary">
+          <Typography
+            fontFamily="Playfair Display"
+            fontWeight={900}
+            fontSize="1.05rem"
+            color="primary"
+          >
             ${fmt(orderTotal)}
           </Typography>
         </Box>
 
         {/* Delivery address */}
-        <Box sx={{ display: "flex", alignItems: "flex-start", gap: "8px", mb: "14px" }}>
-          <LocationOnOutlined sx={{ fontSize: "15px", color: brand.secondary, mt: "2px", flexShrink: 0 }} />
-          <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" lineHeight={1.55}>
-            {order.address.address}, {order.address.city}, {order.address.state} · {order.address.phoneNumber}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "8px",
+            mb: "14px",
+          }}
+        >
+          <LocationOnOutlined
+            sx={{
+              fontSize: "15px",
+              color: brand.secondary,
+              mt: "2px",
+              flexShrink: 0,
+            }}
+          />
+          <Typography
+            fontFamily="Nunito"
+            fontSize="0.82rem"
+            color="text.secondary"
+            lineHeight={1.55}
+          >
+            {order.address.address}, {order.address.city}, {order.address.state}{" "}
+            · {order.address.phoneNumber}
           </Typography>
         </Box>
 
         {/* Actions row */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Box>
             {order.status === "new" && !confirming && (
               <Button
                 size="small"
                 color="error"
                 variant="outlined"
-                sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.78rem", py: "4px" }}
+                sx={{
+                  borderRadius: "100px",
+                  fontFamily: "Nunito",
+                  fontWeight: 700,
+                  fontSize: "0.78rem",
+                  py: "4px",
+                }}
                 onClick={() => setConfirming(true)}
               >
                 Cancel Order
@@ -143,22 +258,46 @@ const OrderCard = ({
             )}
             {confirming && (
               <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.82rem" color="text.secondary">
+                <Typography
+                  fontFamily="Nunito"
+                  fontWeight={700}
+                  fontSize="0.82rem"
+                  color="text.secondary"
+                >
                   Confirm cancel?
                 </Typography>
                 <Button
                   size="small"
                   variant="contained"
                   color="error"
-                  sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.76rem", py: "3px", minWidth: "auto", px: "12px" }}
-                  onClick={() => { onCancel(order._id); setConfirming(false); }}
+                  sx={{
+                    borderRadius: "100px",
+                    fontFamily: "Nunito",
+                    fontWeight: 700,
+                    fontSize: "0.76rem",
+                    py: "3px",
+                    minWidth: "auto",
+                    px: "12px",
+                  }}
+                  onClick={() => {
+                    onCancel(order._id);
+                    setConfirming(false);
+                  }}
                 >
                   Yes
                 </Button>
                 <Button
                   size="small"
                   variant="outlined"
-                  sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.76rem", py: "3px", minWidth: "auto", px: "12px" }}
+                  sx={{
+                    borderRadius: "100px",
+                    fontFamily: "Nunito",
+                    fontWeight: 700,
+                    fontSize: "0.76rem",
+                    py: "3px",
+                    minWidth: "auto",
+                    px: "12px",
+                  }}
                   onClick={() => setConfirming(false)}
                 >
                   No
@@ -182,32 +321,65 @@ const OrderCard = ({
         {/* Expanded items */}
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Divider sx={{ borderColor, my: "14px" }} />
-          <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.78rem" color="text.secondary"
-            letterSpacing="0.06em" textTransform="uppercase" mb="12px">
+          <Typography
+            fontFamily="Nunito"
+            fontWeight={700}
+            fontSize="0.78rem"
+            color="text.secondary"
+            letterSpacing="0.06em"
+            textTransform="uppercase"
+            mb="12px"
+          >
             Order Items
           </Typography>
-          {order.order.filter((item) => item.product).map((item, i) => (
-            <Box
-              key={i}
-              sx={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                py: "10px",
-                borderBottom: i < order.order.length - 1 ? `1px solid ${borderColor}` : "none",
-              }}
-            >
-              <Box>
-                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem">
-                  {item.product.name[0].toUpperCase()}{item.product.name.slice(1)}
-                </Typography>
-                <Typography fontFamily="Nunito" fontSize="0.76rem" color="text.secondary">
-                  {item.product.category} · Qty {item.quantity}
+          {order.order
+            .filter((item) => item.product)
+            .map((item, i) => (
+              <Box
+                key={i}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  py: "10px",
+                  borderBottom:
+                    i < order.order.length - 1
+                      ? `1px solid ${borderColor}`
+                      : "none",
+                }}
+              >
+                <Box>
+                  <Typography
+                    fontFamily="Nunito"
+                    fontWeight={700}
+                    fontSize="0.88rem"
+                  >
+                    {item?.product?.name?.[0].toUpperCase()}
+                    {item.product.name.slice(1)}
+                  </Typography>
+                  <Typography
+                    fontFamily="Nunito"
+                    fontSize="0.76rem"
+                    color="text.secondary"
+                  >
+                    {item.product.category} · Qty {item.quantity}
+                  </Typography>
+                </Box>
+                <Typography
+                  fontFamily="Nunito"
+                  fontWeight={700}
+                  fontSize="0.88rem"
+                  color="primary"
+                >
+                  $
+                  {fmt(
+                    item.product.price *
+                      item.quantity *
+                      ((100 - item.product.discount) / 100),
+                  )}
                 </Typography>
               </Box>
-              <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary">
-                ${fmt(item.product.price * item.quantity * ((100 - item.product.discount) / 100))}
-              </Typography>
-            </Box>
-          ))}
+            ))}
         </Collapse>
       </Box>
     </Box>
@@ -218,7 +390,9 @@ const Orders = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery("(max-width:600px)");
-  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
+  const user: UserData | null = JSON.parse(
+    localStorage.getItem("user") || "null",
+  );
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<OrdersData[]>([]);
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
@@ -230,7 +404,9 @@ const Orders = () => {
       });
       const jsonData = await response.json();
       setData(jsonData);
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
   const cancelOrder = async (id: string) => {
@@ -240,19 +416,38 @@ const Orders = () => {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       if (response.ok) getOrders();
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
-  useEffect(() => { getOrders(); }, []);
+  useEffect(() => {
+    getOrders();
+  }, []);
 
   return (
     <Box sx={{ p: { xs: "16px", md: "28px" } }}>
       {/* Page header */}
-      <Box sx={{ pb: "20px", borderBottom: `1px solid ${borderColor}`, mb: "24px" }}>
-        <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
+      <Box
+        sx={{
+          pb: "20px",
+          borderBottom: `1px solid ${borderColor}`,
+          mb: "24px",
+        }}
+      >
+        <Typography
+          fontFamily="Playfair Display"
+          fontWeight={900}
+          fontSize="1.3rem"
+        >
           My Orders
         </Typography>
-        <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mt="2px">
+        <Typography
+          fontFamily="Nunito"
+          fontSize="0.82rem"
+          color="text.secondary"
+          mt="2px"
+        >
           Track and manage your order history
         </Typography>
       </Box>
@@ -276,19 +471,48 @@ const Orders = () => {
           ))}
         </Box>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", pt: "60px", textAlign: "center" }}>
-          <Box sx={{
-            width: "80px", height: "80px", borderRadius: "50%",
-            backgroundColor: `${brand.primary}12`,
-            display: "flex", alignItems: "center", justifyContent: "center", mb: "20px",
-          }}>
-            <ShoppingBagOutlined sx={{ fontSize: "38px", color: brand.primary }} />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            pt: "60px",
+            textAlign: "center",
+          }}
+        >
+          <Box
+            sx={{
+              width: "80px",
+              height: "80px",
+              borderRadius: "50%",
+              backgroundColor: `${brand.primary}12`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: "20px",
+            }}
+          >
+            <ShoppingBagOutlined
+              sx={{ fontSize: "38px", color: brand.primary }}
+            />
           </Box>
-          <Typography fontFamily="Playfair Display" fontWeight={700} fontSize="1.3rem" mb="10px">
+          <Typography
+            fontFamily="Playfair Display"
+            fontWeight={700}
+            fontSize="1.3rem"
+            mb="10px"
+          >
             No orders yet
           </Typography>
-          <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.9rem" mb="28px" sx={{ maxWidth: "340px" }}>
-            When you place an order, it will appear here. All your order details and status updates are saved in one place.
+          <Typography
+            fontFamily="Nunito"
+            color="text.secondary"
+            fontSize="0.9rem"
+            mb="28px"
+            sx={{ maxWidth: "340px" }}
+          >
+            When you place an order, it will appear here. All your order details
+            and status updates are saved in one place.
           </Typography>
           <Link to="/shop">
             <Button variant="contained" sx={{ px: "32px", py: "12px" }}>
