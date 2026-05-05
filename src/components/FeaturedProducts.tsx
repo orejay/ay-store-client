@@ -11,7 +11,6 @@ import {
   AddShoppingCartRounded,
   RemoveShoppingCartRounded,
   ArrowForwardRounded,
-  StarRounded,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -46,8 +45,6 @@ const FeaturedProducts = () => {
   const [hovered, setHovered] = useState("");
   const dispatch = useAppDispatch();
   const cart = useSelector((state: RootState) => state.global.cart);
-
-  const borderColor = isDark ? "#27272E" : "#EBEBEB";
 
   useEffect(() => {
     fetch(`${baseUrl}/get/products/featured`)
@@ -85,7 +82,6 @@ const FeaturedProducts = () => {
             fontFamily="Playfair Display"
             fontWeight={900}
             fontSize={{ xs: "1.6rem", md: "2rem" }}
-            color="text.primary"
             lineHeight={1.1}
           >
             Featured Products
@@ -117,7 +113,7 @@ const FeaturedProducts = () => {
             : isMedium
             ? "repeat(3, 1fr)"
             : "repeat(4, 1fr)",
-          gap: { xs: "12px", md: "20px" },
+          gap: { xs: "16px", md: "24px" },
         }}
       >
         {products.map((each) => {
@@ -130,160 +126,122 @@ const FeaturedProducts = () => {
               key={each._id}
               onMouseEnter={() => setHovered(each._id)}
               onMouseLeave={() => setHovered("")}
-              sx={{
-                borderRadius: "16px",
-                overflow: "hidden",
-                border: `1px solid ${borderColor}`,
-                backgroundColor: isDark ? "#18181C" : "#FFFFFF",
-                transition: "transform 0.25s ease, box-shadow 0.25s ease",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: isDark
-                    ? "0 16px 40px rgba(0,0,0,0.55)"
-                    : "0 16px 40px rgba(0,0,0,0.1)",
-                },
-                cursor: "pointer",
-                position: "relative",
-              }}
+              sx={{ position: "relative", cursor: "pointer" }}
             >
-              {/* Image wrapper */}
-              <Box sx={{ position: "relative", overflow: "hidden" }}>
-                {/* Discount badge */}
-                {each.discount > 0 && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: "10px",
-                      left: "10px",
-                      zIndex: 2,
-                      backgroundColor: brand.secondary,
-                      color: "#fff",
-                      fontFamily: "Nunito",
-                      fontWeight: 800,
-                      fontSize: "0.7rem",
-                      px: "8px",
-                      py: "3px",
-                      borderRadius: "100px",
-                    }}
-                  >
-                    -{each.discount}%
-                  </Box>
-                )}
-
-                {/* Out of stock overlay */}
-                {each.supply === 0 && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      inset: 0,
-                      background: "rgba(0,0,0,0.5)",
-                      zIndex: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Typography
-                      fontFamily="Nunito"
-                      fontWeight={700}
-                      color="white"
-                      fontSize="0.82rem"
-                      sx={{
-                        px: "12px", py: "4px",
-                        border: "1px solid rgba(255,255,255,0.5)",
-                        borderRadius: "100px",
-                      }}
-                    >
-                      Out of Stock
-                    </Typography>
-                  </Box>
-                )}
-
+              {/* ── Image block ── */}
+              <Box
+                sx={{
+                  position: "relative",
+                  overflow: "hidden",
+                  borderRadius: "12px",
+                  paddingTop: "125%",
+                  backgroundColor: isDark ? "#1C1C20" : "#F3F4F6",
+                  mb: "12px",
+                }}
+              >
                 <Link to={`/products/${each._id}`}>
                   <Box
                     component="img"
                     src={`${imageUrl}/uploads/${each.imageName}`}
                     alt={each.name}
                     sx={{
+                      position: "absolute",
+                      inset: 0,
                       width: "100%",
-                      height: { xs: "190px", md: "230px" },
+                      height: "100%",
                       objectFit: "cover",
-                      display: "block",
-                      transition: "transform 0.5s ease",
-                      transform: isHovered ? "scale(1.06)" : "scale(1)",
+                      transition: "transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94)",
+                      transform: isHovered ? "scale(1.08)" : "scale(1)",
                     }}
                   />
                 </Link>
-              </Box>
 
-              {/* Card body */}
-              <Box sx={{ p: { xs: "12px", md: "16px" } }}>
-                <Typography
-                  fontFamily="Nunito"
-                  fontWeight={600}
-                  fontSize="0.72rem"
-                  letterSpacing="0.04em"
-                  color={brand.secondary}
-                  mb="4px"
-                  sx={{ textTransform: "uppercase" }}
-                >
-                  {each.category[0].toUpperCase()}{each.category.slice(1)}
-                </Typography>
-
-                <Link to={`/products/${each._id}`}>
-                  <Typography
-                    fontFamily="Nunito"
-                    fontWeight={700}
-                    fontSize={{ xs: "0.88rem", md: "0.95rem" }}
-                    mb="8px"
+                {/* Discount pill */}
+                {each.discount > 0 && (
+                  <Box
                     sx={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      lineHeight: 1.4,
-                      "&:hover": { color: brand.primary },
-                      transition: "color 0.15s",
+                      position: "absolute", top: "12px", left: "12px", zIndex: 2,
+                      backgroundColor: brand.secondary, color: "#fff",
+                      fontFamily: "Nunito", fontWeight: 800, fontSize: "0.68rem",
+                      px: "9px", py: "3px", borderRadius: "100px", letterSpacing: "0.02em",
                     }}
                   >
-                    {each.name[0].toUpperCase()}{each.name.slice(1)}
-                  </Typography>
-                </Link>
-
-                {/* Rating */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: "3px", mb: "10px" }}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <StarRounded
-                      key={star}
-                      sx={{
-                        fontSize: "13px",
-                        color: star <= Math.round(each.rating) ? "#F59E0B" : (isDark ? "#3F3F46" : "#E5E7EB"),
-                      }}
-                    />
-                  ))}
-                  <Typography fontFamily="Nunito" fontSize="0.72rem" color="text.secondary" ml="2px">
-                    {each.rating.toFixed(1)}
-                  </Typography>
-                </Box>
-
-                {/* Price row */}
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Box>
-                    <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem" color="primary" lineHeight={1.2}>
-                      {fmt(discountedPrice)}
-                    </Typography>
-                    {each.discount > 0 && (
-                      <Typography
-                        fontFamily="Nunito"
-                        fontSize="0.75rem"
-                        color="text.disabled"
-                        sx={{ textDecoration: "line-through" }}
-                      >
-                        {fmt(each.price)}
-                      </Typography>
-                    )}
+                    -{each.discount}%
                   </Box>
+                )}
 
+                {/* Out of stock */}
+                {each.supply === 0 && (
+                  <Box
+                    sx={{
+                      position: "absolute", inset: 0, zIndex: 2,
+                      background: "rgba(0,0,0,0.42)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
+                    <Typography
+                      fontFamily="Nunito" fontWeight={700} color="#fff" fontSize="0.8rem"
+                      sx={{ px: "14px", py: "5px", border: "1px solid rgba(255,255,255,0.55)", borderRadius: "100px", letterSpacing: "0.04em" }}
+                    >
+                      Out of Stock
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* Slide-up "Add to bag" — desktop hover */}
+                {each.supply > 0 && (
+                  <Box
+                    onClick={() =>
+                      inCart
+                        ? dispatch(setCart(cart.filter((i) => i._id !== each._id)))
+                        : dispatch(setCart([...cart, { ...each, quantity: 1 }]))
+                    }
+                    sx={{
+                      position: "absolute",
+                      bottom: 0, left: 0, right: 0, zIndex: 3,
+                      display: { xs: "none", md: "flex" },
+                      alignItems: "center", justifyContent: "center", gap: "8px",
+                      py: "13px",
+                      background: inCart ? "rgba(239,68,68,0.92)" : "rgba(0,0,0,0.82)",
+                      backdropFilter: "blur(4px)",
+                      cursor: "pointer",
+                      transform: isHovered ? "translateY(0)" : "translateY(100%)",
+                      transition: "transform 0.28s cubic-bezier(0.34,1.56,0.64,1)",
+                    }}
+                  >
+                    {inCart
+                      ? <RemoveShoppingCartRounded sx={{ fontSize: "15px", color: "#fff" }} />
+                      : <AddShoppingCartRounded sx={{ fontSize: "15px", color: "#fff" }} />}
+                    <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.78rem" color="#fff" letterSpacing="0.06em" sx={{ textTransform: "uppercase" }}>
+                      {inCart ? "Remove" : "Add to Bag"}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+
+              {/* ── Info below image ── */}
+              <Box sx={{ px: "2px" }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px", mb: "4px" }}>
+                  <Link to={`/products/${each._id}`} style={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      fontFamily="Nunito"
+                      fontWeight={600}
+                      fontSize={{ xs: "0.85rem", md: "0.9rem" }}
+                      lineHeight={1.35}
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        "&:hover": { color: brand.primary },
+                        transition: "color 0.15s",
+                      }}
+                    >
+                      {each.name[0].toUpperCase()}{each.name.slice(1)}
+                    </Typography>
+                  </Link>
+
+                  {/* Mobile cart button */}
                   {each.supply > 0 && (
                     <IconButton
                       size="small"
@@ -293,19 +251,30 @@ const FeaturedProducts = () => {
                           : dispatch(setCart([...cart, { ...each, quantity: 1 }]))
                       }
                       sx={{
+                        display: { xs: "flex", md: "none" },
+                        flexShrink: 0,
                         backgroundColor: inCart ? brand.primary : isDark ? "rgba(255,255,255,0.08)" : "#F3F4F6",
                         color: inCart ? "#fff" : theme.palette.text.secondary,
-                        p: "8px",
-                        opacity: isMedium ? 1 : isHovered ? 1 : 0,
-                        transform: isMedium ? "none" : isHovered ? "scale(1)" : "scale(0.8)",
-                        transition: "all 0.2s ease",
+                        width: "30px", height: "30px",
                         "&:hover": { backgroundColor: brand.primary, color: "#fff" },
                       }}
                     >
                       {inCart
-                        ? <RemoveShoppingCartRounded sx={{ fontSize: "16px" }} />
-                        : <AddShoppingCartRounded sx={{ fontSize: "16px" }} />}
+                        ? <RemoveShoppingCartRounded sx={{ fontSize: "14px" }} />
+                        : <AddShoppingCartRounded sx={{ fontSize: "14px" }} />}
                     </IconButton>
+                  )}
+                </Box>
+
+                {/* Price row */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Typography fontFamily="Nunito" fontWeight={800} fontSize="0.95rem" color="primary">
+                    {fmt(discountedPrice)}
+                  </Typography>
+                  {each.discount > 0 && (
+                    <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.disabled" sx={{ textDecoration: "line-through" }}>
+                      {fmt(each.price)}
+                    </Typography>
                   )}
                 </Box>
               </Box>
@@ -315,7 +284,7 @@ const FeaturedProducts = () => {
       </Box>
 
       {/* Mobile view-all */}
-      <Box sx={{ display: { xs: "flex", sm: "none" }, justifyContent: "center", mt: "28px" }}>
+      <Box sx={{ display: { xs: "flex", sm: "none" }, justifyContent: "center", mt: "32px" }}>
         <Link to="/shop">
           <Button
             variant="outlined"
