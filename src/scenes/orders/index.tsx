@@ -93,20 +93,25 @@ const OrderCard = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const cfg = statusConfig[order.status] ?? {
-    label: order.status,
-    color: "default" as const,
-  };
+  const cfg = statusConfig[order?.status] ?? { label: order?.status ?? "—", color: "default" as const };
 
   const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  const orderTotal = order.order.reduce(
-    (acc, i) =>
-      i.product
-        ? acc +
-          i.product.price * i.quantity * ((100 - i.product.discount) / 100)
-        : acc,
-    0,
-  );
+
+  const capName = (name?: string) =>
+    name ? name.charAt(0).toUpperCase() + name.slice(1) : "Unknown item";
+
+  const items = order?.order ?? [];
+
+  const orderTotal = items.reduce((acc, i) => {
+    const price = i?.product?.price ?? 0;
+    const qty = i?.quantity ?? 1;
+    const discount = i?.product?.discount ?? 0;
+    return acc + price * qty * ((100 - discount) / 100);
+  }, 0);
+
+  const itemNames = items
+    .map((o) => capName(o?.product?.name))
+    .join(", ") || "—";
 
   return (
     <Box
@@ -117,203 +122,88 @@ const OrderCard = ({
         overflow: "hidden",
         transition: "box-shadow 0.25s ease",
         "&:hover": {
-          boxShadow: isDark
-            ? "0 8px 28px rgba(0,0,0,0.5)"
-            : "0 8px 28px rgba(0,0,0,0.08)",
+          boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.5)" : "0 8px 28px rgba(0,0,0,0.08)",
         },
       }}
     >
       {/* Card header */}
       <Box
         sx={{
-          px: "18px",
-          py: "14px",
+          px: "18px", py: "14px",
           borderBottom: `1px solid ${borderColor}`,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "8px",
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          flexWrap: "wrap", gap: "8px",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <ReceiptLongOutlined
-            sx={{ fontSize: "15px", color: "text.secondary" }}
-          />
-          <Typography
-            fontFamily="Nunito"
-            fontSize="0.78rem"
-            color="text.secondary"
-            fontWeight={600}
-          >
-            #{order._id.slice(-8).toUpperCase()}
+          <ReceiptLongOutlined sx={{ fontSize: "15px", color: "text.secondary" }} />
+          <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary" fontWeight={600}>
+            #{order?._id?.slice(-8)?.toUpperCase() ?? "—"}
           </Typography>
         </Box>
-        <Chip
-          label={cfg.label}
-          color={cfg.color}
-          size="small"
-          sx={{ fontFamily: "Nunito", fontWeight: 700, fontSize: "0.72rem" }}
-        />
+        <Chip label={cfg.label} color={cfg.color} size="small"
+          sx={{ fontFamily: "Nunito", fontWeight: 700, fontSize: "0.72rem" }} />
       </Box>
 
       {/* Card body */}
       <Box sx={{ p: "18px" }}>
         {/* Item count + total */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: "14px",
-          }}
-        >
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: "14px" }}>
           <Box>
-            <Typography
-              fontFamily="Nunito"
-              fontWeight={800}
-              fontSize="1rem"
-              mb="2px"
-            >
-              {order.order.length} {order.order.length === 1 ? "item" : "items"}
+            <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem" mb="2px">
+              {items.length} {items.length === 1 ? "item" : "items"}
             </Typography>
-            <Typography
-              fontFamily="Nunito"
-              fontSize="0.8rem"
-              color="text.secondary"
-            >
-              {order.order
-                .filter((o) => o.product)
-                .map(
-                  (o) =>
-                    o.product?.name?.[0].toUpperCase() +
-                    o.product.name.slice(1),
-                )
-                .join(", ") || "—"}
+            <Typography fontFamily="Nunito" fontSize="0.8rem" color="text.secondary">
+              {itemNames}
             </Typography>
           </Box>
-          <Typography
-            fontFamily="Playfair Display"
-            fontWeight={900}
-            fontSize="1.05rem"
-            color="primary"
-          >
+          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.05rem" color="primary">
             ${fmt(orderTotal)}
           </Typography>
         </Box>
 
         {/* Delivery address */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "8px",
-            mb: "14px",
-          }}
-        >
-          <LocationOnOutlined
-            sx={{
-              fontSize: "15px",
-              color: brand.secondary,
-              mt: "2px",
-              flexShrink: 0,
-            }}
-          />
-          <Typography
-            fontFamily="Nunito"
-            fontSize="0.82rem"
-            color="text.secondary"
-            lineHeight={1.55}
-          >
-            {order.address.address}, {order.address.city}, {order.address.state}{" "}
-            · {order.address.phoneNumber}
-          </Typography>
-        </Box>
+        {order?.address && (
+          <Box sx={{ display: "flex", alignItems: "flex-start", gap: "8px", mb: "14px" }}>
+            <LocationOnOutlined sx={{ fontSize: "15px", color: brand.secondary, mt: "2px", flexShrink: 0 }} />
+            <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" lineHeight={1.55}>
+              {[order?.address?.address, order?.address?.city, order?.address?.state]
+                .filter(Boolean).join(", ")}
+              {order?.address?.phoneNumber ? ` · ${order.address.phoneNumber}` : ""}
+            </Typography>
+          </Box>
+        )}
 
         {/* Actions row */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Box>
-            {order.status === "new" && !confirming && (
-              <Button
-                size="small"
-                color="error"
-                variant="outlined"
-                sx={{
-                  borderRadius: "100px",
-                  fontFamily: "Nunito",
-                  fontWeight: 700,
-                  fontSize: "0.78rem",
-                  py: "4px",
-                }}
-                onClick={() => setConfirming(true)}
-              >
+            {order?.status === "new" && !confirming && (
+              <Button size="small" color="error" variant="outlined"
+                sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.78rem", py: "4px" }}
+                onClick={() => setConfirming(true)}>
                 Cancel Order
               </Button>
             )}
             {confirming && (
               <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <Typography
-                  fontFamily="Nunito"
-                  fontWeight={700}
-                  fontSize="0.82rem"
-                  color="text.secondary"
-                >
+                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.82rem" color="text.secondary">
                   Confirm cancel?
                 </Typography>
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="error"
-                  sx={{
-                    borderRadius: "100px",
-                    fontFamily: "Nunito",
-                    fontWeight: 700,
-                    fontSize: "0.76rem",
-                    py: "3px",
-                    minWidth: "auto",
-                    px: "12px",
-                  }}
-                  onClick={() => {
-                    onCancel(order._id);
-                    setConfirming(false);
-                  }}
-                >
+                <Button size="small" variant="contained" color="error"
+                  sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.76rem", py: "3px", minWidth: "auto", px: "12px" }}
+                  onClick={() => { onCancel(order._id); setConfirming(false); }}>
                   Yes
                 </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    borderRadius: "100px",
-                    fontFamily: "Nunito",
-                    fontWeight: 700,
-                    fontSize: "0.76rem",
-                    py: "3px",
-                    minWidth: "auto",
-                    px: "12px",
-                  }}
-                  onClick={() => setConfirming(false)}
-                >
+                <Button size="small" variant="outlined"
+                  sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.76rem", py: "3px", minWidth: "auto", px: "12px" }}
+                  onClick={() => setConfirming(false)}>
                   No
                 </Button>
               </Box>
             )}
           </Box>
-          <IconButton
-            size="small"
-            onClick={() => setExpanded(!expanded)}
-            sx={{
-              transition: "transform 0.25s ease",
-              transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-              color: "text.secondary",
-            }}
-          >
+          <IconButton size="small" onClick={() => setExpanded(!expanded)}
+            sx={{ transition: "transform 0.25s ease", transform: expanded ? "rotate(180deg)" : "rotate(0deg)", color: "text.secondary" }}>
             <ExpandMoreRounded sx={{ fontSize: "20px" }} />
           </IconButton>
         </Box>
@@ -321,65 +211,35 @@ const OrderCard = ({
         {/* Expanded items */}
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <Divider sx={{ borderColor, my: "14px" }} />
-          <Typography
-            fontFamily="Nunito"
-            fontWeight={700}
-            fontSize="0.78rem"
-            color="text.secondary"
-            letterSpacing="0.06em"
-            textTransform="uppercase"
-            mb="12px"
-          >
+          <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.78rem" color="text.secondary"
+            letterSpacing="0.06em" textTransform="uppercase" mb="12px">
             Order Items
           </Typography>
-          {order.order
-            .filter((item) => item.product)
-            .map((item, i) => (
-              <Box
-                key={i}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  py: "10px",
-                  borderBottom:
-                    i < order.order.length - 1
-                      ? `1px solid ${borderColor}`
-                      : "none",
-                }}
-              >
+          {items.map((item, i) => {
+            const price = item?.product?.price ?? 0;
+            const qty = item?.quantity ?? 1;
+            const discount = item?.product?.discount ?? 0;
+            const lineTotal = price * qty * ((100 - discount) / 100);
+            return (
+              <Box key={i} sx={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                py: "10px",
+                borderBottom: i < items.length - 1 ? `1px solid ${borderColor}` : "none",
+              }}>
                 <Box>
-                  <Typography
-                    fontFamily="Nunito"
-                    fontWeight={700}
-                    fontSize="0.88rem"
-                  >
-                    {item?.product?.name?.[0].toUpperCase()}
-                    {item.product.name.slice(1)}
+                  <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem">
+                    {capName(item?.product?.name)}
                   </Typography>
-                  <Typography
-                    fontFamily="Nunito"
-                    fontSize="0.76rem"
-                    color="text.secondary"
-                  >
-                    {item.product.category} · Qty {item.quantity}
+                  <Typography fontFamily="Nunito" fontSize="0.76rem" color="text.secondary">
+                    {item?.product?.category ?? "—"} · Qty {item?.quantity ?? 1}
                   </Typography>
                 </Box>
-                <Typography
-                  fontFamily="Nunito"
-                  fontWeight={700}
-                  fontSize="0.88rem"
-                  color="primary"
-                >
-                  $
-                  {fmt(
-                    item.product.price *
-                      item.quantity *
-                      ((100 - item.product.discount) / 100),
-                  )}
+                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary">
+                  ${fmt(lineTotal)}
                 </Typography>
               </Box>
-            ))}
+            );
+          })}
         </Collapse>
       </Box>
     </Box>
