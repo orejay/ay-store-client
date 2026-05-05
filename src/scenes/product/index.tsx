@@ -14,6 +14,7 @@ import {
   Divider,
   IconButton,
   Skeleton,
+  TextField,
   Typography,
   useMediaQuery,
   useTheme,
@@ -69,6 +70,15 @@ const ProductDetail = () => {
   const [qty, setQty] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [mainImage, setMainImage] = useState("");
+
+  // Reviews state
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [reviewFeedback, setReviewFeedback] = useState<{ text: string; ok: boolean } | null>(null);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
 
   const cart = useSelector((state: RootState) => state.global.cart);
   const wishlist = useSelector((state: RootState) => state.global.wishlist);
@@ -138,6 +148,54 @@ const ProductDetail = () => {
     }
   };
 
+  const fetchReviews = async (productId: string) => {
+    try {
+      const res = await fetch(`${baseUrl}/get/reviews/${productId}`);
+      const json = await res.json();
+      const list = json.reviews ?? [];
+      setReviews(list);
+      if (user?._id || user?.id) {
+        const uid = user._id ?? user.id;
+        setAlreadyReviewed(list.some((r: any) => r.userId?._id === uid || r.userId?.id === uid));
+      }
+    } catch { /* silent */ }
+  };
+
+  useEffect(() => {
+    if (id) fetchReviews(id);
+  }, [id]);
+
+  const handleSubmitReview = async () => {
+    if (!reviewRating || !reviewText.trim() || !id) return;
+    setSubmitting(true);
+    setReviewFeedback(null);
+    try {
+      const res = await fetch(`${baseUrl}/post/review/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+        body: JSON.stringify({ rating: reviewRating, text: reviewText.trim() }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setReviewFeedback({ text: "Review submitted!", ok: true });
+        setReviewText("");
+        setReviewRating(0);
+        setAlreadyReviewed(true);
+        fetchReviews(id);
+        // Refresh product rating
+        const pRes = await fetch(`${baseUrl}/get/product/${id}`);
+        const pData = await pRes.json();
+        setProduct((prev) => prev ? { ...prev, rating: pData.rating } : prev);
+      } else {
+        setReviewFeedback({ text: json.message ?? "Failed to submit.", ok: false });
+      }
+    } catch {
+      setReviewFeedback({ text: "Network error.", ok: false });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const galleryImages: string[] = product?.images?.length
     ? product.images
     : product?.imageName
@@ -162,6 +220,7 @@ const ProductDetail = () => {
             </Box>
           </Box>
         ) : product ? (
+          <>
           <Box sx={{ display: "flex", gap: { xs: "24px", md: "52px" }, flexDirection: isMobile ? "column" : "row", pt: "24px" }}>
 
             {/* ── Image gallery ── */}
@@ -481,6 +540,178 @@ const ProductDetail = () => {
               )}
             </Box>
           </Box>
+
+          {/* ── Reviews ── */}
+          <Box sx={{ mt: "52px" }}>
+            <Divider sx={{ borderColor, mb: "32px" }} />
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: "10px", mb: "24px" }}>
+              <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.4rem">
+                Reviews
+              </Typography>
+              <Typography fontFamily="Nunito" fontSize="0.85rem" color="text.secondary">
+                ({reviews.length})
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "40px", alignItems: "flex-start" }}>
+
+              {/* Write a review form */}
+              {user?.token && (
+                <Box sx={{
+                  width: isMobile ? "100%" : "320px",
+                  flexShrink: 0,
+                  border: `1px solid ${borderColor}`,
+                  borderRadius: "14px",
+                  overflow: "hidden",
+                }}>
+                  <Box sx={{ px: "16px", py: "12px", borderBottom: `1px solid ${borderColor}`, backgroundColor: isDark ? "#0C0C10" : "#FAFAFA" }}>
+                    <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.72rem" color="text.disabled"
+                      sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      {alreadyReviewed ? "Your Review" : "Write a Review"}
+                    </Typography>
+                  </Box>
+
+                  {alreadyReviewed ? (
+                    <Box sx={{ px: "16px", py: "24px", textAlign: "center" }}>
+                      <Box sx={{ display: "flex", justifyContent: "center", gap: "3px", mb: "10px" }}>
+                        {[1,2,3,4,5].map((s) => (
+                          <StarRounded key={s} sx={{ fontSize: "22px", color: "#F59E0B" }} />
+                        ))}
+                      </Box>
+                      <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" mb="4px">
+                        Review submitted
+                      </Typography>
+                      <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">
+                        You've already reviewed this product.
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Box sx={{ p: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <Box>
+                        <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.82rem" color="text.secondary" mb="6px">
+                          Your rating
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: "2px" }}>
+                          {[1,2,3,4,5].map((s) => (
+                            <StarRounded
+                              key={s}
+                              onMouseEnter={() => setReviewHover(s)}
+                              onMouseLeave={() => setReviewHover(0)}
+                              onClick={() => setReviewRating(s)}
+                              sx={{
+                                fontSize: "30px",
+                                cursor: "pointer",
+                                color: s <= (reviewHover || reviewRating) ? "#F59E0B" : isDark ? "#3F3F46" : "#E5E7EB",
+                                transition: "color 0.12s",
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      </Box>
+
+                      <TextField
+                        label="Your review"
+                        multiline
+                        rows={4}
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        fullWidth
+                        inputProps={{ style: { fontFamily: "Nunito", fontSize: "0.88rem" } }}
+                        InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+                      />
+
+                      {reviewFeedback && (
+                        <Typography fontFamily="Nunito" fontSize="0.82rem"
+                          color={reviewFeedback.ok ? "#10B981" : "#EF4444"}>
+                          {reviewFeedback.text}
+                        </Typography>
+                      )}
+
+                      <Button
+                        variant="contained"
+                        disabled={submitting || !reviewRating || !reviewText.trim()}
+                        onClick={handleSubmitReview}
+                        sx={{ fontFamily: "Nunito", fontWeight: 700, borderRadius: "10px" }}
+                      >
+                        {submitting ? "Submitting…" : "Submit Review"}
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
+              )}
+
+              {/* Reviews list */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                {reviews.length === 0 ? (
+                  <Box sx={{ py: "40px", textAlign: "center" }}>
+                    <Box sx={{ display: "flex", justifyContent: "center", gap: "3px", mb: "12px" }}>
+                      {[1,2,3,4,5].map((s) => (
+                        <StarRounded key={s} sx={{ fontSize: "22px", color: isDark ? "#3F3F46" : "#E5E7EB" }} />
+                      ))}
+                    </Box>
+                    <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.95rem" mb="4px">
+                      No reviews yet
+                    </Typography>
+                    <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">
+                      {user?.token ? "Be the first to share your thoughts." : "Sign in to leave a review."}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    {reviews.map((review: any, i: number) => {
+                      const first = review.userId?.firstName ?? "";
+                      const last = review.userId?.lastName ?? "";
+                      const initials = `${first[0] ?? ""}${last[0] ?? ""}`.toUpperCase();
+                      const date = new Date(review.createdAt).toLocaleDateString("en-GB", {
+                        day: "numeric", month: "short", year: "numeric",
+                      });
+                      return (
+                        <Box key={review._id} sx={{
+                          py: "18px",
+                          borderBottom: i < reviews.length - 1 ? `1px solid ${borderColor}` : "none",
+                        }}>
+                          <Box sx={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                            <Box sx={{
+                              width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0,
+                              backgroundColor: `${brand.primary}18`, color: brand.primary,
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontFamily: "Nunito", fontWeight: 700, fontSize: "0.82rem",
+                            }}>
+                              {initials || "?"}
+                            </Box>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "4px", flexWrap: "wrap", gap: "6px" }}>
+                                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem">
+                                  {first} {last}
+                                </Typography>
+                                <Typography fontFamily="Nunito" fontSize="0.75rem" color="text.disabled">
+                                  {date}
+                                </Typography>
+                              </Box>
+                              <Box sx={{ display: "flex", gap: "2px", mb: "8px" }}>
+                                {[1,2,3,4,5].map((s) => (
+                                  <StarRounded key={s} sx={{
+                                    fontSize: "15px",
+                                    color: s <= review.rating ? "#F59E0B" : isDark ? "#3F3F46" : "#E5E7EB",
+                                  }} />
+                                ))}
+                              </Box>
+                              <Typography fontFamily="Nunito" fontSize="0.88rem" color="text.secondary"
+                                sx={{ lineHeight: 1.65, whiteSpace: "pre-wrap" }}>
+                                {review.text}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          </Box>
+
+          </>
         ) : null}
       </Box>
       <Footer />

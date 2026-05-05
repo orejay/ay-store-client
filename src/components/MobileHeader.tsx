@@ -259,6 +259,13 @@ const MobileHeader = () => {
                 setSearchText(e.target.value);
                 search(e.target.value);
               }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchText.trim()) {
+                  navigate(`/search?q=${encodeURIComponent(searchText.trim())}`);
+                  dispatch(setShowSearches(false));
+                  setDrawerOpen(false);
+                }
+              }}
               sx={{
                 fontFamily: "Nunito",
                 fontSize: "0.88rem",
@@ -297,11 +304,42 @@ const MobileHeader = () => {
               }}
             >
               {searchResults.length > 0 ? (
-                searchResults.map((item) => (
+                <>
+                  {searchResults.slice(0, 5).map((item) => (
+                    <Link
+                      key={item._id}
+                      to={`/products/${item._id}`}
+                      onClick={() => setDrawerOpen(false)}
+                    >
+                      <Box
+                        sx={{
+                          px: "14px",
+                          py: "10px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          "&:hover": {
+                            backgroundColor: isDark
+                              ? "rgba(255,255,255,0.05)"
+                              : "#F9FAFB",
+                          },
+                        }}
+                      >
+                        <SearchRounded
+                          sx={{
+                            fontSize: "14px",
+                            color: theme.palette.text.secondary,
+                          }}
+                        />
+                        <Typography fontFamily="Nunito" fontSize="0.85rem">
+                          {item.name}
+                        </Typography>
+                      </Box>
+                    </Link>
+                  ))}
                   <Link
-                    key={item._id}
-                    to={`/products/${item._id}`}
-                    onClick={() => setDrawerOpen(false)}
+                    to={`/search?q=${encodeURIComponent(searchText)}`}
+                    onClick={() => { setDrawerOpen(false); dispatch(setShowSearches(false)); }}
                   >
                     <Box
                       sx={{
@@ -309,7 +347,8 @@ const MobileHeader = () => {
                         py: "10px",
                         display: "flex",
                         alignItems: "center",
-                        gap: "8px",
+                        justifyContent: "center",
+                        borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "#F3F4F6"}`,
                         "&:hover": {
                           backgroundColor: isDark
                             ? "rgba(255,255,255,0.05)"
@@ -317,18 +356,17 @@ const MobileHeader = () => {
                         },
                       }}
                     >
-                      <SearchRounded
-                        sx={{
-                          fontSize: "14px",
-                          color: theme.palette.text.secondary,
-                        }}
-                      />
-                      <Typography fontFamily="Nunito" fontSize="0.85rem">
-                        {item.name}
+                      <Typography
+                        fontFamily="Nunito"
+                        fontWeight={700}
+                        fontSize="0.82rem"
+                        color={brand.primary}
+                      >
+                        View all results
                       </Typography>
                     </Box>
                   </Link>
-                ))
+                </>
               ) : (
                 <Box sx={{ px: "14px", py: "12px" }}>
                   <Typography

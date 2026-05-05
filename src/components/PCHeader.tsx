@@ -214,6 +214,12 @@ const PCHeader = () => {
               setSearchText(e.target.value);
               search(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && searchText.trim()) {
+                navigate(`/search?q=${encodeURIComponent(searchText.trim())}`);
+                dispatch(setShowSearches(false));
+              }
+            }}
             sx={{
               fontFamily: "Nunito",
               fontSize: "0.88rem",
@@ -256,10 +262,45 @@ const PCHeader = () => {
             }}
           >
             {searchResults.length > 0 ? (
-              searchResults.map((item) => (
+              <>
+                {searchResults.slice(0, 6).map((item) => (
+                  <Link
+                    key={item._id}
+                    to={`/products/${item._id}`}
+                    onClick={() => {
+                      dispatch(setShowSearches(false));
+                      setSearchText("");
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        px: "16px",
+                        py: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        "&:hover": {
+                          backgroundColor: isDark
+                            ? "rgba(255,255,255,0.05)"
+                            : "#F9FAFB",
+                        },
+                        transition: "background 0.15s",
+                      }}
+                    >
+                      <SearchRounded
+                        sx={{
+                          fontSize: "15px",
+                          color: theme.palette.text.secondary,
+                        }}
+                      />
+                      <Typography fontFamily="Nunito" fontSize="0.88rem">
+                        {item.name}
+                      </Typography>
+                    </Box>
+                  </Link>
+                ))}
                 <Link
-                  key={item._id}
-                  to={`/products/${item._id}`}
+                  to={`/search?q=${encodeURIComponent(searchText)}`}
                   onClick={() => {
                     dispatch(setShowSearches(false));
                     setSearchText("");
@@ -271,7 +312,9 @@ const PCHeader = () => {
                       py: "10px",
                       display: "flex",
                       alignItems: "center",
-                      gap: "10px",
+                      justifyContent: "center",
+                      gap: "6px",
+                      borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "#F3F4F6"}`,
                       "&:hover": {
                         backgroundColor: isDark
                           ? "rgba(255,255,255,0.05)"
@@ -280,18 +323,17 @@ const PCHeader = () => {
                       transition: "background 0.15s",
                     }}
                   >
-                    <SearchRounded
-                      sx={{
-                        fontSize: "15px",
-                        color: theme.palette.text.secondary,
-                      }}
-                    />
-                    <Typography fontFamily="Nunito" fontSize="0.88rem">
-                      {item.name}
+                    <Typography
+                      fontFamily="Nunito"
+                      fontWeight={700}
+                      fontSize="0.82rem"
+                      color={brand.primary}
+                    >
+                      View all results for "{searchText}"
                     </Typography>
                   </Box>
                 </Link>
-              ))
+              </>
             ) : (
               <Box sx={{ px: "16px", py: "14px" }}>
                 <Typography

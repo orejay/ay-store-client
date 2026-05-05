@@ -11,9 +11,12 @@ import {
 import {
   AddBusinessRounded,
   AdminPanelSettings,
+  CampaignRounded,
+  DashboardRounded,
   EditRounded,
   FavoriteBorderRounded,
   InboxRounded,
+  Inventory2Rounded,
   Key,
   LocalActivityOutlined,
   LogoutRounded,
@@ -43,12 +46,15 @@ const userItems = [
 ];
 
 const adminItems = [
+  { text: "Dashboard", link: "/admin/dashboard", icon: <DashboardRounded sx={{ fontSize: "18px" }} /> },
   { text: "Manage Account", link: "/admin/account", icon: <AdminPanelSettings sx={{ fontSize: "18px" }} /> },
   { text: "Add Product", link: "/admin/products/add", icon: <AddBusinessRounded sx={{ fontSize: "18px" }} /> },
   { text: "Catalog", link: "/admin/catalog", icon: <StoreRounded sx={{ fontSize: "18px" }} /> },
+  { text: "Inventory", link: "/admin/inventory", icon: <Inventory2Rounded sx={{ fontSize: "18px" }} /> },
   { text: "Manage Users", link: "/admin/users", icon: <PeopleRounded sx={{ fontSize: "18px" }} /> },
   { text: "Manage Orders", link: "/admin/orders", icon: <LocalShippingRounded sx={{ fontSize: "18px" }} /> },
   { text: "Vouchers", link: "/admin/vouchers", icon: <ConfirmationNumberRounded sx={{ fontSize: "18px" }} /> },
+  { text: "Broadcast", link: "/admin/inbox", icon: <CampaignRounded sx={{ fontSize: "18px" }} /> },
   { text: "Edit Information", link: "/admin/account/management", icon: <EditRounded sx={{ fontSize: "18px" }} /> },
   { text: "Change Password", link: "/admin/password", icon: <Key sx={{ fontSize: "18px" }} /> },
 ];

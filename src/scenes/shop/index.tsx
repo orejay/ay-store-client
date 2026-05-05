@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -27,6 +27,7 @@ import {
 } from "@mui/icons-material";
 import Footer from "components/Footer";
 import Header from "components/Header";
+import Pagination from "components/Pagination";
 import { RootState, useAppDispatch } from "store";
 import { useSelector } from "react-redux";
 import { setCart, setCategories, setWishlist } from "state";
@@ -50,8 +51,13 @@ const Shop = () => {
   const isSmall = useMediaQuery("(max-width:480px)");
 
   const [data, setData] = useState<ProductData[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [hovered, setHovered] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+
+  const LIMIT = 20;
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const imageUrl = import.meta.env.VITE_IMAGE_URL;
@@ -93,13 +99,21 @@ const Shop = () => {
     ));
   };
 
-  useMemo(() => {
+  // Reset to page 1 whenever any filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [categoryList, priceRange, discount, rating, gender, brandInput, tagInput, sort]);
+
+  // Fetch products when page or filters change
+  useEffect(() => {
     const params = new URLSearchParams({
       category: categoryList.join(","),
       priceRange: `${priceRange[0]}-${priceRange[1]}`,
       rating: `${rating[0]}-${rating[1]}`,
       discount: String(discount),
       sort,
+      page: String(page),
+      limit: String(LIMIT),
     });
     if (gender !== "all") params.set("gender", gender);
     if (brandInput.trim()) params.set("brand", brandInput.trim());
@@ -107,9 +121,13 @@ const Shop = () => {
 
     fetch(`${baseUrl}/get/products/filter?${params}`)
       .then((r) => r.json())
-      .then((d) => setData(d.products || []))
+      .then((d) => {
+        setData(d.products || []);
+        setTotal(d.total ?? 0);
+        setTotalPages(d.totalPages ?? 1);
+      })
       .catch(() => {});
-  }, [categoryList, priceRange, discount, rating, gender, brandInput, tagInput, sort]);
+  }, [categoryList, priceRange, discount, rating, gender, brandInput, tagInput, sort, page]);
 
   /* ── Filter panel (shared between drawer and sidebar) ── */
   const FilterPanel = () => (
@@ -352,7 +370,7 @@ const Shop = () => {
               Shop
             </Typography>
             <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">
-              {data.length} product{data.length !== 1 ? "s" : ""}
+              {total} product{total !== 1 ? "s" : ""}{totalPages > 1 ? ` · page ${page} of ${totalPages}` : ""}
             </Typography>
           </Box>
 
@@ -644,6 +662,7 @@ const Shop = () => {
                 })}
               </Box>
             )}
+            <Pagination page={page} totalPages={totalPages} onChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
           </Box>
         </Box>
       </Box>

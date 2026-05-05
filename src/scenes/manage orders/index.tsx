@@ -231,6 +231,7 @@ const ManageOrders = () => {
 
   const [tab, setTab] = useState("new");
   const [data, setData] = useState<OrdersData[]>([]);
+  const [total, setTotal] = useState(0);
 
   const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -241,7 +242,9 @@ const ManageOrders = () => {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       const json = await res.json();
-      setData(Array.isArray(json) ? json : []);
+      const orders = json.orders ?? (Array.isArray(json) ? json : []);
+      setData(orders);
+      setTotal(json.total ?? orders.length);
     } catch { /* silent */ }
   };
 
@@ -269,7 +272,7 @@ const ManageOrders = () => {
             Manage Orders
           </Typography>
           <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary">
-            {data.length} order{data.length !== 1 ? "s" : ""}
+            {total} order{total !== 1 ? "s" : ""}
           </Typography>
         </Box>
         <LocalShippingOutlined sx={{ fontSize: "22px", color: "text.disabled" }} />

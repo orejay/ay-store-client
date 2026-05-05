@@ -12,12 +12,16 @@ import {
 } from "@mui/material";
 import {
   ExpandMoreRounded,
+  ReplayRounded,
   ShoppingBagOutlined,
   LocationOnOutlined,
   LocalShippingOutlined,
   ReceiptLongOutlined,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "store";
+import { setCart } from "state";
 import { brand } from "../../theme";
 
 interface AddressData {
@@ -85,11 +89,13 @@ const OrderCard = ({
   isDark,
   borderColor,
   onCancel,
+  onReorder,
 }: {
   order: OrdersData;
   isDark: boolean;
   borderColor: string;
   onCancel: (id: string) => void;
+  onReorder: (order: OrdersData) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -176,7 +182,7 @@ const OrderCard = ({
 
         {/* Actions row */}
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
             {order?.status === "new" && !confirming && (
               <Button size="small" color="error" variant="outlined"
                 sx={{ borderRadius: "100px", fontFamily: "Nunito", fontWeight: 700, fontSize: "0.78rem", py: "4px" }}
@@ -200,6 +206,26 @@ const OrderCard = ({
                   No
                 </Button>
               </Box>
+            )}
+            {!confirming && (
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<ReplayRounded sx={{ fontSize: "14px" }} />}
+                onClick={() => onReorder(order)}
+                sx={{
+                  borderRadius: "100px",
+                  fontFamily: "Nunito",
+                  fontWeight: 700,
+                  fontSize: "0.78rem",
+                  py: "4px",
+                  borderColor: brand.primary,
+                  color: brand.primary,
+                  "&:hover": { backgroundColor: `${brand.primary}10`, borderColor: brand.primary },
+                }}
+              >
+                Reorder
+              </Button>
             )}
           </Box>
           <IconButton size="small" onClick={() => setExpanded(!expanded)}
@@ -256,6 +282,8 @@ const Orders = () => {
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<OrdersData[]>([]);
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
+  const dispatch = useAppDispatch();
+  const cart = useSelector((state: RootState) => state.global.cart);
 
   const getOrders = async () => {
     try {
@@ -267,6 +295,13 @@ const Orders = () => {
     } catch {
       /* silent */
     }
+  };
+
+  const handleReorder = (order: OrdersData) => {
+    const newItems = order.order
+      .filter((i) => i?.product?.supply > 0 && !cart.some((c) => c._id === i.product._id))
+      .map((i) => ({ ...i.product, quantity: i.quantity }));
+    if (newItems.length > 0) dispatch(setCart([...cart, ...newItems]));
   };
 
   const cancelOrder = async (id: string) => {
@@ -327,6 +362,7 @@ const Orders = () => {
               isDark={isDark}
               borderColor={borderColor}
               onCancel={cancelOrder}
+              onReorder={handleReorder}
             />
           ))}
         </Box>

@@ -38,6 +38,10 @@ import ForgotPassword from "scenes/forgot password";
 import ResetPassword from "scenes/reset password";
 import ProtectedRoute from "components/ProtectedRoute";
 import AdminVouchers from "scenes/admin vouchers";
+import AdminDashboard from "scenes/admin dashboard";
+import AdminInbox from "scenes/admin inbox";
+import AdminInventory from "scenes/admin inventory";
+import SearchResults from "scenes/search results";
 
 function App() {
   const themeMode = useSelector((state: RootState) => state.global.themeMode);
@@ -55,6 +59,7 @@ function App() {
           <CssBaseline />
           <Routes>
             <Route path="/" element={<Homepage />} />
+            <Route path="/search" element={<SearchResults />} />
             <Route path="/about" element={<About />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/contact" element={<Contact />} />
@@ -92,6 +97,14 @@ function App() {
                 element={<AccManagement />}
               />
 
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/admin/account"
                 element={
@@ -146,6 +159,22 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
                     <AdminVouchers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/inbox"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <AdminInbox />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/inventory"
+                element={
+                  <ProtectedRoute allowedRoles={["admin", "superadmin"]}>
+                    <AdminInventory />
                   </ProtectedRoute>
                 }
               />
