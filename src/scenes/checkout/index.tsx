@@ -57,7 +57,7 @@ const Checkout = () => {
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
   const panelBg = isDark ? "#18181C" : "#FFFFFF";
 
-  const fmt = (n: string) => n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fmt = (n: string) => "₦" + n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const subtotal = cart.reduce((acc, i) => acc + i.price * i.quantity * ((100 - i.discount) / 100), 0);
   const total = couponDiscount > 0 ? subtotal * ((100 - couponDiscount) / 100) : subtotal;
 
@@ -127,7 +127,7 @@ const Checkout = () => {
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography fontFamily="Nunito" fontSize="0.88rem" color="text.secondary">Subtotal</Typography>
         <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem">
-          ${fmt(subtotal.toFixed(2))}
+          {fmt(subtotal.toFixed(2))}
         </Typography>
       </Box>
 
@@ -192,7 +192,7 @@ const Checkout = () => {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography fontFamily="Nunito" fontWeight={700}>Total</Typography>
         <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="primary">
-          ${fmt(total.toFixed(2))}
+          {fmt(total.toFixed(2))}
         </Typography>
       </Box>
 
@@ -248,7 +248,7 @@ const Checkout = () => {
         <Typography fontFamily="Nunito" fontWeight={700}>Total</Typography>
         <Box sx={{ textAlign: "right" }}>
           <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="primary">
-            ${fmt(total.toFixed(2))}
+            {fmt(total.toFixed(2))}
           </Typography>
           {couponDiscount > 0 && (
             <Typography fontFamily="Nunito" fontSize="0.72rem" color="success.main">
@@ -296,7 +296,7 @@ const Checkout = () => {
             {each.category} · qty {each.quantity}
           </Typography>
           <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary" mt="2px">
-            ${fmt((each.price * each.quantity * ((100 - each.discount) / 100)).toFixed(2))}
+            {fmt((each.price * each.quantity * ((100 - each.discount) / 100)).toFixed(2))}
           </Typography>
         </Box>
       ))}

@@ -1,22 +1,14 @@
-﻿import { Close, DeleteOutlineRounded, EditRounded } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Card,
-  FormControl,
-  IconButton,
-  Input,
-  InputLabel,
-  Select,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
 import React, { useState, useEffect } from "react";
+import {
+  Box, Alert, Chip, Collapse, IconButton, Typography, useTheme, useMediaQuery,
+} from "@mui/material";
+import {
+  DeleteOutlineRounded, EditRounded, StorefrontRounded,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { CSSTransition } from "react-transition-group";
-import { useAppDispatch, RootState } from "store";
-import { useSelector } from "react-redux";
+import { useAppDispatch } from "store";
 import { setProducts } from "state";
+import { brand } from "../../theme";
 
 interface ProductData {
   name: string;
@@ -41,319 +33,264 @@ interface UserData {
   token: string;
 }
 
+const fmt = (n: number) => "₦" + n.toLocaleString("en-NG", { minimumFractionDigits: 2 });
+
 const Catalog = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
-  const isMediumScreen = useMediaQuery("(max-width:768px)");
-  const [added, setAdded] = useState<boolean>(false);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
+  const isSmall = useMediaQuery("(max-width:450px)");
+  const isMedium = useMediaQuery("(max-width:768px)");
+
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const [data, setData] = useState<ProductData[]>([]);
   const imageUrl = import.meta.env.VITE_IMAGE_URL;
-  const [confirm, setConfirm] = useState<string>("");
-  const [deleted, setDeleted] = useState<boolean>(false);
-  const [closeModal, setCloseModal] = useState<boolean>(true);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user: UserData | null = JSON.parse(
-    localStorage.getItem("user") || "null"
-  ) as UserData | null;
+
+  const [data, setData] = useState<ProductData[]>([]);
+  const [confirm, setConfirm] = useState("");
+  const [alert, setAlert] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
+
+  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
 
   useEffect(() => {
     getProducts();
   }, []);
 
+  const getProducts = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/get/products`, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      const json = await res.json();
+      setData(json.products || []);
+    } catch { /* silent */ }
+  };
+
   const deleteProduct = async (id: string) => {
     try {
-      setCloseModal(true);
-      const response = await fetch(`${baseUrl}/edit/products/${id}`, {
+      const res = await fetch(`${baseUrl}/edit/products/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
+        headers: { Authorization: `Bearer ${user?.token}` },
       });
-      if (response.ok) {
-        setDeleted(true);
-        setCloseModal(false);
+      if (res.ok) {
+        setAlert({ msg: "Product deleted successfully.", sev: "success" });
+        setConfirm("");
+        getProducts();
+      } else {
+        setAlert({ msg: "Could not delete product.", sev: "error" });
       }
-      const jsonData = await response.json();
-      getProducts();
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch {
+      setAlert({ msg: "Network error. Please try again.", sev: "error" });
     }
   };
 
-  const getProducts = async () => {
-    try {
-      const response = await fetch(`${baseUrl}/get/products`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
-      const jsonData = await response.json();
-      setData(jsonData.products);
-      console.log(jsonData.products);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  const cols = isSmall ? "1fr" : isMedium ? "repeat(2,1fr)" : "repeat(3,1fr)";
 
   return (
     <Box>
-      <Box
-        sx={{
-          borderBottom: "1px solid #E0E0E0",
-          px: "5%",
-          py: "13px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          fontFamily="Playfair Display"
-          fontWeight="bold"
-          color="secondary"
-          variant="h5"
-        >
-          Catalog
-        </Typography>
+      {/* Header */}
+      <Box sx={{ px: { xs: "16px", md: "24px" }, py: "13px", borderBottom: `1px solid ${borderColor}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box>
+          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
+            Catalog
+          </Typography>
+          <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary">
+            {data.length} product{data.length !== 1 ? "s" : ""}
+          </Typography>
+        </Box>
       </Box>
-      <Box display="flex" flexDirection="column" alignItems="center">
-        {
-          <CSSTransition
-            in={!closeModal}
-            timeout={1000}
-            classNames="fade"
-            unmountOnExit
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: "5px",
-                backgroundColor: added ? "#10B981" : "#ff5316",
-                pl: "30px",
-                pr: "10px",
-                width: "100%",
-              }}
+
+      {/* Alert */}
+      <Collapse in={!!alert}>
+        <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
+          {alert && (
+            <Alert
+              severity={alert.sev}
+              onClose={() => setAlert(null)}
+              sx={{ borderRadius: "10px", fontFamily: "Nunito" }}
             >
-              <Typography
-                fontFamily="Nunito"
+              {alert.msg}
+            </Alert>
+          )}
+        </Box>
+      </Collapse>
+
+      {/* Grid */}
+      <Box sx={{ p: { xs: "16px", md: "24px" } }}>
+        {data.length === 0 ? (
+          <Box sx={{ textAlign: "center", py: "60px" }}>
+            <StorefrontRounded sx={{ fontSize: "48px", color: "text.disabled", mb: "12px" }} />
+            <Typography fontFamily="Nunito" fontWeight={700} fontSize="1rem" mb="4px">
+              No products yet
+            </Typography>
+            <Typography fontFamily="Nunito" fontSize="0.85rem" color="text.secondary">
+              Add your first product from the sidebar.
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ display: "grid", gridTemplateColumns: cols, gap: "16px" }}>
+            {data.map((each) => (
+              <Box
+                key={each._id}
                 sx={{
-                  color: "white",
-                  fontStyle: "italic",
+                  borderRadius: "14px",
+                  border: `1px solid ${borderColor}`,
+                  backgroundColor: isDark ? "#09090D" : "#FFFFFF",
+                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
+                  boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.35)" : "0 2px 8px rgba(0,0,0,0.05)",
                 }}
               >
-                {added
-                  ? "Product Added Successfully!"
-                  : "Something Went Wrong!"}
-              </Typography>
-              <IconButton
-                onClick={() => {
-                  setCloseModal(true);
-                }}
-              >
-                <Close sx={{ color: "white" }} />
-              </IconButton>
-            </Box>
-          </CSSTransition>
-        }
-        <Box
-          sx={{
-            overflow: "hidden",
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: isSmallScreen
-                ? "1fr"
-                : isMediumScreen
-                ? "repeat(2,1fr)"
-                : "repeat(3,1fr)",
-              gridAutoRows: "180px",
-              gap: "20px",
-              py: "20px",
-              width: "90%",
-              overflow: "auto",
-              maxHeight: "80vh",
-              "&::-webkit-scrollbar": {
-                width: "0.4em",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: "transparent",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: "gray",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                background: "darkgray",
-              },
-            }}
-          >
-            {data
-              ? data.map((each) => (
-                  <Card
+                {/* Product image */}
+                <Box
+                  sx={{
+                    height: "160px",
+                    backgroundImage: `url(${imageUrl}/uploads/${each.imageName})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    position: "relative",
+                  }}
+                >
+                  <Box
                     sx={{
-                      // border: "1px solid #E0E0E0",
-                      boxShadow: "3px 3px 10px #E0E0E0",
-                      borderRadius: "5px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${imageUrl}/uploads/${each.imageName})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)",
+                    }}
+                  />
+                  {each.discount > 0 && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "10px",
+                        left: "10px",
+                        backgroundColor: brand.secondary,
+                        color: "#fff",
+                        fontFamily: "Nunito",
+                        fontWeight: 800,
+                        fontSize: "0.7rem",
+                        px: "8px",
+                        py: "2px",
+                        borderRadius: "100px",
+                      }}
+                    >
+                      -{each.discount}%
+                    </Box>
+                  )}
+                  {each.supply === 0 && (
+                    <Chip
+                      label="Out of stock"
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        fontFamily: "Nunito",
+                        fontWeight: 700,
+                        fontSize: "0.68rem",
+                        backgroundColor: "rgba(239,68,68,0.9)",
+                        color: "#fff",
+                      }}
+                    />
+                  )}
+                </Box>
+
+                {/* Info */}
+                <Box sx={{ px: "14px", py: "12px", flex: 1 }}>
+                  <Typography
+                    fontFamily="Nunito"
+                    fontWeight={600}
+                    fontSize="0.7rem"
+                    letterSpacing="0.04em"
+                    color={brand.secondary}
+                    mb="3px"
+                    sx={{ textTransform: "uppercase" }}
+                  >
+                    {each.category}
+                  </Typography>
+                  <Typography
+                    fontFamily="Nunito"
+                    fontWeight={700}
+                    fontSize="0.92rem"
+                    mb="4px"
+                    sx={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
                     }}
                   >
-                    <Box
-                      sx={{
-                        pl: "20px",
-                        py: "8px",
-                      }}
-                    >
-                      <Typography
-                        fontFamily="Playfair Display"
-                        fontWeight="bold"
-                        sx={{
-                          textTransform: "capitalize",
-                          textShadow: "1px 1px 1px rgba(7, 116, 136, 1)",
+                    {each.name[0].toUpperCase()}{each.name.slice(1)}
+                  </Typography>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: "6px" }}>
+                    <Typography fontFamily="Nunito" fontWeight={800} fontSize="0.95rem" color="primary">
+                      {fmt(each.price * ((100 - each.discount) / 100))}
+                    </Typography>
+                    <Typography fontFamily="Nunito" fontSize="0.75rem" color="text.secondary">
+                      Stock: {each.supply}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Actions */}
+                <Box sx={{ px: "12px", py: "8px", borderTop: `1px solid ${borderColor}`, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "4px" }}>
+                  {confirm !== each._id ? (
+                    <>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          dispatch(setProducts([each]));
+                          navigate("/admin/products/edit");
                         }}
-                        color="primary"
+                        sx={{ color: brand.primary, "&:hover": { backgroundColor: `${brand.primary}12` } }}
                       >
-                        {each.name}
+                        <EditRounded sx={{ fontSize: "17px" }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => setConfirm(each._id)}
+                        sx={{ color: theme.palette.text.secondary, "&:hover": { color: "#EF4444", backgroundColor: "rgba(239,68,68,0.08)" } }}
+                      >
+                        <DeleteOutlineRounded sx={{ fontSize: "17px" }} />
+                      </IconButton>
+                    </>
+                  ) : (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <Typography fontFamily="Nunito" fontSize="0.78rem" fontWeight={600} color="text.secondary" fontStyle="italic">
+                        Delete?
                       </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "baseline",
-                      }}
-                    >
-                      <Box sx={{ pl: "20px", pt: "10px" }}>
-                        <Typography
-                          fontStyle="italic"
-                          fontFamily="Nunito"
-                          fontSize="14px"
-                          fontWeight="bold"
-                          color="white"
-                        >
-                          Category: {each.category}
-                        </Typography>
-                        <Typography
-                          fontStyle="italic"
-                          fontFamily="Nunito"
-                          fontSize="14px"
-                          fontWeight="bold"
-                          color="white"
-                        >
-                          Supply: {each.supply}
-                        </Typography>
+                      <Box
+                        onClick={() => deleteProduct(each._id)}
+                        sx={{
+                          px: "12px", py: "4px", borderRadius: "100px",
+                          backgroundColor: "#EF4444", color: "#fff",
+                          fontFamily: "Nunito", fontWeight: 700, fontSize: "0.75rem",
+                          cursor: "pointer", "&:hover": { backgroundColor: "#DC2626" },
+                        }}
+                      >
+                        Yes
                       </Box>
-                      <Box></Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "end",
-                        alignItems: "center",
-                        p: "5px",
-                      }}
-                    >
-                      <Box>
-                        {confirm !== each._id ? (
-                          <Box>
-                            <IconButton
-                              onClick={() => {
-                                dispatch(setProducts([each]));
-                                navigate("/admin/products/edit");
-                              }}
-                            >
-                              <EditRounded sx={{ color: "#0049FF" }} />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => {
-                                setConfirm(each._id);
-                              }}
-                            >
-                              <DeleteOutlineRounded sx={{ color: "#0049FF" }} />
-                            </IconButton>
-                          </Box>
-                        ) : (
-                          <Box gap="5px" display="flex" alignItems="center">
-                            <Typography
-                              fontFamily="Nunito"
-                              fontStyle="italic"
-                              sx={{ color: "#0049FF" }}
-                            >
-                              Confirm?
-                            </Typography>
-                            <Button
-                              variant="contained"
-                              onClick={() => {
-                                deleteProduct(each._id);
-                              }}
-                              sx={{
-                                backgroundColor: "#ff5316",
-                                borderRadius: "20px",
-                                "&:hover": {
-                                  backgroundColor: "#ff5316",
-                                },
-                              }}
-                            >
-                              <Typography
-                                fontSize="12px"
-                                fontStyle="italic"
-                                fontWeight="bold"
-                                sx={{
-                                  color: "white",
-                                }}
-                              >
-                                Yes
-                              </Typography>
-                            </Button>
-                            <Button
-                              variant="contained"
-                              onClick={() => {
-                                setConfirm("");
-                              }}
-                              sx={{
-                                backgroundColor: "#10B981",
-                                borderRadius: "20px",
-                                display: "flex",
-                                alignItems: "center",
-                                "&:hover": {
-                                  backgroundColor: "#10B981",
-                                },
-                              }}
-                            >
-                              <Typography
-                                fontSize="12px"
-                                fontStyle="italic"
-                                fontWeight="bold"
-                                sx={{
-                                  color: "white",
-                                }}
-                              >
-                                No
-                              </Typography>
-                            </Button>
-                          </Box>
-                        )}
+                      <Box
+                        onClick={() => setConfirm("")}
+                        sx={{
+                          px: "12px", py: "4px", borderRadius: "100px",
+                          border: `1px solid ${borderColor}`,
+                          fontFamily: "Nunito", fontWeight: 600, fontSize: "0.75rem",
+                          cursor: "pointer", color: "text.secondary",
+                          "&:hover": { borderColor: brand.primary, color: brand.primary },
+                        }}
+                      >
+                        No
                       </Box>
                     </Box>
-                  </Card>
-                ))
-              : ""}
+                  )}
+                </Box>
+              </Box>
+            ))}
           </Box>
-        </Box>
+        )}
       </Box>
     </Box>
   );

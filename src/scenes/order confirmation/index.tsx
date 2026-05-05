@@ -29,7 +29,7 @@ const OrderConfirmation = () => {
     if (!lastOrderRef) navigate("/");
   }, [lastOrderRef]);
 
-  const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fmt = (n: number) => "₦" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: theme.palette.background.default }}>
@@ -116,7 +116,7 @@ const OrderConfirmation = () => {
                     </Typography>
                   </Box>
                   <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.9rem" color="primary">
-                    ${fmt(item.price * item.quantity * ((100 - item.discount) / 100))}
+                    {fmt(item.price * item.quantity * ((100 - item.discount) / 100))}
                   </Typography>
                 </Box>
               ))}
@@ -133,7 +133,7 @@ const OrderConfirmation = () => {
                 Total Paid
               </Typography>
               <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.35rem" color="primary">
-                ${fmt(lastOrderTotal)}
+                {fmt(lastOrderTotal)}
               </Typography>
             </Box>
           </Box>

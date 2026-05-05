@@ -1,17 +1,10 @@
-﻿import { AddRounded, LocalActivityRounded } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  FormControl,
-  Input,
-  InputLabel,
-  Switch,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
 import React, { useEffect, useState } from "react";
+import {
+  Alert, Box, Button, Chip, CircularProgress, Collapse, Switch,
+  TextField, Typography, useTheme, useMediaQuery,
+} from "@mui/material";
+import { AddRounded, ConfirmationNumberRounded } from "@mui/icons-material";
+import { brand } from "../../theme";
 
 interface Coupon {
   _id: string;
@@ -23,16 +16,20 @@ interface Coupon {
 }
 
 const AdminVouchers = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
+  const isSmall = useMediaQuery("(max-width:500px)");
+
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const user = JSON.parse(localStorage.getItem("user") || "null");
+
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ code: "", discountPercent: "", expiresAt: "" });
-  const [formError, setFormError] = useState("");
-  const [formSuccess, setFormSuccess] = useState("");
+  const [alert, setAlert] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
 
   const fetchCoupons = async () => {
     try {
@@ -41,18 +38,13 @@ const AdminVouchers = () => {
       });
       const data = await res.json();
       setCoupons(Array.isArray(data) ? data : []);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
+    } catch { /* silent */ }
+    finally { setLoading(false); }
   };
 
   const createCoupon = async () => {
-    setFormError("");
-    setFormSuccess("");
     if (!form.code.trim() || !form.discountPercent) {
-      setFormError("Code and discount % are required.");
+      setAlert({ msg: "Code and discount % are required.", sev: "error" });
       return;
     }
     setCreating(true);
@@ -68,15 +60,15 @@ const AdminVouchers = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setFormSuccess("Coupon created!");
+        setAlert({ msg: "Coupon created successfully!", sev: "success" });
         setForm({ code: "", discountPercent: "", expiresAt: "" });
         setShowForm(false);
         fetchCoupons();
       } else {
-        setFormError(data.message || "Could not create coupon.");
+        setAlert({ msg: data.message || "Could not create coupon.", sev: "error" });
       }
     } catch {
-      setFormError("Server error.");
+      setAlert({ msg: "Server error. Please try again.", sev: "error" });
     } finally {
       setCreating(false);
     }
@@ -89,125 +81,205 @@ const AdminVouchers = () => {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       setCoupons((prev) => prev.map((c) => c._id === couponId ? { ...c, active: !c.active } : c));
-    } catch {
-      // silent
-    }
+    } catch { /* silent */ }
   };
 
   useEffect(() => { fetchCoupons(); }, []);
 
   return (
     <Box>
-      <Box sx={{ borderBottom: "1px solid #E0E0E0", px: "30px", py: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography fontFamily="Playfair Display" fontWeight="bold" color="secondary" variant="h5">
-          Vouchers
-        </Typography>
+      {/* Header */}
+      <Box sx={{ px: { xs: "16px", md: "24px" }, py: "13px", borderBottom: `1px solid ${borderColor}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box>
+          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
+            Vouchers
+          </Typography>
+          <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary">
+            Manage discount codes
+          </Typography>
+        </Box>
         <Button
           variant="contained"
+          size="small"
           startIcon={<AddRounded />}
-          onClick={() => { setShowForm(!showForm); setFormError(""); setFormSuccess(""); }}
-          sx={{ borderRadius: "20px", textTransform: "none" }}
+          onClick={() => { setShowForm(!showForm); setAlert(null); }}
+          sx={{ fontFamily: "Nunito", fontWeight: 700, fontSize: "0.8rem", borderRadius: "10px" }}
         >
-          <Typography color="white" fontFamily="Nunito" fontWeight="bold" fontSize="13px">
-            New Coupon
-          </Typography>
+          New Coupon
         </Button>
       </Box>
 
-      {showForm && (
-        <Box sx={{ m: "20px", p: "20px", boxShadow: "2px 2px 7px #E0E0E0", borderRadius: "8px", maxWidth: "480px" }}>
-          <Typography fontFamily="Nunito" fontWeight="bold" mb="16px">Create Coupon</Typography>
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", mb: "16px" }}>
-            <FormControl variant="outlined">
-              <InputLabel color="secondary">Code</InputLabel>
-              <Input
-                value={form.code}
-                onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
-                placeholder="e.g. SAVE20"
-              />
-            </FormControl>
-            <FormControl variant="outlined">
-              <InputLabel color="secondary">Discount %</InputLabel>
-              <Input
-                type="number"
-                value={form.discountPercent}
-                onChange={(e) => setForm((f) => ({ ...f, discountPercent: e.target.value }))}
-                placeholder="1-100"
-              />
-            </FormControl>
-          </Box>
-          <FormControl variant="outlined" fullWidth sx={{ mb: "16px" }}>
-            <InputLabel color="secondary" shrink>Expires At (optional)</InputLabel>
-            <Input
-              type="date"
-              value={form.expiresAt}
-              onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
-              sx={{ mt: "16px" }}
+      {/* Alert */}
+      <Collapse in={!!alert}>
+        <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
+          {alert && (
+            <Alert
+              severity={alert.sev}
+              onClose={() => setAlert(null)}
+              sx={{ borderRadius: "10px", fontFamily: "Nunito" }}
+            >
+              {alert.msg}
+            </Alert>
+          )}
+        </Box>
+      </Collapse>
+
+      {/* Create form */}
+      <Collapse in={showForm}>
+        <Box
+          sx={{
+            mx: { xs: "16px", md: "24px" },
+            mt: "16px",
+            p: "20px",
+            borderRadius: "14px",
+            border: `1px solid ${borderColor}`,
+            backgroundColor: isDark ? "#09090D" : "#FAFAFA",
+          }}
+        >
+          <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.95rem" mb="16px">
+            Create Coupon
+          </Typography>
+          <Box sx={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: "16px", mb: "16px" }}>
+            <TextField
+              label="Code"
+              value={form.code}
+              onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+              placeholder="e.g. SAVE20"
+              size="small"
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
             />
-          </FormControl>
-          {formError && <Typography fontSize="13px" color="error" mb="8px">{formError}</Typography>}
-          {formSuccess && <Typography fontSize="13px" sx={{ color: "#2e7d32" }} mb="8px">{formSuccess}</Typography>}
-          <Box display="flex" gap="12px">
-            <Button variant="contained" onClick={createCoupon} disabled={creating} sx={{ borderRadius: "20px", textTransform: "none" }}>
-              <Typography color="white" fontFamily="Nunito" fontWeight="bold" fontSize="13px">
-                {creating ? "Creating..." : "Create"}
-              </Typography>
+            <TextField
+              label="Discount %"
+              type="number"
+              value={form.discountPercent}
+              onChange={(e) => setForm((f) => ({ ...f, discountPercent: e.target.value }))}
+              placeholder="1–100"
+              size="small"
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
+            />
+          </Box>
+          <TextField
+            label="Expires At (optional)"
+            type="date"
+            value={form.expiresAt}
+            onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
+            fullWidth
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{ mb: "16px", "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
+          />
+          <Box sx={{ display: "flex", gap: "10px" }}>
+            <Button
+              variant="contained"
+              onClick={createCoupon}
+              disabled={creating}
+              sx={{ fontFamily: "Nunito", fontWeight: 700, borderRadius: "10px", px: "20px" }}
+            >
+              {creating ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : "Create"}
             </Button>
-            <Button variant="outlined" onClick={() => setShowForm(false)} sx={{ borderRadius: "20px", textTransform: "none" }}>
+            <Button
+              variant="outlined"
+              onClick={() => setShowForm(false)}
+              sx={{ fontFamily: "Nunito", fontWeight: 700, borderRadius: "10px", px: "20px", borderColor }}
+            >
               Cancel
             </Button>
           </Box>
         </Box>
-      )}
+      </Collapse>
 
-      <Box sx={{ p: "20px" }}>
+      {/* List */}
+      <Box sx={{ p: { xs: "16px", md: "24px" } }}>
         {loading ? (
-          <Box display="flex" justifyContent="center" pt="40px">
-            <CircularProgress color="primary" />
+          <Box sx={{ display: "flex", justifyContent: "center", pt: "48px" }}>
+            <CircularProgress />
           </Box>
         ) : coupons.length === 0 ? (
-          <Box display="flex" flexDirection="column" alignItems="center" pt="60px">
-            <LocalActivityRounded sx={{ fontSize: "80px", color: "#0049FF" }} />
-            <Typography fontFamily="Nunito" fontWeight="bold" fontSize="18px" pt="16px">
+          <Box sx={{ textAlign: "center", py: "60px" }}>
+            <ConfirmationNumberRounded sx={{ fontSize: "48px", color: "text.disabled", mb: "12px" }} />
+            <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.95rem" mb="4px">
               No coupons yet
             </Typography>
-            <Typography fontSize="14px" color="text.secondary" mt="8px">
+            <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary">
               Click "New Coupon" to create your first discount code.
             </Typography>
           </Box>
         ) : (
-          <Box sx={{ display: "grid", gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(auto-fill, minmax(280px,1fr))", gap: "16px" }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "repeat(auto-fill, minmax(280px, 1fr))", gap: "14px" }}>
             {coupons.map((coupon) => (
-              <Box key={coupon._id} sx={{ boxShadow: "2px 2px 7px #E0E0E0", borderRadius: "8px", p: "16px" }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb="8px">
-                  <Typography fontFamily="Nunito" fontWeight="bold" fontSize="18px" letterSpacing="2px">
+              <Box
+                key={coupon._id}
+                sx={{
+                  borderRadius: "14px",
+                  border: `1px solid ${coupon.active ? brand.primary + "40" : borderColor}`,
+                  backgroundColor: isDark ? "#09090D" : "#FFFFFF",
+                  overflow: "hidden",
+                  boxShadow: coupon.active
+                    ? `0 4px 16px ${brand.primary}14`
+                    : isDark ? "0 2px 8px rgba(0,0,0,0.35)" : "0 2px 8px rgba(0,0,0,0.05)",
+                }}
+              >
+                {/* Card header */}
+                <Box
+                  sx={{
+                    px: "16px", py: "12px",
+                    borderBottom: `1px solid ${borderColor}`,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    backgroundColor: coupon.active
+                      ? isDark ? `${brand.primary}10` : `${brand.primary}06`
+                      : "transparent",
+                  }}
+                >
+                  <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem" letterSpacing="2px">
                     {coupon.code}
                   </Typography>
                   <Chip
                     label={coupon.active ? "Active" : "Inactive"}
                     size="small"
-                    sx={{ backgroundColor: coupon.active ? "#e8f5e9" : "#fbe9e7", color: coupon.active ? "#2e7d32" : "#d32f2f", fontFamily: "Nunito", fontWeight: "bold" }}
+                    sx={{
+                      fontFamily: "Nunito",
+                      fontWeight: 700,
+                      fontSize: "0.7rem",
+                      backgroundColor: coupon.active ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.1)",
+                      color: coupon.active ? "#10B981" : "#EF4444",
+                    }}
                   />
                 </Box>
-                <Typography fontFamily="Nunito" fontSize="14px" color="text.secondary" mb="4px">
-                  {coupon.discountPercent}% off
-                </Typography>
-                {coupon.expiresAt && (
-                  <Typography fontFamily="Nunito" fontSize="12px" color="text.secondary" mb="4px">
-                    Expires: {new Date(coupon.expiresAt).toLocaleDateString()}
+
+                {/* Card body */}
+                <Box sx={{ px: "16px", py: "12px" }}>
+                  <Typography fontFamily="Nunito" fontWeight={800} fontSize="1.3rem" color="primary" mb="4px">
+                    {coupon.discountPercent}% off
                   </Typography>
-                )}
-                <Typography fontFamily="Nunito" fontSize="12px" color="text.secondary" mb="12px">
-                  Created: {new Date(coupon.createdAt).toLocaleDateString()}
-                </Typography>
-                <Box display="flex" alignItems="center" gap="8px">
+                  {coupon.expiresAt && (
+                    <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary" mb="2px">
+                      Expires: {new Date(coupon.expiresAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                    </Typography>
+                  )}
+                  <Typography fontFamily="Nunito" fontSize="0.75rem" color="text.disabled">
+                    Created: {new Date(coupon.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                  </Typography>
+                </Box>
+
+                {/* Toggle */}
+                <Box
+                  sx={{
+                    px: "16px", py: "8px",
+                    borderTop: `1px solid ${borderColor}`,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
                   <Switch
                     size="small"
                     checked={coupon.active}
                     onChange={() => toggleActive(coupon._id)}
                     color="primary"
                   />
-                  <Typography fontFamily="Nunito" fontSize="13px">
+                  <Typography fontFamily="Nunito" fontSize="0.82rem" fontWeight={600}>
                     {coupon.active ? "Deactivate" : "Activate"}
                   </Typography>
                 </Box>

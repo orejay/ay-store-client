@@ -95,7 +95,7 @@ const OrderCard = ({
   const [confirming, setConfirming] = useState(false);
   const cfg = statusConfig[order?.status] ?? { label: order?.status ?? "—", color: "default" as const };
 
-  const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fmt = (n: number) => "₦" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   const capName = (name?: string) =>
     name ? name.charAt(0).toUpperCase() + name.slice(1) : "Unknown item";
@@ -158,7 +158,7 @@ const OrderCard = ({
             </Typography>
           </Box>
           <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.05rem" color="primary">
-            ${fmt(orderTotal)}
+            {fmt(orderTotal)}
           </Typography>
         </Box>
 
@@ -235,7 +235,7 @@ const OrderCard = ({
                   </Typography>
                 </Box>
                 <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.88rem" color="primary">
-                  ${fmt(lineTotal)}
+                  {fmt(lineTotal)}
                 </Typography>
               </Box>
             );

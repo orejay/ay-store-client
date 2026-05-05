@@ -1,77 +1,57 @@
-﻿import { AddRounded, ArrowBackRounded, Close, DeleteRounded, DriveFolderUploadRounded } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  IconButton,
-  Input,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
 import React, { useState } from "react";
-import { CSSTransition } from "react-transition-group";
-import { useSelector } from "react-redux";
-import { useAppDispatch, RootState } from "store";
+import {
+  Alert, Box, Button, Checkbox, Collapse, FormControlLabel,
+  IconButton, MenuItem, TextField, Typography, useTheme, useMediaQuery,
+} from "@mui/material";
+import {
+  AddRounded, ArrowBackRounded, CloseRounded, DeleteRounded, DriveFolderUploadRounded,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "store";
 import { CATEGORIES, GENDERS } from "constants/productOptions";
 import { ProductVariant } from "state";
+import { brand } from "../../theme";
 
 interface BodyState {
-  name: string;
-  price: string;
-  discount: string;
-  category: string;
-  supply: string;
-  description: string;
-  gender: string;
-  brand: string;
-  tags: string;
-  featured: boolean;
+  name: string; price: string; discount: string; category: string;
+  supply: string; description: string; gender: string; brand: string;
+  tags: string; featured: boolean;
 }
 
-interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  id: string;
-  token: string;
-}
+interface UserData { token: string; }
 
-interface VariantRow {
-  _id?: string;
-  size: string;
-  color: string;
-  stock: string;
-}
+interface VariantRow { _id?: string; size: string; color: string; stock: string; }
+
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.78rem" letterSpacing="0.06em"
+    color="text.secondary" sx={{ textTransform: "uppercase", mb: "12px" }}>
+    {children}
+  </Typography>
+);
 
 const EditProduct = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
-  const isMediumScreen = useMediaQuery("(max-width:768px)");
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
+  const isSmall = useMediaQuery("(max-width:450px)");
+  const isMedium = useMediaQuery("(max-width:768px)");
+
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const imageUrl = import.meta.env.VITE_IMAGE_URL;
-  const [newImages, setNewImages] = useState<File[]>([]);
-  const [closeModal, setCloseModal] = useState<boolean>(true);
-  const [added, setAdded] = useState<boolean>(false);
+
   const products = useSelector((state: RootState) => state.global.products);
   const product = products[0];
-  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null") as UserData | null;
+  const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
 
-  const initVariants = (): VariantRow[] =>
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [alert, setAlert] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [variants, setVariants] = useState<VariantRow[]>(
     (product?.variants || []).map((v: ProductVariant) => ({
-      _id: v._id,
-      size: v.size,
-      color: v.color,
-      stock: String(v.stock),
-    }));
-
-  const [variants, setVariants] = useState<VariantRow[]>(initVariants);
+      _id: v._id, size: v.size, color: v.color, stock: String(v.stock),
+    }))
+  );
   const [body, setBody] = useState<BodyState>({
     name: product?.name || "",
     price: String(product?.price || ""),
@@ -92,17 +72,18 @@ const EditProduct = () => {
 
   const addVariant = () => setVariants((v) => [...v, { size: "", color: "", stock: "" }]);
   const removeVariant = (i: number) => setVariants((v) => v.filter((_, idx) => idx !== i));
-  const updateVariant = (i: number, field: keyof VariantRow, value: string) => {
+  const updateVariant = (i: number, field: keyof VariantRow, value: string) =>
     setVariants((v) => v.map((vr, idx) => idx === i ? { ...vr, [field]: value } : vr));
-  };
 
-  const upload = async (id: string) => {
+  const upload = async () => {
+    if (!product) return;
+    setLoading(true);
     try {
       const formData = new FormData();
       newImages.forEach((img) => formData.append("image", img));
       formData.append("name", body.name);
       formData.append("price", body.price);
-      formData.append("discount", body.discount);
+      formData.append("discount", body.discount || "0");
       formData.append("category", body.category);
       formData.append("supply", body.supply);
       formData.append("description", body.description);
@@ -114,169 +95,219 @@ const EditProduct = () => {
         variants.map((v) => ({ ...(v._id ? { _id: v._id } : {}), size: v.size, color: v.color, stock: Number(v.stock) }))
       ));
 
-      const response = await fetch(`${baseUrl}/edit/products/${id}`, {
+      const res = await fetch(`${baseUrl}/edit/products/${product._id}`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${user?.token}` },
         body: formData,
       });
 
-      if (response.ok) { setAdded(true); setCloseModal(false); }
-      else { setAdded(false); setCloseModal(false); }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      if (res.ok) {
+        setAlert({ msg: "Product updated successfully!", sev: "success" });
+      } else {
+        setAlert({ msg: "Failed to update product. Please try again.", sev: "error" });
+      }
+    } catch {
+      setAlert({ msg: "Network error. Please try again.", sev: "error" });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const cols = isSmallScreen ? "1fr" : isMediumScreen ? "repeat(2,1fr)" : "repeat(4,1fr)";
-  const existingImages: string[] = product?.images?.length ? product.images : product?.imageName ? [product.imageName] : [];
+  const existingImages: string[] = product?.images?.length
+    ? product.images
+    : product?.imageName ? [product.imageName] : [];
+
+  const cols = isSmall ? "1fr" : isMedium ? "repeat(2, 1fr)" : "repeat(4, 1fr)";
 
   return (
     <Box>
-      <Box sx={{ borderBottom: "1px solid #E0E0E0", px: "30px", py: "3px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Box display="flex" alignItems="center">
-          <IconButton>
-            <Link to="/admin/catalog"><ArrowBackRounded /></Link>
+      {/* Header */}
+      <Box sx={{ px: { xs: "16px", md: "24px" }, py: "10px", borderBottom: `1px solid ${borderColor}`, display: "flex", alignItems: "center", gap: "8px" }}>
+        <Link to="/admin/catalog">
+          <IconButton size="small">
+            <ArrowBackRounded sx={{ fontSize: "20px" }} />
           </IconButton>
-          <Typography fontFamily="Playfair Display" fontWeight="bold" color="secondary" variant="h5">
+        </Link>
+        <Box>
+          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
             Edit Product
+          </Typography>
+          <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary" sx={{ textTransform: "capitalize" }}>
+            {product?.name || ""}
           </Typography>
         </Box>
       </Box>
 
-      <Box display="flex" flexDirection="column" alignItems="center">
-        <CSSTransition in={!closeModal} timeout={1000} classNames="fade" unmountOnExit>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: "5px", backgroundColor: added ? "#10B981" : "#ff5316", pl: "30px", pr: "10px", width: "100%" }}>
-            <Typography fontFamily="Nunito" sx={{ color: "white", fontStyle: "italic" }}>
-              {added ? "Product Updated Successfully!" : "Something Went Wrong!"}
-            </Typography>
-            <IconButton onClick={() => setCloseModal(true)}>
-              <Close sx={{ color: "white" }} />
-            </IconButton>
-          </Box>
-        </CSSTransition>
+      {/* Alert */}
+      <Collapse in={!!alert}>
+        <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
+          {alert && (
+            <Alert severity={alert.sev} onClose={() => setAlert(null)}
+              sx={{ borderRadius: "10px", fontFamily: "Nunito" }}>
+              {alert.msg}
+            </Alert>
+          )}
+        </Box>
+      </Collapse>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: cols, gap: "30px", pt: "20px", width: "90%" }}>
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Product Name</InputLabel>
-            <Input required type="text" defaultValue={product?.name || ""} color="secondary" onChange={(e) => setBody((b) => ({ ...b, name: e.target.value }))} />
-          </FormControl>
+      <Box sx={{ p: { xs: "16px", md: "24px" }, display: "flex", flexDirection: "column", gap: "28px" }}>
 
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Brand</InputLabel>
-            <Input type="text" defaultValue={product?.brand || ""} color="secondary" onChange={(e) => setBody((b) => ({ ...b, brand: e.target.value }))} />
-          </FormControl>
-
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Price</InputLabel>
-            <Input required type="text" defaultValue={product?.price || ""} color="secondary" onChange={(e) => setBody((b) => ({ ...b, price: e.target.value }))} />
-          </FormControl>
-
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Discount %</InputLabel>
-            <Input required type="text" defaultValue={product?.discount || ""} color="secondary" onChange={(e) => setBody((b) => ({ ...b, discount: e.target.value }))} />
-          </FormControl>
-
-          <FormControl variant="standard" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Category</InputLabel>
-            <Select defaultValue={product?.category || ""} onChange={(e) => setBody((b) => ({ ...b, category: e.target.value as string }))}>
+        {/* Basic info */}
+        <Box>
+          <SectionLabel>Basic Information</SectionLabel>
+          <Box sx={{ display: "grid", gridTemplateColumns: cols, gap: "16px" }}>
+            <TextField label="Product Name" required value={body.name}
+              onChange={(e) => setBody((b) => ({ ...b, name: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }} />
+            <TextField label="Brand" value={body.brand}
+              onChange={(e) => setBody((b) => ({ ...b, brand: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }} />
+            <TextField label="Price (₦)" required type="number" value={body.price}
+              onChange={(e) => setBody((b) => ({ ...b, price: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }} />
+            <TextField label="Discount %" type="number" value={body.discount}
+              onChange={(e) => setBody((b) => ({ ...b, discount: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }} />
+            <TextField label="Category" required select value={body.category}
+              onChange={(e) => setBody((b) => ({ ...b, category: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}>
               {CATEGORIES.map((cat) => (
                 <MenuItem key={cat.value} value={cat.value}>{cat.label}</MenuItem>
               ))}
-            </Select>
-          </FormControl>
-
-          <FormControl variant="standard" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Gender</InputLabel>
-            <Select value={body.gender} onChange={(e) => setBody((b) => ({ ...b, gender: e.target.value as string }))}>
+            </TextField>
+            <TextField label="Gender" select value={body.gender}
+              onChange={(e) => setBody((b) => ({ ...b, gender: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}>
               {GENDERS.map((g) => (
                 <MenuItem key={g.value} value={g.value}>{g.label}</MenuItem>
               ))}
-            </Select>
-          </FormControl>
-
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Supply (no variants)</InputLabel>
-            <Input required type="text" defaultValue={product?.supply || ""} color="secondary" onChange={(e) => setBody((b) => ({ ...b, supply: e.target.value }))} />
-          </FormControl>
-
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <FormControlLabel
-              control={<Checkbox checked={body.featured} onChange={(e) => setBody((b) => ({ ...b, featured: e.target.checked }))} sx={{ color: "#0049FF", "&.Mui-checked": { color: "#0049FF" } }} />}
-              label={<Typography fontFamily="Nunito" fontWeight="bold">Featured</Typography>}
-            />
+            </TextField>
+            <TextField label="Supply (leave 0 if using variants)" type="number" value={body.supply}
+              onChange={(e) => setBody((b) => ({ ...b, supply: e.target.value }))}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }} />
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={body.featured}
+                    onChange={(e) => setBody((b) => ({ ...b, featured: e.target.checked }))}
+                    sx={{ color: brand.primary, "&.Mui-checked": { color: brand.primary } }}
+                  />
+                }
+                label={<Typography fontFamily="Nunito" fontWeight={600} fontSize="0.88rem">Featured product</Typography>}
+              />
+            </Box>
+            <TextField label="Description" required multiline rows={3} value={body.description}
+              onChange={(e) => setBody((b) => ({ ...b, description: e.target.value }))}
+              sx={{ gridColumn: isSmall ? "span 1" : "span 2", "& .MuiOutlinedInput-root": { borderRadius: "10px" } }} />
+            <TextField label="Tags (comma-separated)" value={body.tags}
+              onChange={(e) => setBody((b) => ({ ...b, tags: e.target.value }))}
+              placeholder="e.g. summer, sale, new arrival"
+              sx={{ gridColumn: isSmall ? "span 1" : "span 2", "& .MuiOutlinedInput-root": { borderRadius: "10px" } }} />
           </Box>
+        </Box>
 
-          <FormControl variant="outlined" sx={{ mb: "20px", gridColumn: isSmallScreen ? "span 1" : "span 2" }}>
-            <InputLabel color="secondary">Description</InputLabel>
-            <Input required type="text" defaultValue={product?.description || ""} color="secondary" multiline onChange={(e) => setBody((b) => ({ ...b, description: e.target.value }))} />
-          </FormControl>
-
-          <FormControl variant="outlined" sx={{ mb: "20px", gridColumn: isSmallScreen ? "span 1" : "span 2" }}>
-            <InputLabel color="secondary">Tags (comma-separated)</InputLabel>
-            <Input type="text" defaultValue={product?.tags?.join(", ") || ""} color="secondary" placeholder="e.g. summer, new arrival, sale" onChange={(e) => setBody((b) => ({ ...b, tags: e.target.value }))} />
-          </FormControl>
-
-          {/* Current images */}
-          <Box sx={{ gridColumn: isSmallScreen ? "span 1" : `span ${isMediumScreen ? 2 : 4}` }}>
-            <Typography fontFamily="Nunito" fontWeight="bold" mb="8px">Current Images</Typography>
-            <Box display="flex" flexWrap="wrap" gap="10px" mb="16px">
+        {/* Current images */}
+        {existingImages.length > 0 && (
+          <Box>
+            <SectionLabel>Current Images</SectionLabel>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
               {existingImages.map((name, i) => (
-                <Box key={i} component="img" src={`${imageUrl}/uploads/${name}`} alt="" sx={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px", border: "1px solid #E0E0E0" }} />
+                <Box key={i} component="img" src={`${imageUrl}/uploads/${name}`} alt=""
+                  sx={{ width: "88px", height: "88px", objectFit: "cover", borderRadius: "10px", border: `1px solid ${borderColor}` }} />
               ))}
             </Box>
-            <Typography fontFamily="Nunito" fontWeight="bold" mb="8px">Add / Replace Images</Typography>
-            <Box display="flex" flexWrap="wrap" gap="10px" mb="10px">
-              {newImages.map((file, i) => (
-                <Box key={i} sx={{ position: "relative", width: "80px", height: "80px" }}>
-                  <Box component="img" src={URL.createObjectURL(file)} alt="" sx={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }} />
-                  <IconButton size="small" onClick={() => setNewImages((prev) => prev.filter((_, idx) => idx !== i))} sx={{ position: "absolute", top: -8, right: -8, backgroundColor: "white", p: "2px" }}>
-                    <Close sx={{ fontSize: "14px", color: "red" }} />
-                  </IconButton>
-                </Box>
-              ))}
-              <label htmlFor="upload" style={{ cursor: "pointer" }}>
-                <Box sx={{ width: "80px", height: "80px", border: "2px dashed #0049FF", borderRadius: "6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#0049FF" }}>
-                  <DriveFolderUploadRounded sx={{ fontSize: "28px" }} />
-                  <Typography fontSize="10px" fontFamily="Nunito">Add</Typography>
-                </Box>
-              </label>
-            </Box>
-            <input hidden multiple type="file" name="upload" id="upload" accept="image/*" onChange={handleImages} />
           </Box>
+        )}
 
-          {/* Variants */}
-          <Box sx={{ gridColumn: isSmallScreen ? "span 1" : `span ${isMediumScreen ? 2 : 4}` }}>
-            <Box display="flex" alignItems="center" gap="10px" mb="10px">
-              <Typography fontFamily="Nunito" fontWeight="bold">Variants</Typography>
-              <Button size="small" variant="outlined" startIcon={<AddRounded />} onClick={addVariant} sx={{ borderRadius: "20px", textTransform: "none" }}>
-                Add Variant
-              </Button>
-            </Box>
-            {variants.length > 0 && (
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 80px 40px", gap: "10px", mb: "8px" }}>
-                <Typography fontFamily="Nunito" fontSize="12px" fontWeight="bold">Size</Typography>
-                <Typography fontFamily="Nunito" fontSize="12px" fontWeight="bold">Color</Typography>
-                <Typography fontFamily="Nunito" fontSize="12px" fontWeight="bold">Stock</Typography>
-                <Box />
-              </Box>
-            )}
-            {variants.map((v, i) => (
-              <Box key={i} sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 80px 40px", gap: "10px", mb: "8px", alignItems: "center" }}>
-                <Input placeholder="e.g. M" value={v.size} onChange={(e) => updateVariant(i, "size", e.target.value)} />
-                <Input placeholder="e.g. Red" value={v.color} onChange={(e) => updateVariant(i, "color", e.target.value)} />
-                <Input placeholder="0" type="number" value={v.stock} onChange={(e) => updateVariant(i, "stock", e.target.value)} />
-                <IconButton size="small" onClick={() => removeVariant(i)}>
-                  <DeleteRounded sx={{ fontSize: "18px", color: "#d32f2f" }} />
+        {/* Add new images */}
+        <Box>
+          <SectionLabel>Add / Replace Images</SectionLabel>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+            {newImages.map((file, i) => (
+              <Box key={i} sx={{ position: "relative", width: "88px", height: "88px" }}>
+                <Box component="img" src={URL.createObjectURL(file)} alt=""
+                  sx={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "10px", border: `1px solid ${borderColor}` }} />
+                <IconButton size="small" onClick={() => setNewImages((prev) => prev.filter((_, idx) => idx !== i))}
+                  sx={{ position: "absolute", top: -8, right: -8, backgroundColor: "#fff", p: "3px", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}>
+                  <CloseRounded sx={{ fontSize: "14px", color: "#EF4444" }} />
                 </IconButton>
               </Box>
             ))}
+            <label htmlFor="edit-product-upload" style={{ cursor: "pointer" }}>
+              <Box sx={{
+                width: "88px", height: "88px",
+                border: `2px dashed ${brand.primary}60`,
+                borderRadius: "10px",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                color: brand.primary,
+                "&:hover": { backgroundColor: `${brand.primary}08`, borderColor: brand.primary },
+                transition: "all 0.15s",
+              }}>
+                <DriveFolderUploadRounded sx={{ fontSize: "26px" }} />
+                <Typography fontFamily="Nunito" fontSize="0.7rem" fontWeight={600} mt="4px">Add</Typography>
+              </Box>
+            </label>
           </Box>
+          <input hidden multiple type="file" id="edit-product-upload" accept="image/*" onChange={handleImages} />
+        </Box>
 
-          <Box display="flex" alignItems="center" sx={{ gridColumn: isSmallScreen ? "span 1" : `span ${isMediumScreen ? 2 : 4}` }}>
-            <Button onClick={() => product && upload(product._id)} variant="contained" sx={{ borderRadius: "20px", width: isSmallScreen ? "100%" : "30%" }}>
-              <Typography color="#ffffff">Save Changes</Typography>
+        {/* Variants */}
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "12px", mb: "12px" }}>
+            <SectionLabel>Variants</SectionLabel>
+            <Button size="small" variant="outlined" startIcon={<AddRounded />} onClick={addVariant}
+              sx={{ fontFamily: "Nunito", fontWeight: 700, borderRadius: "10px", mb: "12px" }}>
+              Add Variant
             </Button>
           </Box>
+
+          {variants.length > 0 && (
+            <Box>
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 100px 40px", gap: "10px", mb: "8px", px: "4px" }}>
+                {["Size", "Color", "Stock", ""].map((h) => (
+                  <Typography key={h} fontFamily="Nunito" fontSize="0.72rem" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase" }}>
+                    {h}
+                  </Typography>
+                ))}
+              </Box>
+              {variants.map((v, i) => (
+                <Box key={i} sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 100px 40px", gap: "10px", mb: "8px", alignItems: "center" }}>
+                  <TextField size="small" placeholder="e.g. M" value={v.size}
+                    onChange={(e) => updateVariant(i, "size", e.target.value)}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+                  <TextField size="small" placeholder="e.g. Red" value={v.color}
+                    onChange={(e) => updateVariant(i, "color", e.target.value)}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+                  <TextField size="small" type="number" placeholder="0" value={v.stock}
+                    onChange={(e) => updateVariant(i, "stock", e.target.value)}
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+                  <IconButton size="small" onClick={() => removeVariant(i)}
+                    sx={{ "&:hover": { backgroundColor: "rgba(239,68,68,0.08)", color: "#EF4444" } }}>
+                    <DeleteRounded sx={{ fontSize: "18px" }} />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+
+        {/* Submit */}
+        <Box>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={upload}
+            disabled={loading}
+            sx={{
+              fontFamily: "Nunito", fontWeight: 700, borderRadius: "12px",
+              px: "32px", py: "12px",
+              background: `linear-gradient(135deg, ${brand.primary}, #0038CC)`,
+            }}
+          >
+            {loading ? "Saving…" : "Save Changes"}
+          </Button>
         </Box>
       </Box>
     </Box>

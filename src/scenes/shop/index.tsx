@@ -41,7 +41,7 @@ interface ProductData {
   tags?: string[]; featured?: boolean; _id: string;
 }
 
-const fmt = (n: string) => n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const fmt = (n: string) => "₦" + n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
 const Shop = () => {
   const theme = useTheme();
@@ -240,7 +240,7 @@ const Shop = () => {
             Price Range
           </Typography>
           <Typography fontFamily="Nunito" fontSize="0.78rem" color={brand.primary} fontWeight={700}>
-            ${fmt(String(priceRange[0]))} – ${fmt(String(priceRange[1]))}
+            {fmt(String(priceRange[0]))} – {fmt(String(priceRange[1]))}
           </Typography>
         </Box>
         <Slider
@@ -451,6 +451,7 @@ const Shop = () => {
                   const discountedPrice = each.price * ((100 - each.discount) / 100);
                   const inCart = cart.some((item) => item._id === each._id);
                   const inWishlist = wishlist.includes(each._id);
+                  const isHovered = hovered === each._id;
 
                   return (
                     <Box
@@ -458,106 +459,130 @@ const Shop = () => {
                       onMouseEnter={() => setHovered(each._id)}
                       onMouseLeave={() => setHovered("")}
                       sx={{
-                        borderRadius: "14px",
+                        borderRadius: "16px",
                         overflow: "hidden",
                         border: `1px solid ${borderColor}`,
                         backgroundColor: isDark ? "#18181C" : "#FFFFFF",
                         transition: "transform 0.25s ease, box-shadow 0.25s ease",
                         "&:hover": {
                           transform: "translateY(-4px)",
-                          boxShadow: isDark ? "0 12px 32px rgba(0,0,0,0.5)" : "0 12px 32px rgba(0,0,0,0.1)",
+                          boxShadow: isDark ? "0 16px 40px rgba(0,0,0,0.55)" : "0 16px 40px rgba(0,0,0,0.1)",
                         },
                         position: "relative",
                       }}
                     >
-                      {/* Discount badge */}
-                      {each.discount > 0 && each.supply > 0 && (
-                        <Box sx={{
-                          position: "absolute", top: "10px", left: "10px", zIndex: 2,
-                          backgroundColor: brand.primary, color: "#fff",
-                          fontFamily: "Nunito", fontWeight: 800, fontSize: "0.7rem",
-                          px: "8px", py: "3px", borderRadius: "100px",
-                        }}>
-                          -{each.discount}%
-                        </Box>
-                      )}
+                      {/* Image wrapper */}
+                      <Box sx={{ position: "relative", overflow: "hidden" }}>
+                        {/* Discount badge */}
+                        {each.discount > 0 && each.supply > 0 && (
+                          <Box sx={{
+                            position: "absolute", top: "10px", left: "10px", zIndex: 2,
+                            backgroundColor: brand.secondary, color: "#fff",
+                            fontFamily: "Nunito", fontWeight: 800, fontSize: "0.7rem",
+                            px: "8px", py: "3px", borderRadius: "100px",
+                          }}>
+                            -{each.discount}%
+                          </Box>
+                        )}
 
-                      {/* Out of stock overlay */}
-                      {each.supply === 0 && (
-                        <Box sx={{
-                          position: "absolute", top: 0, left: 0, right: 0, height: "57%",
-                          background: "rgba(0,0,0,0.45)", zIndex: 2,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
-                          <Typography fontFamily="Nunito" fontWeight={700} color="white" fontSize="0.8rem">
-                            Out of Stock
-                          </Typography>
-                        </Box>
-                      )}
+                        {/* Wishlist button */}
+                        {user?.token && (
+                          <IconButton
+                            size="small"
+                            onClick={(e) => { e.stopPropagation(); toggleWishlist(each._id); }}
+                            sx={{
+                              position: "absolute", top: "8px", right: "8px", zIndex: 3,
+                              backgroundColor: "rgba(255,255,255,0.9)", p: "5px",
+                              backdropFilter: "blur(4px)",
+                              "&:hover": { backgroundColor: "white" },
+                            }}
+                          >
+                            {inWishlist
+                              ? <FavoriteRounded sx={{ fontSize: "16px", color: "#e53935" }} />
+                              : <FavoriteBorderRounded sx={{ fontSize: "16px", color: "#9CA3AF" }} />}
+                          </IconButton>
+                        )}
 
-                      {/* Wishlist button */}
-                      {user?.token && (
-                        <IconButton
-                          size="small"
-                          onClick={(e) => { e.stopPropagation(); toggleWishlist(each._id); }}
-                          sx={{
-                            position: "absolute", top: "8px", right: "8px", zIndex: 3,
-                            backgroundColor: "rgba(255,255,255,0.9)", p: "5px",
-                            backdropFilter: "blur(4px)",
-                            "&:hover": { backgroundColor: "white" },
-                          }}
-                        >
-                          {inWishlist
-                            ? <FavoriteRounded sx={{ fontSize: "16px", color: "#e53935" }} />
-                            : <FavoriteBorderRounded sx={{ fontSize: "16px", color: "#9CA3AF" }} />}
-                        </IconButton>
-                      )}
+                        {/* Out of stock overlay */}
+                        {each.supply === 0 && (
+                          <Box sx={{
+                            position: "absolute", inset: 0,
+                            background: "rgba(0,0,0,0.5)", zIndex: 2,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                          }}>
+                            <Typography fontFamily="Nunito" fontWeight={700} color="white" fontSize="0.8rem"
+                              sx={{ px: "12px", py: "4px", border: "1px solid rgba(255,255,255,0.5)", borderRadius: "100px" }}>
+                              Out of Stock
+                            </Typography>
+                          </Box>
+                        )}
 
-                      {/* Image */}
-                      <Link to={`/products/${each._id}`}>
-                        <Box
-                          component="img"
-                          src={`${imageUrl}/uploads/${each.imageName}`}
-                          alt={each.name}
-                          sx={{
-                            width: "100%",
-                            height: { xs: "160px", md: "200px" },
-                            objectFit: "cover",
-                            display: "block",
-                            transition: "transform 0.4s ease",
-                            "&:hover": { transform: "scale(1.04)" },
-                          }}
-                        />
-                      </Link>
+                        <Link to={`/products/${each._id}`}>
+                          <Box
+                            component="img"
+                            src={`${imageUrl}/uploads/${each.imageName}`}
+                            alt={each.name}
+                            sx={{
+                              width: "100%",
+                              height: { xs: "190px", md: "220px" },
+                              objectFit: "cover",
+                              display: "block",
+                              transition: "transform 0.5s ease",
+                              transform: isHovered ? "scale(1.06)" : "scale(1)",
+                            }}
+                          />
+                        </Link>
+                      </Box>
 
-                      {/* Product info */}
-                      <Box sx={{ p: { xs: "10px", md: "14px" } }}>
-                        <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.75rem"
-                          color="text.secondary" mb="3px">
+                      {/* Card body */}
+                      <Box sx={{ p: { xs: "12px", md: "14px" } }}>
+                        <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.7rem"
+                          letterSpacing="0.04em" color={brand.secondary} mb="4px"
+                          sx={{ textTransform: "uppercase" }}>
                           {each.category[0].toUpperCase()}{each.category.slice(1)}
                         </Typography>
-                        <Typography fontFamily="Nunito" fontWeight={700}
-                          fontSize={{ xs: "0.85rem", md: "0.9rem" }} noWrap mb="6px">
-                          {each.name[0].toUpperCase()}{each.name.slice(1)}
-                        </Typography>
+
+                        <Link to={`/products/${each._id}`}>
+                          <Typography fontFamily="Nunito" fontWeight={700}
+                            fontSize={{ xs: "0.88rem", md: "0.92rem" }} mb="8px"
+                            sx={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              lineHeight: 1.4,
+                              "&:hover": { color: brand.primary },
+                              transition: "color 0.15s",
+                            }}>
+                            {each.name[0].toUpperCase()}{each.name.slice(1)}
+                          </Typography>
+                        </Link>
 
                         {/* Rating */}
-                        <Box sx={{ display: "flex", alignItems: "center", gap: "3px", mb: "10px" }}>
-                          <StarRounded sx={{ fontSize: "13px", color: brand.primary }} />
-                          <Typography fontFamily="Nunito" fontSize="0.75rem" color="text.secondary">
+                        <Box sx={{ display: "flex", alignItems: "center", gap: "2px", mb: "10px" }}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <StarRounded
+                              key={star}
+                              sx={{
+                                fontSize: "13px",
+                                color: star <= Math.round(each.rating) ? "#F59E0B" : (isDark ? "#3F3F46" : "#E5E7EB"),
+                              }}
+                            />
+                          ))}
+                          <Typography fontFamily="Nunito" fontSize="0.72rem" color="text.secondary" ml="2px">
                             {each.rating.toFixed(1)}
                           </Typography>
                         </Box>
 
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <Box>
-                            <Typography fontFamily="Nunito" fontWeight={800} fontSize="0.95rem" color="primary">
-                              ${fmt(discountedPrice.toFixed(2))}
+                            <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem" color="primary" lineHeight={1.2}>
+                              {fmt(discountedPrice.toFixed(2))}
                             </Typography>
                             {each.discount > 0 && (
-                              <Typography fontFamily="Nunito" fontSize="0.72rem" color="text.secondary"
+                              <Typography fontFamily="Nunito" fontSize="0.72rem" color="text.disabled"
                                 sx={{ textDecoration: "line-through" }}>
-                                ${fmt(String(each.price))}
+                                {fmt(String(each.price))}
                               </Typography>
                             )}
                           </Box>
@@ -571,13 +596,13 @@ const Shop = () => {
                                   : dispatch(setCart([...cart, { ...each, quantity: 1 }]))
                               }
                               sx={{
-                                backgroundColor: inCart ? `${brand.primary}15` : isDark ? "rgba(255,255,255,0.06)" : "#F3F4F6",
-                                color: inCart ? brand.primary : theme.palette.text.secondary,
-                                p: "7px",
-                                opacity: isMobile ? 1 : hovered === each._id ? 1 : 0,
-                                transform: isMobile ? "none" : hovered === each._id ? "scale(1)" : "scale(0.8)",
+                                backgroundColor: inCart ? brand.primary : isDark ? "rgba(255,255,255,0.08)" : "#F3F4F6",
+                                color: inCart ? "#fff" : theme.palette.text.secondary,
+                                p: "8px",
+                                opacity: isMobile ? 1 : isHovered ? 1 : 0,
+                                transform: isMobile ? "none" : isHovered ? "scale(1)" : "scale(0.8)",
                                 transition: "all 0.2s ease",
-                                "&:hover": { backgroundColor: `${brand.primary}25`, color: brand.primary },
+                                "&:hover": { backgroundColor: brand.primary, color: "#fff" },
                               }}
                             >
                               {inCart

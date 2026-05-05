@@ -14,7 +14,7 @@ const CheckoutCart = () => {
   const cart = useSelector((state: RootState) => state.global.cart);
   const dispatch = useAppDispatch();
 
-  const fmt = (n: string) => n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fmt = (n: string) => "₦" + n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const borderColor = isDark ? "#27272E" : "#F3F4F6";
 
   return (
@@ -122,7 +122,7 @@ const CheckoutCart = () => {
 
               {/* Line total */}
               <Typography fontFamily="Nunito" fontWeight={800} fontSize="0.95rem" color="primary">
-                ${fmt((each.price * each.quantity * ((100 - each.discount) / 100)).toFixed(2))}
+                {fmt((each.price * each.quantity * ((100 - each.discount) / 100)).toFixed(2))}
               </Typography>
             </Box>
           </Box>

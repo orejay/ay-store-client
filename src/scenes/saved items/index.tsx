@@ -30,7 +30,7 @@ const SavedItems = () => {
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
 
-  const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fmt = (n: number) => "₦" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   const fetchWishlist = async () => {
     if (!user?.token) { setLoading(false); return; }
@@ -185,11 +185,11 @@ const SavedItems = () => {
 
                   <Box sx={{ display: "flex", alignItems: "baseline", gap: "6px", mb: "10px" }}>
                     <Typography fontFamily="Nunito" fontWeight={800} fontSize="0.95rem" color="primary">
-                      ${fmt(discounted)}
+                      {fmt(discounted)}
                     </Typography>
                     {product.discount > 0 && (
                       <Typography fontFamily="Nunito" fontSize="0.75rem" color="text.disabled" sx={{ textDecoration: "line-through" }}>
-                        ${fmt(product.price)}
+                        {fmt(product.price)}
                       </Typography>
                     )}
                   </Box>
