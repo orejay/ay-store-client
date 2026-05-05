@@ -57,7 +57,9 @@ const OrderCard = ({
 
   const fmt = (n: number) => n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const orderTotal = order.order.reduce(
-    (acc, i) => acc + i.product.price * i.quantity * ((100 - i.product.discount) / 100),
+    (acc, i) => i.product
+      ? acc + i.product.price * i.quantity * ((100 - i.product.discount) / 100)
+      : acc,
     0
   );
 
@@ -106,7 +108,10 @@ const OrderCard = ({
               {order.order.length} {order.order.length === 1 ? "item" : "items"}
             </Typography>
             <Typography fontFamily="Nunito" fontSize="0.8rem" color="text.secondary">
-              {order.order.map((o) => o.product.name[0].toUpperCase() + o.product.name.slice(1)).join(", ")}
+              {order.order
+                .filter((o) => o.product)
+                .map((o) => o.product.name[0].toUpperCase() + o.product.name.slice(1))
+                .join(", ") || "—"}
             </Typography>
           </Box>
           <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.05rem" color="primary">
@@ -181,7 +186,7 @@ const OrderCard = ({
             letterSpacing="0.06em" textTransform="uppercase" mb="12px">
             Order Items
           </Typography>
-          {order.order.map((item, i) => (
+          {order.order.filter((item) => item.product).map((item, i) => (
             <Box
               key={i}
               sx={{
