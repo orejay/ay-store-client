@@ -1,16 +1,16 @@
-﻿import { Close } from "@mui/icons-material";
+import React, { useState } from "react";
 import {
   Box,
   Button,
-  FormControl,
-  IconButton,
-  Input,
-  InputLabel,
+  TextField,
   Typography,
+  useTheme,
+  Alert,
+  Collapse,
+  Avatar,
+  Divider,
 } from "@mui/material";
-import React, { useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { CSSTransition } from "react-transition-group";
+import { brand } from "../../theme";
 
 interface BodyState {
   firstName: string;
@@ -30,13 +30,13 @@ interface UserData {
 }
 
 const AccManagement = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const [closeModal, setCloseModal] = useState<boolean>(true);
-  const [updatedMessage, setUpdatedMessage] = useState<string>(
-    "Details Updated Successfully!"
-  );
-  const [updated, setUpdated] = useState<boolean>(false);
-  const firstNameRef = useRef(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("Details Updated Successfully!");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
@@ -49,8 +49,6 @@ const AccManagement = () => {
 
   const editDetails = async () => {
     try {
-      console.log(body);
-      console.log(JSON.stringify(body));
       const response = await fetch(`${baseUrl}/edit/user`, {
         method: "PATCH",
         headers: {
@@ -61,157 +59,138 @@ const AccManagement = () => {
       });
       const jsonData = await response.json();
       if (response.ok) {
-        setUpdatedMessage("Details Updated Successfully!");
-        setCloseModal(false);
-        setUpdated(true);
-        console.log(jsonData.userData);
+        setAlertMessage("Details updated successfully!");
+        setAlertSeverity("success");
         localStorage.setItem("user", JSON.stringify(jsonData.userData));
       } else {
-        setUpdatedMessage(jsonData.message);
-        setUpdated(false);
-        setCloseModal(false);
+        setAlertMessage(jsonData.message || "Something went wrong!");
+        setAlertSeverity("error");
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setUpdated(false);
-      setUpdatedMessage("Something went wrong!");
+      setShowAlert(true);
+    } catch {
+      setAlertMessage("Something went wrong!");
+      setAlertSeverity("error");
+      setShowAlert(true);
     }
   };
 
+  const isDisabled =
+    !body.firstName && !body.lastName && !body.email && !body.phoneNumber;
+
   return (
-    <Box>
-      <Box
-        sx={{
-          borderBottom: "1px solid #E0E0E0",
-          px: "30px",
-          py: "13px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          fontFamily="Playfair Display"
-          fontWeight="bold"
-          color="secondary"
-          variant="h5"
-        >
+    <Box sx={{ p: { xs: "16px", md: "28px" } }}>
+      {/* Page header */}
+      <Box sx={{ pb: "20px", borderBottom: `1px solid ${borderColor}`, mb: "24px" }}>
+        <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
           Account Management
         </Typography>
+        <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mt="2px">
+          Update your personal information
+        </Typography>
       </Box>
-      <Box sx={{}}>
-        {
-          <CSSTransition
-            in={!closeModal}
-            timeout={1000}
-            classNames="fade"
-            unmountOnExit
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: "5px",
-                backgroundColor: updated ? "#00C98D" : "#ff5316",
-                pl: "30px",
-                pr: "10px",
-              }}
-            >
-              <Typography
-                fontFamily="Nunito"
-                sx={{
-                  color: "white",
-                  fontStyle: "italic",
-                }}
-              >
-                {/* {updated ? updatedMessage : "Something Went Wrong!"} */}
-                {updatedMessage}
-              </Typography>
-              <IconButton
-                onClick={() => {
-                  setCloseModal(true);
-                }}
-              >
-                <Close sx={{ color: "white" }} />
-              </IconButton>
-            </Box>
-          </CSSTransition>
-        }
-        <Box
+
+      {/* Notification */}
+      <Collapse in={showAlert}>
+        <Alert
+          severity={alertSeverity}
+          onClose={() => setShowAlert(false)}
+          sx={{ mb: "22px", borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
+        >
+          {alertMessage}
+        </Alert>
+      </Collapse>
+
+      {/* Avatar + name */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: "14px", mb: "24px" }}>
+        <Avatar
           sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2,1fr)",
-            gap: "30px",
-            pl: "30px",
-            pt: "20px",
-            width: "90%",
+            width: 60,
+            height: 60,
+            bgcolor: `${brand.primary}18`,
+            color: brand.primary,
+            fontFamily: "Playfair Display",
+            fontWeight: 900,
+            fontSize: "1.5rem",
           }}
         >
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">First Name</InputLabel>
-            <Input
-              required
-              type="text"
-              color="secondary"
-              defaultValue={user?.firstName}
-              onChange={(e) =>
-                setBody((body) => ({ ...body, firstName: e.target.value }))
-              }
-            />
-          </FormControl>
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Last Name</InputLabel>
-            <Input
-              required
-              type="text"
-              defaultValue={user?.lastName}
-              color="secondary"
-              onChange={(e) =>
-                setBody((body) => ({ ...body, lastName: e.target.value }))
-              }
-            />
-          </FormControl>
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Email</InputLabel>
-            <Input
-              required
-              type="email"
-              defaultValue={user?.email}
-              color="secondary"
-              onChange={(e) =>
-                setBody((body) => ({ ...body, email: e.target.value }))
-              }
-            />
-          </FormControl>
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Phone Number</InputLabel>
-            <Input
-              required
-              type="tel"
-              defaultValue={user?.phoneNumber}
-              color="secondary"
-              onChange={(e) =>
-                setBody((body) => ({ ...body, phoneNumber: e.target.value }))
-              }
-            />
-          </FormControl>
-          <Button
-            variant="contained"
-            sx={{ borderRadius: "20px", mt: "15px", width: "40%" }}
-            onClick={editDetails}
-            disabled={
-              body.lastName === "" &&
-              body.firstName === "" &&
-              body.email === "" &&
-              body.phoneNumber === ""
-                ? true
-                : false
-            }
+          {user?.firstName?.[0]?.toUpperCase()}
+        </Avatar>
+        <Box>
+          <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem">
+            {user?.firstName} {user?.lastName}
+          </Typography>
+          <Box
+            sx={{
+              display: "inline-block",
+              px: "8px",
+              py: "2px",
+              borderRadius: "100px",
+              backgroundColor: `${brand.secondary}18`,
+              mt: "3px",
+            }}
           >
-            <Typography color="#ffffff">Confirm</Typography>
-          </Button>
+            <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.7rem" color={brand.secondary}>
+              {user?.role === "user" ? "Customer" : "Admin"}
+            </Typography>
+          </Box>
         </Box>
+      </Box>
+
+      <Divider sx={{ mb: "24px" }} />
+
+      {/* Form grid */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+          gap: "18px",
+        }}
+      >
+        <TextField
+          label="First Name"
+          defaultValue={user?.firstName}
+          onChange={(e) => setBody((b) => ({ ...b, firstName: e.target.value }))}
+          fullWidth
+          inputProps={{ style: { fontFamily: "Nunito" } }}
+          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+        />
+        <TextField
+          label="Last Name"
+          defaultValue={user?.lastName}
+          onChange={(e) => setBody((b) => ({ ...b, lastName: e.target.value }))}
+          fullWidth
+          inputProps={{ style: { fontFamily: "Nunito" } }}
+          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+        />
+        <TextField
+          label="Email"
+          type="email"
+          defaultValue={user?.email}
+          onChange={(e) => setBody((b) => ({ ...b, email: e.target.value }))}
+          fullWidth
+          inputProps={{ style: { fontFamily: "Nunito" } }}
+          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+        />
+        <TextField
+          label="Phone Number"
+          type="tel"
+          defaultValue={user?.phoneNumber}
+          onChange={(e) => setBody((b) => ({ ...b, phoneNumber: e.target.value }))}
+          fullWidth
+          inputProps={{ style: { fontFamily: "Nunito" } }}
+          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+        />
+      </Box>
+
+      <Box sx={{ mt: "28px" }}>
+        <Button
+          variant="contained"
+          onClick={editDetails}
+          disabled={isDisabled}
+          sx={{ px: "32px", py: "10px", fontSize: "0.9rem" }}
+        >
+          Save Changes
+        </Button>
       </Box>
     </Box>
   );

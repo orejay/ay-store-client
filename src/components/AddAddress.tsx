@@ -1,35 +1,16 @@
-﻿import {
-  CheckBoxOutlineBlankRounded,
-  CheckBoxRounded,
-  Close,
-} from "@mui/icons-material";
+import React, { useState } from "react";
 import {
   Box,
   Button,
-  FormControl,
-  IconButton,
-  Input,
-  InputLabel,
+  TextField,
   Typography,
-  useMediaQuery,
+  useTheme,
+  Alert,
+  Collapse,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
-import { CSSTransition } from "react-transition-group";
-
-interface AddressData {
-  _id: string;
-  contactName: string;
-  phoneNumber: string;
-  user: string;
-  isDefault: boolean;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: string;
-}
+import { brand } from "../theme";
 
 interface UserData {
   firstName: string;
@@ -52,16 +33,18 @@ interface BodyState {
 }
 
 const AddAddress = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const [isDefault, setIsDefault] = useState<boolean>(false);
-  const [data, setData] = useState<AddressData[]>([]);
-  const [closeModal, setCloseModal] = useState<boolean>(true);
-  const [added, setAdded] = useState<boolean>(false);
-  const [expired, setExpired] = useState<boolean>(false);
+  const [isDefault, setIsDefault] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
+
   const [body, setBody] = useState<BodyState>({
     contactName: "",
     phoneNumber: "",
@@ -74,8 +57,6 @@ const AddAddress = () => {
 
   const addAddress = async () => {
     try {
-      console.log(body);
-      console.log(JSON.stringify(body));
       const response = await fetch(`${baseUrl}/post/addresses`, {
         method: "POST",
         headers: {
@@ -84,185 +65,140 @@ const AddAddress = () => {
         },
         body: JSON.stringify(body),
       });
-      console.log(response);
-      const jsonData = await response.json();
-      console.log(jsonData);
-
-      if (response.status === 401) setExpired(true);
-
       if (response.ok) {
-        setAdded(true);
-        setCloseModal(false);
+        setAlertMessage("Address added successfully!");
+        setAlertSeverity("success");
+        setBody({
+          contactName: "",
+          phoneNumber: "",
+          address: "",
+          city: "",
+          state: "",
+          country: "",
+          isDefault: false,
+        });
+        setIsDefault(false);
+      } else {
+        setAlertMessage("Something went wrong!");
+        setAlertSeverity("error");
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      setShowAlert(true);
+    } catch {
+      setAlertMessage("Something went wrong!");
+      setAlertSeverity("error");
+      setShowAlert(true);
     }
   };
 
+  const fieldSx = {
+    "& .MuiInputBase-input": { fontFamily: "Nunito" },
+    "& .MuiInputLabel-root": { fontFamily: "Nunito" },
+  };
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      {
-        <CSSTransition
-          in={!closeModal}
-          timeout={1000}
-          classNames="fade"
-          unmountOnExit
+    <Box sx={{ p: { xs: "16px", md: "24px" } }}>
+      {/* Alert */}
+      <Collapse in={showAlert}>
+        <Alert
+          severity={alertSeverity}
+          onClose={() => setShowAlert(false)}
+          sx={{ mb: "20px", borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              p: "5px",
-              backgroundColor: added ? "#00C98D" : "#ff5316",
-              pl: "30px",
-              pr: "10px",
-              width: "100%",
-            }}
-          >
-            <Typography
-              fontFamily="Nunito"
-              sx={{
-                color: "white",
-                fontStyle: "italic",
-              }}
-            >
-              {added ? "Address Added Successfully!" : "Something Went Wrong!"}
-            </Typography>
-            <IconButton
-              onClick={() => {
-                setCloseModal(true);
-              }}
-            >
-              <Close sx={{ color: "white" }} />
-            </IconButton>
-          </Box>
-        </CSSTransition>
-      }
+          {alertMessage}
+        </Alert>
+      </Collapse>
+
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
-          gap: "30px",
-          pt: "20px",
-          width: "90%",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+          gap: "18px",
         }}
       >
-        <FormControl variant="outlined" sx={{ mb: "20px" }}>
-          <InputLabel color="secondary">Contact Name</InputLabel>
-          <Input
-            required
-            type="text"
-            color="secondary"
-            onChange={(e) =>
-              setBody((body) => ({
-                ...body,
-                contactName: e.target.value,
-              }))
-            }
-          />
-        </FormControl>
-        <FormControl variant="outlined" sx={{ mb: "20px" }}>
-          <InputLabel color="secondary">Contact Phone Number</InputLabel>
-          <Input
-            required
-            type="tel"
-            color="secondary"
-            onChange={(e) =>
-              setBody((body) => ({
-                ...body,
-                phoneNumber: e.target.value,
-              }))
-            }
-          />
-        </FormControl>
-        <FormControl
-          variant="outlined"
-          sx={{ mb: "20px", gridColumn: "span 2" }}
-        >
-          <InputLabel color="secondary" sx={{}}>
-            Address
-          </InputLabel>
-          <Input
-            required
-            type="text"
-            color="secondary"
-            onChange={(e) =>
-              setBody((body) => ({ ...body, address: e.target.value }))
-            }
-          />
-        </FormControl>
-        <FormControl variant="outlined" sx={{ mb: "20px" }}>
-          <InputLabel color="secondary">Country</InputLabel>
-          <Input
-            required
-            type="text"
-            color="secondary"
-            onChange={(e) =>
-              setBody((body) => ({ ...body, country: e.target.value }))
-            }
-          />
-        </FormControl>
-        <FormControl variant="outlined" sx={{ mb: "20px" }}>
-          <InputLabel color="secondary">State</InputLabel>
-          <Input
-            required
-            type="text"
-            color="secondary"
-            onChange={(e) =>
-              setBody((body) => ({ ...body, state: e.target.value }))
-            }
-          />
-        </FormControl>
-        <FormControl variant="outlined" sx={{ mb: "20px" }}>
-          <InputLabel color="secondary">City</InputLabel>
-          <Input
-            required
-            type="text"
-            color="secondary"
-            onChange={(e) =>
-              setBody((body) => ({ ...body, city: e.target.value }))
-            }
-          />
-        </FormControl>
+        <TextField
+          label="Contact Name"
+          value={body.contactName}
+          onChange={(e) => setBody((b) => ({ ...b, contactName: e.target.value }))}
+          fullWidth
+          sx={fieldSx}
+        />
+        <TextField
+          label="Phone Number"
+          type="tel"
+          value={body.phoneNumber}
+          onChange={(e) => setBody((b) => ({ ...b, phoneNumber: e.target.value }))}
+          fullWidth
+          sx={fieldSx}
+        />
+        <TextField
+          label="Street Address"
+          value={body.address}
+          onChange={(e) => setBody((b) => ({ ...b, address: e.target.value }))}
+          fullWidth
+          sx={{ ...fieldSx, gridColumn: { sm: "span 2" } }}
+        />
+        <TextField
+          label="Country"
+          value={body.country}
+          onChange={(e) => setBody((b) => ({ ...b, country: e.target.value }))}
+          fullWidth
+          sx={fieldSx}
+        />
+        <TextField
+          label="State"
+          value={body.state}
+          onChange={(e) => setBody((b) => ({ ...b, state: e.target.value }))}
+          fullWidth
+          sx={fieldSx}
+        />
+        <TextField
+          label="City"
+          value={body.city}
+          onChange={(e) => setBody((b) => ({ ...b, city: e.target.value }))}
+          fullWidth
+          sx={fieldSx}
+        />
 
-        <Box sx={{ gridColumn: "span 2" }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              onClick={() => {
-                setIsDefault(!isDefault);
-                setBody((body) => ({ ...body, isDefault: !isDefault }));
-              }}
-            >
-              {isDefault ? (
-                <CheckBoxRounded sx={{ color: "#Ed981b" }} />
-              ) : (
-                <CheckBoxOutlineBlankRounded />
-              )}
-            </IconButton>
-            <Typography
-              fontFamily="Nunito"
-              fontWeight="bold"
-              sx={{ ml: "10px" }}
-            >
-              Set as default address
-            </Typography>
-          </Box>
+        <Box sx={{ gridColumn: { sm: "span 2" } }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isDefault}
+                onChange={(e) => {
+                  setIsDefault(e.target.checked);
+                  setBody((b) => ({ ...b, isDefault: e.target.checked }));
+                }}
+                sx={{
+                  color: "text.disabled",
+                  "&.Mui-checked": { color: brand.primary },
+                }}
+              />
+            }
+            label={
+              <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.88rem">
+                Set as default address
+              </Typography>
+            }
+          />
         </Box>
-        <Button
-          onClick={addAddress}
-          variant="contained"
-          sx={{ borderRadius: "20px", mt: "15px", width: isSmallScreen ? "100%" : "40%" }}
-        >
-          <Typography color="#ffffff">Confirm</Typography>
-        </Button>
+
+        <Box sx={{ gridColumn: { sm: "span 2" }, pt: "4px" }}>
+          <Button
+            variant="contained"
+            onClick={addAddress}
+            disabled={
+              !body.contactName ||
+              !body.phoneNumber ||
+              !body.address ||
+              !body.city ||
+              !body.state ||
+              !body.country
+            }
+            sx={{ px: "32px", py: "10px", fontSize: "0.9rem" }}
+          >
+            Save Address
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

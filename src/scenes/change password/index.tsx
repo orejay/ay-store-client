@@ -1,16 +1,17 @@
-﻿import { Close, Visibility, VisibilityOff } from "@mui/icons-material";
+import React, { useState } from "react";
 import {
   Box,
   Button,
-  FormControl,
-  IconButton,
-  Input,
-  InputAdornment,
-  InputLabel,
+  TextField,
   Typography,
+  useTheme,
+  Alert,
+  Collapse,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import React, { useState } from "react";
-import { CSSTransition } from "react-transition-group";
+import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
+import { brand } from "../../theme";
 
 interface BodyState {
   password: string;
@@ -28,21 +29,24 @@ interface UserData {
 }
 
 const ChangePassword = () => {
-  const [showOldPassword, setShowOldPassword] = useState<boolean>(false);
-  const [wrongPass, setWrongPass] = useState<boolean>(false);
-  const [closeModal, setCloseModal] = useState<boolean>(true);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [passwordChanged, setPasswordChanged] = useState<boolean>(false);
-  const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const [checkPass, setCheckPass] = useState<string>("");
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [checkPass, setCheckPass] = useState("");
+
   const user: UserData | null = JSON.parse(
     localStorage.getItem("user") || "null"
   ) as UserData | null;
-  const [body, setBody] = useState<BodyState>({
-    password: "",
-    oldPassword: "",
-  });
+
+  const [body, setBody] = useState<BodyState>({ password: "", oldPassword: "" });
 
   const changePassword = async () => {
     try {
@@ -56,201 +60,177 @@ const ChangePassword = () => {
       });
       const jsonData = await response.json();
 
-      if (
-        response.status === 401 &&
-        jsonData.message === "Incorrect password!"
-      ) {
-        setWrongPass(true);
-        setCloseModal(false);
-      }
-
-      if (response.ok) {
-        setPasswordChanged(true);
-        setWrongPass(false);
-        setCloseModal(false);
-        setBody((body) => ({ ...body, oldPassword: "" }));
-        setBody((body) => ({ ...body, password: "" }));
+      if (response.status === 401 && jsonData.message === "Incorrect password!") {
+        setAlertMessage("Current password is incorrect.");
+        setAlertSeverity("error");
+      } else if (response.ok) {
+        setAlertMessage("Password changed successfully!");
+        setAlertSeverity("success");
+        setBody({ password: "", oldPassword: "" });
         setCheckPass("");
+      } else {
+        setAlertMessage("Something went wrong!");
+        setAlertSeverity("error");
       }
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      setShowAlert(true);
+    } catch {
+      setAlertMessage("Something went wrong!");
+      setAlertSeverity("error");
+      setShowAlert(true);
     }
   };
 
+  const passwordMismatch = checkPass.length >= 3 && checkPass !== body.password;
+  const isDisabled =
+    !body.oldPassword || !body.password || !checkPass || passwordMismatch;
+
   return (
-    <Box>
-      <Box
-        sx={{
-          borderBottom: "1px solid #E0E0E0",
-          px: "30px",
-          py: "13px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          fontFamily="Playfair Display"
-          fontWeight="bold"
-          color="secondary"
-          variant="h5"
-        >
+    <Box sx={{ p: { xs: "16px", md: "28px" } }}>
+      {/* Page header */}
+      <Box sx={{ pb: "20px", borderBottom: `1px solid ${borderColor}`, mb: "24px" }}>
+        <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
           Change Password
         </Typography>
+        <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" mt="2px">
+          Keep your account secure with a strong password
+        </Typography>
       </Box>
-      {
-        <CSSTransition
-          in={!closeModal}
-          timeout={1000}
-          classNames="fade"
-          unmountOnExit
+
+      {/* Alert */}
+      <Collapse in={showAlert}>
+        <Alert
+          severity={alertSeverity}
+          onClose={() => setShowAlert(false)}
+          sx={{ mb: "22px", borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              p: "5px",
-              backgroundColor: !wrongPass ? "#00C98D" : "#ff5316",
-              pl: "70px",
-              pr: "10px",
-            }}
-          >
-            <Typography
-              fontFamily="Nunito"
-              sx={{
-                color: "white",
-                fontStyle: "italic",
-              }}
-            >
-              {!wrongPass
-                ? "Password Changed Successfully!"
-                : "Old password is incorrect!"}
-            </Typography>
-            <IconButton
-              onClick={() => {
-                setCloseModal(true);
-              }}
-            >
-              <Close sx={{ color: "white" }} />
-            </IconButton>
-          </Box>
-        </CSSTransition>
-      }
+          {alertMessage}
+        </Alert>
+      </Collapse>
+
+      {/* Security tip */}
       <Box
         sx={{
-          gap: "20px",
-          pl: "30px",
-          pt: "20px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "12px",
+          p: "14px",
+          borderRadius: "12px",
+          backgroundColor: `${brand.secondary}0D`,
+          border: `1px solid ${brand.secondary}28`,
+          mb: "28px",
         }}
       >
-        <Box
-          sx={{
-            width: "90%",
-            display: "grid",
-            gridTemplateColumns: "repeat(2,1fr)",
-            gap: "30px",
+        <LockOutlined
+          sx={{ fontSize: "18px", color: brand.secondary, mt: "1px", flexShrink: 0 }}
+        />
+        <Typography fontFamily="Nunito" fontSize="0.82rem" color="text.secondary" lineHeight={1.65}>
+          Use at least 8 characters with a mix of letters, numbers, and symbols for a strong password.
+        </Typography>
+      </Box>
+
+      {/* Form */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "18px",
+          maxWidth: { xs: "100%", sm: "480px" },
+        }}
+      >
+        <TextField
+          label="Current Password"
+          type={showOldPassword ? "text" : "password"}
+          value={body.oldPassword}
+          onChange={(e) => setBody((b) => ({ ...b, oldPassword: e.target.value }))}
+          fullWidth
+          inputProps={{ style: { fontFamily: "Nunito" } }}
+          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                  edge="end"
+                  size="small"
+                >
+                  {showOldPassword ? (
+                    <VisibilityOff sx={{ fontSize: "18px" }} />
+                  ) : (
+                    <Visibility sx={{ fontSize: "18px" }} />
+                  )}
+                </IconButton>
+              </InputAdornment>
+            ),
           }}
+        />
+
+        <TextField
+          label="New Password"
+          type={showPassword ? "text" : "password"}
+          value={body.password}
+          onChange={(e) => setBody((b) => ({ ...b, password: e.target.value }))}
+          fullWidth
+          inputProps={{ style: { fontFamily: "Nunito" } }}
+          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                  size="small"
+                >
+                  {showPassword ? (
+                    <VisibilityOff sx={{ fontSize: "18px" }} />
+                  ) : (
+                    <Visibility sx={{ fontSize: "18px" }} />
+                  )}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          label="Confirm New Password"
+          type={showConfirm ? "text" : "password"}
+          value={checkPass}
+          error={passwordMismatch}
+          helperText={passwordMismatch ? "Passwords don't match" : ""}
+          onChange={(e) => setCheckPass(e.target.value)}
+          fullWidth
+          inputProps={{ style: { fontFamily: "Nunito" } }}
+          InputLabelProps={{ style: { fontFamily: "Nunito" } }}
+          FormHelperTextProps={{ style: { fontFamily: "Nunito" } }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  edge="end"
+                  size="small"
+                >
+                  {showConfirm ? (
+                    <VisibilityOff sx={{ fontSize: "18px" }} />
+                  ) : (
+                    <Visibility sx={{ fontSize: "18px" }} />
+                  )}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+
+      <Box sx={{ mt: "28px" }}>
+        <Button
+          variant="contained"
+          onClick={changePassword}
+          disabled={isDisabled}
+          sx={{ px: "32px", py: "10px", fontSize: "0.9rem" }}
         >
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Old Password</InputLabel>
-            <Input
-              required
-              type={showOldPassword ? "text" : "password"}
-              color="secondary"
-              value={body.oldPassword}
-              onChange={(e) =>
-                setBody((body) => ({ ...body, oldPassword: e.target.value }))
-              }
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => setShowOldPassword(!showOldPassword)}
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    {showOldPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">New Password</InputLabel>
-            <Input
-              required
-              type={showPassword ? "text" : "password"}
-              value={body.password}
-              color={
-                passwordMatch === false && checkPass !== ""
-                  ? "warning"
-                  : "secondary"
-              }
-              onChange={(e) =>
-                setBody((body) => ({ ...body, password: e.target.value }))
-              }
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => setShowPassword(!showPassword)}
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-          {passwordMatch === false &&
-          checkPass !== "" &&
-          checkPass.length >= 3 ? (
-            <p className="text-sm italic text-warning mb-4 font-semibold Nunito">
-              Passwords don't match!
-            </p>
-          ) : (
-            ""
-          )}
-          <FormControl variant="outlined" sx={{ mb: "20px" }}>
-            <InputLabel color="secondary">Confirm Password</InputLabel>
-            <Input
-              required
-              type={showPassword ? "text" : "password"}
-              value={checkPass}
-              color={
-                passwordMatch === false && body.password !== ""
-                  ? "warning"
-                  : "secondary"
-              }
-              onChange={(e) => {
-                setCheckPass(e.target.value);
-                e.target.value.length >= 3 && e.target.value === body.password
-                  ? setPasswordMatch(true)
-                  : setPasswordMatch(false);
-              }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => setShowPassword(!showPassword)}
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
-          <Box sx={{ columnSpan: "all" }}></Box>
-          <Button
-            variant="contained"
-            sx={{ borderRadius: "20px", mt: "15px", width: "40%" }}
-            onClick={changePassword}
-          >
-            <Typography color="#ffffff">Confirm</Typography>
-          </Button>
-        </Box>
+          Update Password
+        </Button>
       </Box>
     </Box>
   );

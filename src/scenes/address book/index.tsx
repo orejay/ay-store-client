@@ -1,27 +1,24 @@
-﻿import {
-  ArrowBackRounded,
-  CheckBoxOutlineBlankRounded,
-  CheckBoxRounded,
-  Close,
-  DeleteOutlineRounded,
-  DeleteRounded,
-  EditRounded,
-} from "@mui/icons-material";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Card,
-  FormControl,
+  Chip,
   IconButton,
-  Input,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
   Typography,
+  useTheme,
   useMediaQuery,
+  Alert,
+  Collapse,
+  Tooltip,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import {
+  ArrowBackRounded,
+  DeleteOutlineRounded,
+  EditRounded,
+  LocationOnRounded,
+  AddRounded,
+  StarRounded,
+} from "@mui/icons-material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
 import { setAddresses } from "state";
@@ -29,16 +26,7 @@ import { useAppDispatch, RootState } from "store";
 import { useSelector } from "react-redux";
 import AddAddress from "components/AddAddress";
 import EditAddress from "components/EditAddress";
-
-interface BodyState {
-  contactName: string;
-  phoneNumber: string;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  isDefault: boolean;
-}
+import { brand } from "../../theme";
 
 interface AddressData {
   _id: string;
@@ -65,16 +53,228 @@ interface UserData {
   token: string;
 }
 
+const AddressCard = ({
+  each,
+  confirm,
+  onEdit,
+  onDelete,
+  onMakeDefault,
+  onConfirm,
+  onCancelConfirm,
+  isDark,
+  borderColor,
+}: {
+  each: AddressData;
+  confirm: string;
+  onEdit: () => void;
+  onDelete: () => void;
+  onMakeDefault: () => void;
+  onConfirm: () => void;
+  onCancelConfirm: () => void;
+  isDark: boolean;
+  borderColor: string;
+}) => {
+  const isDefault = each.isDefault;
+
+  return (
+    <Box
+      sx={{
+        borderRadius: "14px",
+        border: `1px solid ${isDefault ? brand.primary + "50" : borderColor}`,
+        backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        transition: "box-shadow 0.2s ease",
+        boxShadow: isDefault
+          ? `0 4px 16px ${brand.primary}18`
+          : isDark
+          ? "0 2px 8px rgba(0,0,0,0.35)"
+          : "0 2px 8px rgba(0,0,0,0.06)",
+        "&:hover": {
+          boxShadow: isDark
+            ? "0 6px 20px rgba(0,0,0,0.5)"
+            : "0 6px 20px rgba(0,0,0,0.10)",
+        },
+      }}
+    >
+      {/* Card header */}
+      <Box
+        sx={{
+          px: "16px",
+          py: "12px",
+          borderBottom: `1px solid ${borderColor}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: isDefault
+            ? isDark
+              ? `${brand.primary}10`
+              : `${brand.primary}08`
+            : "transparent",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <LocationOnRounded
+            sx={{ fontSize: "16px", color: isDefault ? brand.primary : "text.disabled" }}
+          />
+          <Typography
+            fontFamily="Nunito"
+            fontWeight={700}
+            fontSize="0.92rem"
+            sx={{ textTransform: "capitalize" }}
+          >
+            {each.contactName}
+          </Typography>
+        </Box>
+        {isDefault && (
+          <Chip
+            icon={<StarRounded sx={{ fontSize: "12px !important" }} />}
+            label="Default"
+            size="small"
+            sx={{
+              bgcolor: `${brand.primary}18`,
+              color: brand.primary,
+              fontFamily: "Nunito",
+              fontWeight: 700,
+              fontSize: "0.68rem",
+              height: "22px",
+              "& .MuiChip-icon": { color: brand.primary },
+            }}
+          />
+        )}
+      </Box>
+
+      {/* Address body */}
+      <Box sx={{ px: "16px", py: "14px", flex: 1 }}>
+        <Typography
+          fontFamily="Nunito"
+          fontSize="0.87rem"
+          color="text.secondary"
+          lineHeight={1.7}
+        >
+          {each.address}
+          <br />
+          {each.city}, {each.state}
+          <br />
+          {each.country}
+        </Typography>
+        <Typography
+          fontFamily="Nunito"
+          fontSize="0.82rem"
+          color="text.disabled"
+          mt="6px"
+        >
+          {each.phoneNumber}
+        </Typography>
+      </Box>
+
+      {/* Actions */}
+      <Box
+        sx={{
+          px: "12px",
+          py: "8px",
+          borderTop: `1px solid ${borderColor}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        {!isDefault ? (
+          <Button
+            size="small"
+            onClick={onMakeDefault}
+            sx={{
+              fontFamily: "Nunito",
+              fontWeight: 700,
+              fontSize: "0.75rem",
+              color: brand.secondary,
+              px: "10px",
+            }}
+          >
+            Set as Default
+          </Button>
+        ) : (
+          <Box />
+        )}
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          {confirm !== each._id ? (
+            <>
+              <Tooltip title="Edit">
+                <IconButton size="small" onClick={onEdit}>
+                  <EditRounded sx={{ fontSize: "17px", color: brand.primary }} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton size="small" onClick={onConfirm}>
+                  <DeleteOutlineRounded sx={{ fontSize: "17px", color: brand.primary }} />
+                </IconButton>
+              </Tooltip>
+            </>
+          ) : (
+            <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Typography
+                fontFamily="Nunito"
+                fontSize="0.78rem"
+                fontWeight={600}
+                color="text.secondary"
+                fontStyle="italic"
+              >
+                Delete?
+              </Typography>
+              <Button
+                size="small"
+                variant="contained"
+                onClick={onDelete}
+                sx={{
+                  bgcolor: "#EF4444",
+                  "&:hover": { bgcolor: "#DC2626" },
+                  fontFamily: "Nunito",
+                  fontSize: "0.72rem",
+                  px: "10px",
+                  py: "3px",
+                  minWidth: 0,
+                }}
+              >
+                Yes
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={onCancelConfirm}
+                sx={{
+                  fontFamily: "Nunito",
+                  fontSize: "0.72rem",
+                  px: "10px",
+                  py: "3px",
+                  minWidth: 0,
+                  borderColor: "divider",
+                  color: "text.secondary",
+                }}
+              >
+                No
+              </Button>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
 const AddressBook = () => {
-  const isSmallScreen = useMediaQuery("(max-width:450px)");
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const borderColor = isDark ? "#27272E" : "#EBEBEB";
+  const isSmallScreen = useMediaQuery("(max-width:500px)");
   const { pathname } = useLocation();
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<AddressData[]>([]);
-  const [closeModal, setCloseModal] = useState<boolean>(true);
-  const [added, setAdded] = useState<boolean>(false);
-  const [confirm, setConfirm] = useState<string>("");
-  const [deleted, setDeleted] = useState<boolean>(false);
-  const [newDefault, setNewDefault] = useState<boolean>(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [confirm, setConfirm] = useState("");
   const addressList = useSelector((state: RootState) => state.global.addresses);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -87,510 +287,190 @@ const AddressBook = () => {
     getAddresses();
   }, [pathname]);
 
+  const getAddresses = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/get/addresses`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      const jsonData = await response.json();
+      setData(jsonData);
+    } catch {
+      /* silent */
+    }
+  };
+
   const deleteAddress = async (id: string) => {
     try {
-      setCloseModal(true);
       const response = await fetch(`${baseUrl}/edit/addresses/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
+        headers: { Authorization: `Bearer ${user?.token}` },
       });
       if (response.ok) {
-        setDeleted(true);
-        setCloseModal(false);
+        setAlertMessage("Address deleted successfully.");
+        setAlertSeverity("success");
+        setShowAlert(true);
+        getAddresses();
       }
-      const jsonData = await response.json();
-      getAddresses();
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch {
+      /* silent */
     }
   };
 
   const makeDefault = async (id: string) => {
     try {
-      setCloseModal(true);
-      const response = await fetch(
-        `${baseUrl}/edit/addresses/set-default/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
+      const response = await fetch(`${baseUrl}/edit/addresses/set-default/${id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
       if (response.ok) {
-        setNewDefault(true);
-        setCloseModal(false);
+        setAlertMessage("Default address updated.");
+        setAlertSeverity("success");
+        setShowAlert(true);
+        getAddresses();
       }
-      const jsonData = await response.json();
-      getAddresses();
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch {
+      /* silent */
     }
   };
 
-  const getAddresses = async () => {
-    try {
-      const response = await fetch(`${baseUrl}/get/addresses`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
-      const jsonData = await response.json();
-      setData(jsonData);
-      console.log(jsonData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+  const isListView = pathname === "/customer/addresses";
+  const isAddView = pathname === "/customer/addresses/add";
+  const isEditView = pathname === "/customer/addresses/edit";
+
+  const defaultAddresses = data.filter((a) => a.isDefault);
+  const otherAddresses = data.filter((a) => !a.isDefault);
 
   return (
     <Box>
+      {/* Header */}
       <Box
         sx={{
-          borderBottom: "1px solid #E0E0E0",
-          pl: pathname === "/customer/addresses" ? "30px" : "10px",
-          pr: "30px",
-          py: pathname === "/customer/addresses" ? "13px" : "5px",
+          px: { xs: "16px", md: "24px" },
+          py: "13px",
+          borderBottom: `1px solid ${borderColor}`,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <Box
-          display="flex"
-          gap="15px"
-          sx={{
-            alignItems: "center",
-          }}
-        >
-          {pathname === "/customer/addresses/add" ||
-          pathname === "/customer/addresses/edit" ? (
-            <IconButton sx={{}} onClick={() => setCloseModal(true)}>
-              <Link to={prevPage !== "" ? prevPage : `/customer/addresses`}>
-                <ArrowBackRounded />
-              </Link>
-            </IconButton>
-          ) : (
-            ""
+        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {(isAddView || isEditView) && (
+            <Link to={prevPage || "/customer/addresses"}>
+              <IconButton size="small">
+                <ArrowBackRounded sx={{ fontSize: "20px" }} />
+              </IconButton>
+            </Link>
           )}
-          <Typography
-            fontFamily="Playfair Display"
-            fontWeight="bold"
-            color="secondary"
-            variant="h5"
-          >
-            Address Book
-          </Typography>
-        </Box>
-        <Button variant="contained" sx={{ px: "20px", borderRadius: "20px" }}>
-          <Link to="/customer/addresses/add" className="w-full h-full">
-            <Typography
-              color="#FFFFFF"
-              fontWeight="bold"
-              fontFamily="Nunito"
-              fontSize="12px"
-            >
-              Add New Address
+          <Box>
+            <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.3rem">
+              {isListView
+                ? "Address Book"
+                : isAddView
+                ? "Add Address"
+                : "Edit Address"}
             </Typography>
-          </Link>
-        </Button>
-      </Box>
-      <Box>
-        {
-          <CSSTransition
-            in={!closeModal}
-            timeout={1000}
-            classNames="fade"
-            unmountOnExit
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: "5px",
-                backgroundColor: deleted || newDefault ? "#00C98D" : "#ff5316",
-                pl: "30px",
-                pr: "10px",
-              }}
+            {isListView && (
+              <Typography fontFamily="Nunito" fontSize="0.78rem" color="text.secondary">
+                Manage your saved delivery addresses
+              </Typography>
+            )}
+          </Box>
+        </Box>
+        {isListView && (
+          <Link to="/customer/addresses/add">
+            <Button
+              variant="contained"
+              startIcon={<AddRounded />}
+              size="small"
+              sx={{ fontFamily: "Nunito", fontWeight: 700, fontSize: "0.8rem", px: "16px" }}
             >
+              {isSmallScreen ? "Add" : "Add Address"}
+            </Button>
+          </Link>
+        )}
+      </Box>
+
+      {/* Alert */}
+      {isListView && (
+        <Collapse in={showAlert}>
+          <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
+            <Alert
+              severity={alertSeverity}
+              onClose={() => setShowAlert(false)}
+              sx={{ borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
+            >
+              {alertMessage}
+            </Alert>
+          </Box>
+        </Collapse>
+      )}
+
+      {/* Content */}
+      {isListView ? (
+        <Box sx={{ p: { xs: "16px", md: "24px" } }}>
+          {data.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: "48px" }}>
+              <LocationOnRounded
+                sx={{ fontSize: "40px", color: "text.disabled", mb: "10px" }}
+              />
+              <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.95rem" mb="4px">
+                No saved addresses
+              </Typography>
               <Typography
                 fontFamily="Nunito"
-                sx={{
-                  color: "white",
-                  fontStyle: "italic",
-                }}
+                fontSize="0.82rem"
+                color="text.secondary"
+                mb="18px"
               >
-                {added
-                  ? "Address Added Successfully!"
-                  : deleted
-                  ? "Address Deleted Successfully"
-                  : newDefault
-                  ? "Default Address Updated Successfully!"
-                  : "Something Went Wrong!"}
+                Add your first delivery address to get started.
               </Typography>
-              <IconButton
-                onClick={() => {
-                  setCloseModal(true);
-                }}
-              >
-                <Close sx={{ color: "white" }} />
-              </IconButton>
+              <Link to="/customer/addresses/add">
+                <Button
+                  variant="contained"
+                  startIcon={<AddRounded />}
+                  sx={{ fontFamily: "Nunito", fontWeight: 700 }}
+                >
+                  Add Address
+                </Button>
+              </Link>
             </Box>
-          </CSSTransition>
-        }
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          {pathname === "/customer/addresses" ? (
+          ) : (
             <Box
               sx={{
-                width: "100%",
                 display: "grid",
-                gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2,1fr)",
-                gridAutoRows: "auto",
-                gap: "30px",
-                p: "30px",
+                gridTemplateColumns: isSmallScreen ? "1fr" : "repeat(2, 1fr)",
+                gap: "16px",
               }}
             >
-              {data
-                ? data
-                    .filter((item) => item.isDefault === true)
-                    .map((each) => (
-                      <Card
-                        key={each._id}
-                        sx={{
-                          border: "1px solid #E0E0E0",
-                          borderRadius: "5px",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            borderBottom: "1px solid #E0E0E0",
-                            pl: "20px",
-                            py: "8px",
-                          }}
-                        >
-                          <Typography
-                            fontFamily="Playfair Display"
-                            fontWeight="bold"
-                            sx={{ textTransform: "capitalize" }}
-                          >
-                            {each.contactName}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{ px: "20px", pt: "15px" }}>
-                          <Typography
-                            fontSize="15px"
-                            pb="2px"
-                            fontFamily="Nunito"
-                          >
-                            {each.address}
-                          </Typography>
-                          <Typography
-                            fontSize="15px"
-                            pb="2px"
-                            fontFamily="Nunito"
-                          >
-                            {each.city}, {each.state}
-                          </Typography>
-                          <Typography
-                            fontSize="15px"
-                            pb="4px"
-                            fontFamily="Nunito"
-                          >
-                            {each.country}
-                          </Typography>
-                          <Typography
-                            fontSize="14px"
-                            pb="8px"
-                            fontFamily="Nunito"
-                          >
-                            {each.phoneNumber}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            borderTop: "1px solid #E0E0E0",
-                            p: "5px",
-                          }}
-                        >
-                          <Button disabled>
-                            <Typography fontSize="14px" fontWeight="bold">
-                              Set as default
-                            </Typography>
-                          </Button>
-                          <Box>
-                            {confirm !== each._id ? (
-                              <Box>
-                                <IconButton
-                                  onClick={() => {
-                                    dispatch(setAddresses([each]));
-                                    navigate("/customer/addresses/edit");
-                                  }}
-                                >
-                                  <EditRounded sx={{ color: "#Ed981b" }} />
-                                </IconButton>
-                                <IconButton
-                                  onClick={() => {
-                                    setConfirm(each._id);
-                                  }}
-                                >
-                                  <DeleteOutlineRounded
-                                    sx={{ color: "#Ed981b" }}
-                                  />
-                                </IconButton>
-                              </Box>
-                            ) : (
-                              <Box gap="5px" display="flex" alignItems="center">
-                                <Typography
-                                  fontFamily="Nunito"
-                                  fontStyle="italic"
-                                  sx={{ color: "#Ed981b" }}
-                                >
-                                  Confirm?
-                                </Typography>
-                                <Button
-                                  variant="contained"
-                                  onClick={() => {
-                                    deleteAddress(each._id);
-                                  }}
-                                  sx={{
-                                    backgroundColor: "#ff5316",
-                                    borderRadius: "20px",
-                                    "&:hover": {
-                                      backgroundColor: "#ff5316",
-                                    },
-                                  }}
-                                >
-                                  <Typography
-                                    fontSize="12px"
-                                    fontStyle="italic"
-                                    fontWeight="bold"
-                                    sx={{
-                                      color: "white",
-                                    }}
-                                  >
-                                    Yes
-                                  </Typography>
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  onClick={() => {
-                                    setConfirm("");
-                                  }}
-                                  sx={{
-                                    backgroundColor: "#00C98D",
-                                    borderRadius: "20px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    "&:hover": {
-                                      backgroundColor: "#00C98D",
-                                    },
-                                  }}
-                                >
-                                  <Typography
-                                    fontSize="12px"
-                                    fontStyle="italic"
-                                    fontWeight="bold"
-                                    sx={{
-                                      color: "white",
-                                    }}
-                                  >
-                                    No
-                                  </Typography>
-                                </Button>
-                              </Box>
-                            )}
-                          </Box>
-                        </Box>
-                      </Card>
-                    ))
-                : ""}
-              {data
-                ? data
-                    .filter((item) => item.isDefault === false)
-                    .map((each) => (
-                      <Card
-                        key={each._id}
-                        sx={{
-                          border: "1px solid #E0E0E0",
-                          borderRadius: "5px",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            borderBottom: "1px solid #E0E0E0",
-                            pl: "20px",
-                            py: "8px",
-                          }}
-                        >
-                          <Typography
-                            fontFamily="Playfair Display"
-                            fontWeight="bold"
-                            sx={{ textTransform: "capitalize" }}
-                          >
-                            {each.contactName}
-                          </Typography>
-                        </Box>
-
-                        <Box sx={{ px: "20px", pt: "15px" }}>
-                          <Typography
-                            fontSize="15px"
-                            pb="2px"
-                            fontFamily="Nunito"
-                          >
-                            {each.address}
-                          </Typography>
-                          <Typography
-                            fontSize="15px"
-                            pb="2px"
-                            fontFamily="Nunito"
-                          >
-                            {each.city}, {each.state}
-                          </Typography>
-                          <Typography
-                            fontSize="15px"
-                            pb="4px"
-                            fontFamily="Nunito"
-                          >
-                            {each.country}
-                          </Typography>
-                          <Typography
-                            fontSize="14px"
-                            pb="8px"
-                            fontFamily="Nunito"
-                          >
-                            {each.phoneNumber}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            borderTop: "1px solid #E0E0E0",
-                            p: "5px",
-                          }}
-                        >
-                          <Button onClick={() => makeDefault(each._id)}>
-                            <Typography fontSize="14px" fontWeight="bold">
-                              Set as default
-                            </Typography>
-                          </Button>
-                          <Box>
-                            {confirm !== each._id ? (
-                              <Box>
-                                <IconButton
-                                  onClick={() => {
-                                    dispatch(setAddresses([each]));
-                                    navigate("/customer/addresses/edit");
-                                  }}
-                                >
-                                  <EditRounded sx={{ color: "#Ed981b" }} />
-                                </IconButton>
-                                <IconButton
-                                  onClick={() => {
-                                    setConfirm(each._id);
-                                  }}
-                                >
-                                  <DeleteOutlineRounded
-                                    sx={{ color: "#Ed981b" }}
-                                  />
-                                </IconButton>
-                              </Box>
-                            ) : (
-                              <Box gap="5px" display="flex" alignItems="center">
-                                <Typography
-                                  fontFamily="Nunito"
-                                  fontStyle="italic"
-                                  sx={{ color: "#Ed981b" }}
-                                >
-                                  Confirm?
-                                </Typography>
-                                <Button
-                                  variant="contained"
-                                  onClick={() => {
-                                    deleteAddress(each._id);
-                                  }}
-                                  sx={{
-                                    backgroundColor: "#ff5316",
-                                    borderRadius: "20px",
-                                    "&:hover": {
-                                      backgroundColor: "#ff5316",
-                                    },
-                                  }}
-                                >
-                                  <Typography
-                                    fontSize="12px"
-                                    fontStyle="italic"
-                                    fontWeight="bold"
-                                    sx={{
-                                      color: "white",
-                                    }}
-                                  >
-                                    Yes
-                                  </Typography>
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  onClick={() => {
-                                    setConfirm("");
-                                  }}
-                                  sx={{
-                                    backgroundColor: "#00C98D",
-                                    borderRadius: "20px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    "&:hover": {
-                                      backgroundColor: "#00C98D",
-                                    },
-                                  }}
-                                >
-                                  <Typography
-                                    fontSize="12px"
-                                    fontStyle="italic"
-                                    fontWeight="bold"
-                                    sx={{
-                                      color: "white",
-                                    }}
-                                  >
-                                    No
-                                  </Typography>
-                                </Button>
-                              </Box>
-                            )}
-                          </Box>
-                        </Box>
-                      </Card>
-                    ))
-                : ""}
+              {[...defaultAddresses, ...otherAddresses].map((each) => (
+                <AddressCard
+                  key={each._id}
+                  each={each}
+                  confirm={confirm}
+                  isDark={isDark}
+                  borderColor={borderColor}
+                  onEdit={() => {
+                    dispatch(setAddresses([each]));
+                    navigate("/customer/addresses/edit");
+                  }}
+                  onDelete={() => {
+                    deleteAddress(each._id);
+                    setConfirm("");
+                  }}
+                  onMakeDefault={() => makeDefault(each._id)}
+                  onConfirm={() => setConfirm(each._id)}
+                  onCancelConfirm={() => setConfirm("")}
+                />
+              ))}
             </Box>
-          ) : pathname === "/customer/addresses/add" ? (
-            <AddAddress />
-          ) : (
-            <EditAddress />
           )}
         </Box>
-      </Box>
+      ) : isAddView ? (
+        <AddAddress />
+      ) : (
+        <EditAddress />
+      )}
     </Box>
   );
 };
