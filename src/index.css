@@ -23,13 +23,13 @@ a { text-decoration: none; color: inherit; }
 .PlayF       { font-family: 'Playfair Display', serif; }
 
 /* ── Selection ─────────────────────────────────────────────────────────────── */
-::selection { background: rgba(232, 146, 10, 0.25); }
+::selection { background: rgba(0, 73, 255, 0.15); }
 
 /* ── Scrollbar ─────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar        { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: #D1D5DB; border-radius: 100px; }
-::-webkit-scrollbar-thumb:hover { background: #E8920A; }
+::-webkit-scrollbar-thumb:hover { background: #0049FF; }
 
 /* ── Page transitions ──────────────────────────────────────────────────────── */
 .fade-enter        { opacity: 0; transform: translateY(6px); }

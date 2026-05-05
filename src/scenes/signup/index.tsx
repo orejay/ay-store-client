@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box, Button, TextField, Typography, useTheme,
   InputAdornment, IconButton, Alert, LinearProgress, Grid,
@@ -96,7 +96,7 @@ const SignUp = () => {
         ) : (
           <Box sx={{
             width: "100%", maxWidth: "520px",
-            backgroundColor: isDark ? "#16161A" : "#fff",
+            backgroundColor: isDark ? "#18181C" : "#fff",
             borderRadius: "20px",
             border: `1px solid ${borderColor}`,
             boxShadow: isDark ? "0 8px 48px rgba(0,0,0,0.45)" : "0 8px 48px rgba(0,0,0,0.08)",

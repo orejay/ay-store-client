@@ -53,7 +53,7 @@ const About = () => {
   const isMedium = useMediaQuery("(max-width:900px)");
 
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
-  const panelBg = isDark ? "#16161A" : "#FAFAFA";
+  const panelBg = isDark ? "#18181C" : "#FFFFFF";
 
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
@@ -239,7 +239,7 @@ const About = () => {
                   p: "28px",
                   borderRadius: "16px",
                   border: `1px solid ${borderColor}`,
-                  backgroundColor: isDark ? "#0C0C0E" : "#fff",
+                  backgroundColor: isDark ? "#09090D" : "#fff",
                   height: "100%",
                   transition: "transform 0.25s ease, box-shadow 0.25s ease",
                   "&:hover": {
@@ -322,7 +322,7 @@ const About = () => {
                   p: "32px 24px",
                   borderRadius: "16px",
                   border: `1px solid ${borderColor}`,
-                  backgroundColor: isDark ? "#0C0C0E" : "#fff",
+                  backgroundColor: isDark ? "#09090D" : "#fff",
                   textAlign: "center",
                   transition: "transform 0.25s ease, box-shadow 0.25s ease",
                   "&:hover": {

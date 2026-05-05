@@ -55,7 +55,7 @@ const Checkout = () => {
   const dispatch = useAppDispatch();
 
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
-  const panelBg = isDark ? "#16161A" : "#FFFFFF";
+  const panelBg = isDark ? "#18181C" : "#FFFFFF";
 
   const fmt = (n: string) => n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const subtotal = cart.reduce((acc, i) => acc + i.price * i.quantity * ((100 - i.discount) / 100), 0);

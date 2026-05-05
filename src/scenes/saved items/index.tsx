@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Box, Button, CircularProgress, IconButton, Typography, useTheme, useMediaQuery, Chip,
 } from "@mui/material";
@@ -115,7 +115,7 @@ const SavedItems = () => {
                 sx={{
                   borderRadius: "14px",
                   border: `1px solid ${borderColor}`,
-                  backgroundColor: isDark ? "#0C0C0E" : "#fff",
+                  backgroundColor: isDark ? "#09090D" : "#fff",
                   overflow: "hidden",
                   position: "relative",
                   transition: "transform 0.25s ease, box-shadow 0.25s ease",

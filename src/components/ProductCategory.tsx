@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Element } from "react-scroll";
@@ -36,7 +36,7 @@ const ProductCategory = () => {
         sx={{
           px: { xs: "20px", sm: "40px", md: "64px" },
           py: { xs: "48px", md: "80px" },
-          backgroundColor: isDark ? "#0C0C0E" : "#F8F9FC",
+          backgroundColor: isDark ? "#09090D" : "#FFFFFF",
         }}
       >
         {/* Section header */}

@@ -23,8 +23,8 @@ export const createAppTheme = (mode: PaletteMode): ThemeOptions => {
       error: { main: brand.error },
       warning: { main: brand.warning },
       background: {
-        default: light ? "#FFFFFF" : "#0C0C0E",
-        paper: light ? "#F9F9F9" : "#16161A",
+        default: light ? "#F7F6F4" : "#09090D",
+        paper: light ? "#FFFFFF" : "#18181C",
       },
       text: {
         primary: light ? "#0A0A0A" : "#EFEFEF",
@@ -113,26 +113,26 @@ export const createAppTheme = (mode: PaletteMode): ThemeOptions => {
           root: {
             backgroundImage: "none",
             borderRadius: 12,
-            border: light ? "1px solid #EBEBEB" : "1px solid #27272E",
+            border: light ? "1px solid rgba(0,0,0,0.07)" : "1px solid #27272E",
           },
           elevation1: {
-            boxShadow: light ? "0 2px 8px rgba(0,0,0,0.07)" : "0 2px 8px rgba(0,0,0,0.4)",
+            boxShadow: light ? "0 2px 12px rgba(0,0,0,0.08)" : "0 2px 8px rgba(0,0,0,0.5)",
           },
           elevation2: {
-            boxShadow: light ? "0 4px 16px rgba(0,0,0,0.08)" : "0 4px 16px rgba(0,0,0,0.5)",
+            boxShadow: light ? "0 4px 20px rgba(0,0,0,0.10)" : "0 4px 16px rgba(0,0,0,0.6)",
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: 14,
+            borderRadius: 16,
             backgroundImage: "none",
-            border: light ? "1px solid #EBEBEB" : "1px solid #27272E",
-            boxShadow: light ? "0 2px 8px rgba(0,0,0,0.06)" : "0 2px 8px rgba(0,0,0,0.35)",
+            border: light ? "1px solid rgba(0,0,0,0.07)" : "1px solid #27272E",
+            boxShadow: light ? "0 2px 12px rgba(0,0,0,0.08)" : "0 2px 8px rgba(0,0,0,0.4)",
             transition: "box-shadow 0.25s ease, transform 0.25s ease",
             "&:hover": {
-              boxShadow: light ? "0 8px 24px rgba(0,0,0,0.10)" : "0 8px 24px rgba(0,0,0,0.5)",
+              boxShadow: light ? "0 8px 28px rgba(0,0,0,0.13)" : "0 8px 24px rgba(0,0,0,0.55)",
               transform: "translateY(-2px)",
             },
           },

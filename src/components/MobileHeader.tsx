@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box,
   Drawer,
@@ -201,7 +201,7 @@ const MobileHeader = () => {
           sx: {
             width: "80vw",
             maxWidth: "320px",
-            backgroundColor: isDark ? "#0C0C0E" : "#FFFFFF",
+            backgroundColor: isDark ? "#09090D" : "#FFFFFF",
             borderRight: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
             p: "0",
           },

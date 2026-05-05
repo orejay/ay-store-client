@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -72,7 +72,7 @@ const Account = () => {
           sx={{
             borderRadius: "14px",
             border: `1px solid ${borderColor}`,
-            backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+            backgroundColor: isDark ? "#09090D" : "#FFFFFF",
             overflow: "hidden",
           }}
         >
@@ -156,7 +156,7 @@ const Account = () => {
           sx={{
             borderRadius: "14px",
             border: `1px solid ${borderColor}`,
-            backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+            backgroundColor: isDark ? "#09090D" : "#FFFFFF",
             overflow: "hidden",
           }}
         >

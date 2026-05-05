@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -132,7 +132,7 @@ const FeaturedProducts = () => {
                 borderRadius: "14px",
                 overflow: "hidden",
                 border: `1px solid ${borderColor}`,
-                backgroundColor: isDark ? "#16161A" : "#FFFFFF",
+                backgroundColor: isDark ? "#18181C" : "#FFFFFF",
                 transition: "transform 0.25s ease, box-shadow 0.25s ease",
                 "&:hover": {
                   transform: "translateY(-4px)",

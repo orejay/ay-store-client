@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import {
   Box, Button, Divider, Typography, useTheme, useMediaQuery,
 } from "@mui/material";
@@ -23,7 +23,7 @@ const OrderConfirmation = () => {
   const lastOrderItems = useSelector((state: RootState) => state.global.lastOrderItems);
 
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
-  const panelBg = isDark ? "#16161A" : "#fff";
+  const panelBg = isDark ? "#18181C" : "#fff";
 
   useEffect(() => {
     if (!lastOrderRef) navigate("/");
@@ -83,7 +83,7 @@ const OrderConfirmation = () => {
               px: "20px", py: "16px",
               borderBottom: `1px solid ${borderColor}`,
               display: "flex", justifyContent: "space-between", alignItems: "center",
-              backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+              backgroundColor: isDark ? "#09090D" : "#FFFFFF",
             }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <ReceiptLongOutlined sx={{ fontSize: "16px", color: brand.primary }} />
@@ -126,7 +126,7 @@ const OrderConfirmation = () => {
             <Box sx={{
               px: "20px", py: "16px",
               borderTop: `1px solid ${borderColor}`,
-              backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+              backgroundColor: isDark ? "#09090D" : "#FFFFFF",
               display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
               <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.95rem">

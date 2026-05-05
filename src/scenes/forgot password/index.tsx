@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   Box, Button, TextField, Typography, useTheme, Alert, CircularProgress,
 } from "@mui/material";
@@ -54,7 +54,7 @@ const ForgotPassword = () => {
 
         <Box sx={{
           width: "100%", maxWidth: "460px",
-          backgroundColor: isDark ? "#16161A" : "#fff",
+          backgroundColor: isDark ? "#18181C" : "#fff",
           borderRadius: "20px",
           border: `1px solid ${borderColor}`,
           boxShadow: isDark ? "0 8px 48px rgba(0,0,0,0.45)" : "0 8px 48px rgba(0,0,0,0.08)",

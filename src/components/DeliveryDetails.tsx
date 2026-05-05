@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -102,7 +102,7 @@ const DeliveryDetails = () => {
                   border: `1.5px solid ${isSelected ? brand.primary : borderColor}`,
                   backgroundColor: isSelected
                     ? `${brand.primary}08`
-                    : isDark ? "#16161A" : "#FAFAFA",
+                    : isDark ? "#18181C" : "#FFFFFF",
                   p: "16px",
                   cursor: "pointer",
                   position: "relative",

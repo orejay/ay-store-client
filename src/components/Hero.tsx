@@ -24,7 +24,7 @@ const Hero = () => {
         display: "flex",
         alignItems: "center",
         overflow: "hidden",
-        backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+        backgroundColor: isDark ? "#09090D" : "#FFFFFF",
       }}
     >
       {/* Background image (desktop only) */}

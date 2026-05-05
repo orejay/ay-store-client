@@ -23,7 +23,7 @@ const AboutSection = () => {
       sx={{
         px: { xs: "20px", sm: "40px", md: "64px" },
         py: { xs: "60px", md: "100px" },
-        backgroundColor: isDark ? "#16161A" : "#FFFFFF",
+        backgroundColor: isDark ? "#18181C" : "#FFFFFF",
       }}
     >
       <Box

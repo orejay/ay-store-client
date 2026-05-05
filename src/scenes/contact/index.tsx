@@ -125,7 +125,7 @@ const Contact = () => {
           <Box sx={{
             borderRadius: "18px",
             border: `1px solid ${borderColor}`,
-            backgroundColor: isDark ? "#16161A" : "#FAFAFA",
+            backgroundColor: isDark ? "#18181C" : "#FFFFFF",
             overflow: "hidden",
           }}>
             <Box sx={{
@@ -190,7 +190,7 @@ const Contact = () => {
           <Box sx={{
             borderRadius: "18px",
             border: `1px solid ${borderColor}`,
-            backgroundColor: isDark ? "#16161A" : "#fff",
+            backgroundColor: isDark ? "#18181C" : "#fff",
             boxShadow: isDark ? "0 8px 40px rgba(0,0,0,0.4)" : "0 8px 40px rgba(0,0,0,0.07)",
             p: { xs: "24px", md: "40px" },
           }}>

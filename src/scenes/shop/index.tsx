@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+﻿import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -71,7 +71,7 @@ const Shop = () => {
   const [sort, setSort] = useState("newest");
 
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
-  const panelBg = isDark ? "#16161A" : "#FFFFFF";
+  const panelBg = isDark ? "#18181C" : "#FFFFFF";
 
   useEffect(() => {
     if (!user?.token) return;
@@ -461,7 +461,7 @@ const Shop = () => {
                         borderRadius: "14px",
                         overflow: "hidden",
                         border: `1px solid ${borderColor}`,
-                        backgroundColor: isDark ? "#16161A" : "#FFFFFF",
+                        backgroundColor: isDark ? "#18181C" : "#FFFFFF",
                         transition: "transform 0.25s ease, box-shadow 0.25s ease",
                         "&:hover": {
                           transform: "translateY(-4px)",

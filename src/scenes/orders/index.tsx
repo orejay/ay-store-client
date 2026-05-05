@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -118,7 +118,7 @@ const OrderCard = ({
       sx={{
         borderRadius: "16px",
         border: `1px solid ${borderColor}`,
-        backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+        backgroundColor: isDark ? "#09090D" : "#FFFFFF",
         overflow: "hidden",
         transition: "box-shadow 0.25s ease",
         "&:hover": {

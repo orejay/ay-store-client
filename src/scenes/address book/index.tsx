@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -81,7 +81,7 @@ const AddressCard = ({
       sx={{
         borderRadius: "14px",
         border: `1px solid ${isDefault ? brand.primary + "50" : borderColor}`,
-        backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+        backgroundColor: isDark ? "#09090D" : "#FFFFFF",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",

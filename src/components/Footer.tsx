@@ -54,7 +54,7 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+        backgroundColor: isDark ? "#09090D" : "#FFFFFF",
         borderTop: `1px solid ${borderColor}`,
         pt: { xs: "48px", md: "72px" },
         pb: "32px",

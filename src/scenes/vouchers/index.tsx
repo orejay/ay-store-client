@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Box, Button, CircularProgress, Typography, useTheme,
 } from "@mui/material";
@@ -38,7 +38,7 @@ const Vouchers = () => {
             sx={{
               borderRadius: "16px",
               border: `1px dashed ${isDark ? "#3F3F46" : "#D1D5DB"}`,
-              backgroundColor: isDark ? "#0C0C0E" : "#FAFAFA",
+              backgroundColor: isDark ? "#09090D" : "#FFFFFF",
               p: { xs: "28px 20px", md: "40px 36px" },
               display: "flex",
               flexDirection: "column",
@@ -84,7 +84,7 @@ const Vouchers = () => {
           <Box sx={{
             borderRadius: "16px",
             border: `1px solid ${borderColor}`,
-            backgroundColor: isDark ? "#0C0C0E" : "#fff",
+            backgroundColor: isDark ? "#09090D" : "#fff",
             p: "24px",
           }}>
             <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.8rem"

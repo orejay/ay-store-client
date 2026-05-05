@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -69,7 +69,7 @@ const Layout = () => {
   const navigate = useNavigate();
 
   const borderColor = isDark ? "#27272E" : "#EBEBEB";
-  const panelBg = isDark ? "#16161A" : "#FFFFFF";
+  const panelBg = isDark ? "#18181C" : "#FFFFFF";
 
   const auth = async () => {
     try {
@@ -222,7 +222,7 @@ const Layout = () => {
             flex: 1,
             borderRadius: isMobile ? "0" : "16px",
             border: `1px solid ${isDark ? "#27272E" : "#EBEBEB"}`,
-            backgroundColor: isDark ? "#16161A" : "#FFFFFF",
+            backgroundColor: isDark ? "#18181C" : "#FFFFFF",
             minHeight: isMobile ? "60vh" : "70vh",
             overflow: "hidden",
           }}
