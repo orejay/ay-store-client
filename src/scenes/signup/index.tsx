@@ -83,7 +83,7 @@ const SignUp = () => {
                 Account Created!
               </Typography>
               <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.95rem">
-                Welcome to AY Store. Redirecting you to sign in…
+                Welcome to Fashionero. Redirecting you to sign in…
               </Typography>
             </Box>
             <LinearProgress
@@ -111,7 +111,7 @@ const SignUp = () => {
                 <StorefrontRounded sx={{ fontSize: "20px", color: "#fff" }} />
               </Box>
               <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.15rem">
-                AY Store
+                FASHIONERO
               </Typography>
             </Box>
 
@@ -119,7 +119,7 @@ const SignUp = () => {
               Create Account
             </Typography>
             <Typography fontFamily="Nunito" color="text.secondary" fontSize="0.9rem" mb="28px">
-              Join thousands of beauty enthusiasts. It's free!
+              Join thousands of style lovers. It's free!
             </Typography>
 
             {error && (

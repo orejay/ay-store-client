@@ -121,7 +121,7 @@ const Hero = () => {
             fontSize="0.78rem"
             sx={{ color: brand.primary, letterSpacing: "0.06em", textTransform: "uppercase" }}
           >
-            Premium Beauty
+            New Collection
           </Typography>
         </Box>
 
@@ -153,7 +153,7 @@ const Hero = () => {
           mb="40px"
           maxWidth="480px"
         >
-          Discover premium skincare, makeup, and fragrance curated to enhance your natural beauty.
+          Discover premium clothing, accessories, and lifestyle pieces curated for every occasion.
           Trusted by thousands of happy customers.
         </Typography>
 

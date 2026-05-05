@@ -6,9 +6,9 @@ import about from "../assets/about.PNG";
 import { brand } from "../theme";
 
 const perks = [
-  "100% natural ingredients",
-  "Cruelty-free & certified",
-  "Expert beauty guidance",
+  "100% authentic products",
+  "Quality guaranteed",
+  "Expert style guidance",
   "Fast & safe delivery",
 ];
 
@@ -66,7 +66,7 @@ const AboutSection = () => {
             <Box
               component="img"
               src={about}
-              alt="About Beauty"
+              alt="About Fashionero"
               sx={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           </Box>
@@ -115,7 +115,7 @@ const AboutSection = () => {
             color="text.primary"
             mb="20px"
           >
-            Where Beauty Meets{" "}
+            Where Style Meets{" "}
             <Box component="span" sx={{ color: brand.primary }}>
               Confidence
             </Box>
@@ -127,10 +127,10 @@ const AboutSection = () => {
             lineHeight={1.75}
             mb="28px"
           >
-            Welcome to our beauty shop, where we believe in the power of transformation
-            and self-expression. We offer a wide range of premium beauty products designed
-            to enhance your natural beauty and boost your confidence. Our dedicated team
-            is here to help you look and feel your absolute best — every single day.
+            Welcome to Fashionero, where we believe in the power of transformation
+            and self-expression. We offer a wide range of premium clothing, accessories,
+            and lifestyle products designed to elevate your personal style and boost your
+            confidence. Our dedicated team is here to help you look and feel your absolute best.
           </Typography>
 
           {/* Perks */}

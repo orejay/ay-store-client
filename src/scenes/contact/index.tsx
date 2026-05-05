@@ -15,7 +15,7 @@ const contactDetails = [
   {
     icon: <EmailOutlined sx={{ fontSize: "20px" }} />,
     label: "Email",
-    value: "hello@aystore.com",
+    value: "hello@fashionero.com",
   },
   {
     icon: <LocalPhoneOutlined sx={{ fontSize: "20px" }} />,
@@ -133,10 +133,10 @@ const Contact = () => {
               p: "24px",
             }}>
               <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="#fff" mb="6px">
-                AY Store
+                FASHIONERO
               </Typography>
               <Typography fontFamily="Nunito" fontSize="0.88rem" sx={{ color: "rgba(255,255,255,0.8)" }}>
-                Your trusted beauty destination
+                Your trusted fashion destination
               </Typography>
             </Box>
 

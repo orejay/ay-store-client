@@ -69,7 +69,7 @@ const ForgotPassword = () => {
               <StorefrontRounded sx={{ fontSize: "20px", color: "#fff" }} />
             </Box>
             <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.15rem">
-              AY Store
+              FASHIONERO
             </Typography>
           </Box>
 

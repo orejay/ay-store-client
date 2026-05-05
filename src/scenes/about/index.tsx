@@ -21,7 +21,7 @@ const values = [
   {
     icon: <DiamondOutlined sx={{ fontSize: "28px" }} />,
     title: "Premium Quality",
-    body: "Every product on our shelf is curated by experts who understand beauty. We partner only with brands that meet our strict quality standards.",
+    body: "Every product on our shelf is curated by experts who understand style and quality. We partner only with brands that meet our strict standards.",
   },
   {
     icon: <VerifiedOutlined sx={{ fontSize: "28px" }} />,
@@ -101,7 +101,7 @@ const About = () => {
             mb="20px"
             sx={{ fontSize: { xs: "2rem", md: "2.8rem" } }}
           >
-            Beauty Redefined.{" "}
+            Style Redefined.{" "}
             <Box component="span" sx={{ color: brand.primary }}>
               Confidence
             </Box>{" "}
@@ -116,7 +116,7 @@ const About = () => {
             mb="32px"
             sx={{ maxWidth: "540px" }}
           >
-            AY Store was born from a simple belief: everyone deserves access to premium beauty products without compromise. We're more than a store — we're your trusted partner in self-expression.
+            Fashionero was born from a simple belief: everyone deserves access to premium fashion and lifestyle products without compromise. We're more than a store — we're your trusted partner in self-expression.
           </Typography>
 
           <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
@@ -173,13 +173,13 @@ const About = () => {
               About Us
             </Typography>
             <Typography variant="h3" fontFamily="Playfair Display" fontWeight={700} mb="20px" lineHeight={1.25}>
-              More Than a Beauty Store
+              More Than a Fashion Store
             </Typography>
             <Typography fontFamily="Nunito" color="text.secondary" fontSize="1rem" lineHeight={1.85} mb="20px">
-              Founded in Lagos, Nigeria, AY Store began as a passion project to bring world-class beauty products directly to consumers across Africa. What started as a small curated catalogue has grown into a full-service beauty destination trusted by thousands.
+              Founded in Lagos, Nigeria, Fashionero began as a passion project to bring world-class fashion and lifestyle products directly to consumers across Africa. What started as a small curated catalogue has grown into a full-service fashion destination trusted by thousands.
             </Typography>
             <Typography fontFamily="Nunito" color="text.secondary" fontSize="1rem" lineHeight={1.85} mb="20px">
-              We believe beauty is not a luxury — it's a form of self-care and expression. That's why we go beyond simply selling products: we educate, inspire, and support our community on their beauty journeys.
+              We believe great style is not a luxury — it's a form of self-care and expression. That's why we go beyond simply selling products: we educate, inspire, and support our community on their style journeys.
             </Typography>
             <Typography fontFamily="Nunito" color="text.secondary" fontSize="1rem" lineHeight={1.85}>
               Every item in our store is handpicked, authenticity-verified, and backed by our satisfaction guarantee. When you shop with us, you shop with confidence.
@@ -285,11 +285,11 @@ const About = () => {
             <ShieldOutlined sx={{ fontSize: "40px", color: brand.secondary }} />
           </Box>
           <Typography variant="h4" fontFamily="Playfair Display" fontWeight={700} mb="20px" lineHeight={1.3}>
-            "Our mission is to make premium beauty accessible to everyone — one authentic product at a time."
+            "Our mission is to make premium fashion and lifestyle products accessible to everyone — one authentic piece at a time."
           </Typography>
           <Divider sx={{ width: "60px", mx: "auto", mb: "20px", borderWidth: "2px", borderColor: brand.primary }} />
           <Typography fontFamily="Nunito" color="text.secondary" fontSize="1rem" lineHeight={1.8}>
-            We are committed to bridging the gap between global beauty brands and everyday consumers. Through transparency, trust, and a relentless focus on quality, AY Store is building Africa's most loved beauty destination.
+            We are committed to bridging the gap between global fashion brands and everyday consumers. Through transparency, trust, and a relentless focus on quality, Fashionero is building Africa's most loved fashion and lifestyle destination.
           </Typography>
         </Box>
       </Box>
@@ -307,7 +307,7 @@ const About = () => {
         <Box sx={{ textAlign: "center", mb: "52px" }}>
           <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.8rem"
             color={brand.primary} letterSpacing="0.1em" textTransform="uppercase" mb="10px">
-            The People Behind AY Store
+            The People Behind Fashionero
           </Typography>
           <Typography variant="h3" fontFamily="Playfair Display" fontWeight={700}>
             Meet the Team
@@ -373,7 +373,7 @@ const About = () => {
           Ready to Explore?
         </Typography>
         <Typography fontFamily="Nunito" color="text.secondary" fontSize="1rem" mb="36px" sx={{ maxWidth: "480px", mx: "auto" }}>
-          Browse our curated collection of premium beauty products and find exactly what your routine needs.
+          Browse our curated collection of premium fashion and lifestyle products and find exactly what your wardrobe needs.
         </Typography>
         <Link to="/shop">
           <Button
