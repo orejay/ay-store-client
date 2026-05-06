@@ -38,9 +38,10 @@ const Hero = () => {
             right: 0,
             top: 0,
             height: "100%",
-            width: "52%",
+            width: "56%",
             objectFit: "cover",
-            opacity: isDark ? 0.35 : 0.55,
+            objectPosition: "center top",
+            opacity: isDark ? 0.72 : 1,
           }}
         />
       )}
@@ -53,10 +54,10 @@ const Hero = () => {
             right: 0,
             top: 0,
             height: "100%",
-            width: "60%",
+            width: "68%",
             background: isDark
-              ? `linear-gradient(to right, #0C0C0E 20%, transparent 100%)`
-              : `linear-gradient(to right, #FAFAFA 20%, transparent 100%)`,
+              ? `linear-gradient(to right, #09090D 28%, rgba(9,9,13,0.75) 50%, transparent 80%)`
+              : `linear-gradient(to right, #FFFFFF 28%, rgba(255,255,255,0.75) 50%, transparent 80%)`,
             pointerEvents: "none",
           }}
         />
