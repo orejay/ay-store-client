@@ -42,6 +42,7 @@ import AdminDashboard from "scenes/admin dashboard";
 import AdminInbox from "scenes/admin inbox";
 import AdminInventory from "scenes/admin inventory";
 import SearchResults from "scenes/search results";
+import NotFound from "scenes/not found";
 
 function App() {
   const themeMode = useSelector((state: RootState) => state.global.themeMode);
@@ -188,6 +189,7 @@ function App() {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>

@@ -1,5 +1,6 @@
 import {
   AddShoppingCartRounded,
+  ArrowBackRounded,
   FavoriteBorderRounded,
   FavoriteRounded,
   RemoveShoppingCartRounded,
@@ -22,7 +23,7 @@ import {
 import Footer from "components/Footer";
 import Header from "components/Header";
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store";
 import { setCart, setWishlist } from "state";
@@ -207,6 +208,27 @@ const ProductDetail = () => {
       <Header />
 
       <Box sx={{ pt: { xs: "70px", md: "80px" }, pb: "80px", px: { xs: "16px", sm: "24px", md: "48px" }, maxWidth: "1200px", mx: "auto" }}>
+        {/* Back to shop */}
+        <Link to="/shop" style={{ textDecoration: "none" }}>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              mb: "24px",
+              color: "text.secondary",
+              cursor: "pointer",
+              "&:hover": { color: brand.primary },
+              transition: "color 0.15s",
+            }}
+          >
+            <ArrowBackRounded sx={{ fontSize: "16px" }} />
+            <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.85rem">
+              Back to shop
+            </Typography>
+          </Box>
+        </Link>
+
         {loading ? (
           <Box sx={{ display: "flex", gap: "40px", flexDirection: isMobile ? "column" : "row", pt: "24px" }}>
             <Skeleton variant="rectangular" width={isMobile ? "100%" : "45%"} height={460} sx={{ borderRadius: "16px", flexShrink: 0 }} />
