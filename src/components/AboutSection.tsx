@@ -1,8 +1,17 @@
 ﻿import React from "react";
-import { Box, Button, Typography, useTheme, useMediaQuery } from "@mui/material";
-import { ArrowForwardRounded, CheckCircleOutlineRounded } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Typography,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import {
+  ArrowForwardRounded,
+  CheckCircleOutlineRounded,
+} from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import about from "../assets/about.PNG";
+import about from "../assets/about.webp";
 import { brand } from "../theme";
 
 const perks = [
@@ -85,7 +94,12 @@ const AboutSection = () => {
               boxShadow: `0 8px 24px ${brand.primary}50`,
             }}
           >
-            <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.4rem" lineHeight={1}>
+            <Typography
+              fontFamily="Playfair Display"
+              fontWeight={900}
+              fontSize="1.4rem"
+              lineHeight={1}
+            >
               10k+
             </Typography>
             <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.75rem">
@@ -127,10 +141,11 @@ const AboutSection = () => {
             lineHeight={1.75}
             mb="28px"
           >
-            Welcome to Fashionero, where we believe in the power of transformation
-            and self-expression. We offer a wide range of premium clothing, accessories,
-            and lifestyle products designed to elevate your personal style and boost your
-            confidence. Our dedicated team is here to help you look and feel your absolute best.
+            Welcome to Fashionero, where we believe in the power of
+            transformation and self-expression. We offer a wide range of premium
+            clothing, accessories, and lifestyle products designed to elevate
+            your personal style and boost your confidence. Our dedicated team is
+            here to help you look and feel your absolute best.
           </Typography>
 
           {/* Perks */}
@@ -143,11 +158,19 @@ const AboutSection = () => {
             }}
           >
             {perks.map((perk) => (
-              <Box key={perk} sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Box
+                key={perk}
+                sx={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
                 <CheckCircleOutlineRounded
                   sx={{ fontSize: "17px", color: brand.primary, flexShrink: 0 }}
                 />
-                <Typography fontFamily="Nunito" fontWeight={600} fontSize="0.88rem" color="text.secondary">
+                <Typography
+                  fontFamily="Nunito"
+                  fontWeight={600}
+                  fontSize="0.88rem"
+                  color="text.secondary"
+                >
                   {perk}
                 </Typography>
               </Box>
