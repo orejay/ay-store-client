@@ -4,11 +4,10 @@ import {
   Button,
   TextField,
   Typography,
-  Alert,
-  Collapse,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
+import Toast from "components/Toast";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
 import { brand } from "../theme";
@@ -39,9 +38,8 @@ const EditAddress = () => {
   const addressList = useSelector((state: RootState) => state.global.addresses);
 
   const [isDefault, setIsDefault] = useState(addressList[0].isDefault);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
   const [phoneTouched, setPhoneTouched] = useState(false);
 
   const user: UserData | null = JSON.parse(
@@ -74,17 +72,12 @@ const EditAddress = () => {
         }
       );
       if (response.ok) {
-        setAlertMessage("Address updated successfully!");
-        setAlertSeverity("success");
+        showToast("Address updated successfully!", "success");
       } else {
-        setAlertMessage("Something went wrong!");
-        setAlertSeverity("error");
+        showToast("Something went wrong!", "error");
       }
-      setShowAlert(true);
     } catch {
-      setAlertMessage("Something went wrong!");
-      setAlertSeverity("error");
-      setShowAlert(true);
+      showToast("Something went wrong!", "error");
     }
   };
 
@@ -95,16 +88,7 @@ const EditAddress = () => {
 
   return (
     <Box sx={{ p: { xs: "16px", md: "24px" } }}>
-      {/* Alert */}
-      <Collapse in={showAlert}>
-        <Alert
-          severity={alertSeverity}
-          onClose={() => setShowAlert(false)}
-          sx={{ mb: "20px", borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
-        >
-          {alertMessage}
-        </Alert>
-      </Collapse>
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       <Box
         sx={{

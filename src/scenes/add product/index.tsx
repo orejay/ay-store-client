@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import {
-  Alert, Box, Button, Checkbox, Collapse, FormControlLabel,
+  Box, Button, Checkbox, FormControlLabel,
   IconButton, MenuItem, TextField, Typography, useTheme, useMediaQuery,
 } from "@mui/material";
 import { AddAPhotoRounded, AddRounded, CloseRounded, DeleteRounded } from "@mui/icons-material";
+import Toast from "components/Toast";
 import { CATEGORIES, GENDERS } from "constants/productOptions";
 import { brand } from "../../theme";
 
@@ -38,7 +39,8 @@ const AddProduct = () => {
 
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
-  const [alert, setAlert] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
   const [loading, setLoading] = useState(false);
   const [body, setBody] = useState<BodyState>({
     name: "", price: "", discount: "", category: "", supply: "",
@@ -57,7 +59,7 @@ const AddProduct = () => {
 
   const upload = async () => {
     if (selectedImages.length === 0) {
-      setAlert({ msg: "Please add at least one image.", sev: "error" });
+      showToast("Please add at least one image.", "error");
       return;
     }
     setLoading(true);
@@ -87,15 +89,15 @@ const AddProduct = () => {
       });
 
       if (res.ok) {
-        setAlert({ msg: "Product added successfully!", sev: "success" });
+        showToast("Product added successfully!", "success");
         setSelectedImages([]);
         setVariants([]);
         setBody({ name: "", price: "", discount: "", category: "", supply: "", description: "", gender: "none", brand: "", tags: "", featured: false });
       } else {
-        setAlert({ msg: "Failed to add product. Please try again.", sev: "error" });
+        showToast("Failed to add product. Please try again.", "error");
       }
     } catch {
-      setAlert({ msg: "Network error. Please try again.", sev: "error" });
+      showToast("Network error. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -115,20 +117,7 @@ const AddProduct = () => {
         </Typography>
       </Box>
 
-      {/* Alert */}
-      <Collapse in={!!alert}>
-        <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
-          {alert && (
-            <Alert
-              severity={alert.sev}
-              onClose={() => setAlert(null)}
-              sx={{ borderRadius: "10px", fontFamily: "Nunito" }}
-            >
-              {alert.msg}
-            </Alert>
-          )}
-        </Box>
-      </Collapse>
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       <Box sx={{ p: { xs: "16px", md: "24px" }, display: "flex", flexDirection: "column", gap: "28px" }}>
 

@@ -7,10 +7,9 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  Alert,
-  Collapse,
   Tooltip,
 } from "@mui/material";
+import Toast from "components/Toast";
 import {
   ArrowBackRounded,
   DeleteOutlineRounded,
@@ -271,9 +270,8 @@ const AddressBook = () => {
   const { pathname } = useLocation();
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const [data, setData] = useState<AddressData[]>([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
   const [confirm, setConfirm] = useState("");
   const addressList = useSelector((state: RootState) => state.global.addresses);
   const navigate = useNavigate();
@@ -307,9 +305,7 @@ const AddressBook = () => {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       if (response.ok) {
-        setAlertMessage("Address deleted successfully.");
-        setAlertSeverity("success");
-        setShowAlert(true);
+        showToast("Address deleted successfully.", "success");
         getAddresses();
       }
     } catch {
@@ -324,9 +320,7 @@ const AddressBook = () => {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       if (response.ok) {
-        setAlertMessage("Default address updated.");
-        setAlertSeverity("success");
-        setShowAlert(true);
+        showToast("Default address updated.", "success");
         getAddresses();
       }
     } catch {
@@ -391,20 +385,7 @@ const AddressBook = () => {
         )}
       </Box>
 
-      {/* Alert */}
-      {isListView && (
-        <Collapse in={showAlert}>
-          <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
-            <Alert
-              severity={alertSeverity}
-              onClose={() => setShowAlert(false)}
-              sx={{ borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
-            >
-              {alertMessage}
-            </Alert>
-          </Box>
-        </Collapse>
-      )}
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       {/* Content */}
       {isListView ? (

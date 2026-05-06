@@ -5,11 +5,10 @@ import {
   TextField,
   Typography,
   useTheme,
-  Alert,
-  Collapse,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
+import Toast from "components/Toast";
 import { brand } from "../theme";
 import { isValidPhone } from "../utils/validate";
 
@@ -38,9 +37,8 @@ const AddAddress = () => {
   const isDark = theme.palette.mode === "dark";
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const [isDefault, setIsDefault] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
   const [phoneTouched, setPhoneTouched] = useState(false);
 
   const user: UserData | null = JSON.parse(
@@ -70,8 +68,7 @@ const AddAddress = () => {
         body: JSON.stringify(body),
       });
       if (response.ok) {
-        setAlertMessage("Address added successfully!");
-        setAlertSeverity("success");
+        showToast("Address added successfully!", "success");
         setBody({
           contactName: "",
           phoneNumber: "",
@@ -83,14 +80,10 @@ const AddAddress = () => {
         });
         setIsDefault(false);
       } else {
-        setAlertMessage("Something went wrong!");
-        setAlertSeverity("error");
+        showToast("Something went wrong!", "error");
       }
-      setShowAlert(true);
     } catch {
-      setAlertMessage("Something went wrong!");
-      setAlertSeverity("error");
-      setShowAlert(true);
+      showToast("Something went wrong!", "error");
     }
   };
 
@@ -101,16 +94,7 @@ const AddAddress = () => {
 
   return (
     <Box sx={{ p: { xs: "16px", md: "24px" } }}>
-      {/* Alert */}
-      <Collapse in={showAlert}>
-        <Alert
-          severity={alertSeverity}
-          onClose={() => setShowAlert(false)}
-          sx={{ mb: "20px", borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
-        >
-          {alertMessage}
-        </Alert>
-      </Collapse>
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       <Box
         sx={{

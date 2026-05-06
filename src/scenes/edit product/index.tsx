@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import {
-  Alert, Box, Button, Checkbox, Collapse, FormControlLabel,
+  Box, Button, Checkbox, FormControlLabel,
   IconButton, MenuItem, TextField, Typography, useTheme, useMediaQuery,
 } from "@mui/material";
 import {
   AddRounded, ArrowBackRounded, CloseRounded, DeleteRounded, DriveFolderUploadRounded,
 } from "@mui/icons-material";
+import Toast from "components/Toast";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
@@ -45,7 +46,8 @@ const EditProduct = () => {
   const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
 
   const [newImages, setNewImages] = useState<File[]>([]);
-  const [alert, setAlert] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
   const [loading, setLoading] = useState(false);
   const [variants, setVariants] = useState<VariantRow[]>(
     (product?.variants || []).map((v: ProductVariant) => ({
@@ -102,12 +104,12 @@ const EditProduct = () => {
       });
 
       if (res.ok) {
-        setAlert({ msg: "Product updated successfully!", sev: "success" });
+        showToast("Product updated successfully!", "success");
       } else {
-        setAlert({ msg: "Failed to update product. Please try again.", sev: "error" });
+        showToast("Failed to update product. Please try again.", "error");
       }
     } catch {
-      setAlert({ msg: "Network error. Please try again.", sev: "error" });
+      showToast("Network error. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -138,17 +140,7 @@ const EditProduct = () => {
         </Box>
       </Box>
 
-      {/* Alert */}
-      <Collapse in={!!alert}>
-        <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
-          {alert && (
-            <Alert severity={alert.sev} onClose={() => setAlert(null)}
-              sx={{ borderRadius: "10px", fontFamily: "Nunito" }}>
-              {alert.msg}
-            </Alert>
-          )}
-        </Box>
-      </Collapse>
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       <Box sx={{ p: { xs: "16px", md: "24px" }, display: "flex", flexDirection: "column", gap: "28px" }}>
 

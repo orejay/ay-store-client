@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box, Alert, Chip, Collapse, IconButton, Typography, useTheme, useMediaQuery,
+  Box, Chip, IconButton, Typography, useTheme, useMediaQuery,
 } from "@mui/material";
 import {
   DeleteOutlineRounded, EditRounded, StorefrontRounded,
 } from "@mui/icons-material";
+import Toast from "components/Toast";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "store";
 import { setProducts } from "state";
@@ -49,7 +50,8 @@ const Catalog = () => {
 
   const [data, setData] = useState<ProductData[]>([]);
   const [confirm, setConfirm] = useState("");
-  const [alert, setAlert] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
 
   const user: UserData | null = JSON.parse(localStorage.getItem("user") || "null");
 
@@ -74,14 +76,14 @@ const Catalog = () => {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       if (res.ok) {
-        setAlert({ msg: "Product deleted successfully.", sev: "success" });
+        showToast("Product deleted successfully.", "success");
         setConfirm("");
         getProducts();
       } else {
-        setAlert({ msg: "Could not delete product.", sev: "error" });
+        showToast("Could not delete product.", "error");
       }
     } catch {
-      setAlert({ msg: "Network error. Please try again.", sev: "error" });
+      showToast("Network error. Please try again.", "error");
     }
   };
 
@@ -101,20 +103,7 @@ const Catalog = () => {
         </Box>
       </Box>
 
-      {/* Alert */}
-      <Collapse in={!!alert}>
-        <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
-          {alert && (
-            <Alert
-              severity={alert.sev}
-              onClose={() => setAlert(null)}
-              sx={{ borderRadius: "10px", fontFamily: "Nunito" }}
-            >
-              {alert.msg}
-            </Alert>
-          )}
-        </Box>
-      </Collapse>
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       {/* Grid */}
       <Box sx={{ p: { xs: "16px", md: "24px" } }}>

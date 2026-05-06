@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
-  Alert, Box, Button, Chip, CircularProgress, Collapse, Switch,
+  Box, Button, Chip, CircularProgress, Collapse, Switch,
   TextField, Typography, useTheme, useMediaQuery,
 } from "@mui/material";
 import { AddRounded, ConfirmationNumberRounded } from "@mui/icons-material";
+import Toast from "components/Toast";
 import { brand } from "../../theme";
 
 interface Coupon {
@@ -29,7 +30,8 @@ const AdminVouchers = () => {
   const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ code: "", discountPercent: "", expiresAt: "" });
-  const [alert, setAlert] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
 
   const fetchCoupons = async () => {
     try {
@@ -44,7 +46,7 @@ const AdminVouchers = () => {
 
   const createCoupon = async () => {
     if (!form.code.trim() || !form.discountPercent) {
-      setAlert({ msg: "Code and discount % are required.", sev: "error" });
+      showToast("Code and discount % are required.", "error");
       return;
     }
     setCreating(true);
@@ -60,15 +62,15 @@ const AdminVouchers = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setAlert({ msg: "Coupon created successfully!", sev: "success" });
+        showToast("Coupon created successfully!", "success");
         setForm({ code: "", discountPercent: "", expiresAt: "" });
         setShowForm(false);
         fetchCoupons();
       } else {
-        setAlert({ msg: data.message || "Could not create coupon.", sev: "error" });
+        showToast(data.message || "Could not create coupon.", "error");
       }
     } catch {
-      setAlert({ msg: "Server error. Please try again.", sev: "error" });
+      showToast("Server error. Please try again.", "error");
     } finally {
       setCreating(false);
     }
@@ -102,27 +104,14 @@ const AdminVouchers = () => {
           variant="contained"
           size="small"
           startIcon={<AddRounded />}
-          onClick={() => { setShowForm(!showForm); setAlert(null); }}
+          onClick={() => setShowForm(!showForm)}
           sx={{ fontFamily: "Nunito", fontWeight: 700, fontSize: "0.8rem", borderRadius: "10px" }}
         >
           New Coupon
         </Button>
       </Box>
 
-      {/* Alert */}
-      <Collapse in={!!alert}>
-        <Box sx={{ px: { xs: "16px", md: "24px" }, pt: "16px" }}>
-          {alert && (
-            <Alert
-              severity={alert.sev}
-              onClose={() => setAlert(null)}
-              sx={{ borderRadius: "10px", fontFamily: "Nunito" }}
-            >
-              {alert.msg}
-            </Alert>
-          )}
-        </Box>
-      </Collapse>
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       {/* Create form */}
       <Collapse in={showForm}>

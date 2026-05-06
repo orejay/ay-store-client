@@ -5,11 +5,10 @@ import {
   TextField,
   Typography,
   useTheme,
-  Alert,
-  Collapse,
   InputAdornment,
   IconButton,
 } from "@mui/material";
+import Toast from "components/Toast";
 import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import PasswordStrengthMeter from "components/PasswordStrengthMeter";
 import { brand } from "../../theme";
@@ -38,9 +37,8 @@ const ChangePassword = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">("success");
+  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+  const showToast = (message: string, severity: "success" | "error") => setToast({ open: true, message, severity });
   const [checkPass, setCheckPass] = useState("");
   const [newPasswordTouched, setNewPasswordTouched] = useState(false);
 
@@ -63,22 +61,16 @@ const ChangePassword = () => {
       const jsonData = await response.json();
 
       if (response.status === 401 && jsonData.message === "Incorrect password!") {
-        setAlertMessage("Current password is incorrect.");
-        setAlertSeverity("error");
+        showToast("Current password is incorrect.", "error");
       } else if (response.ok) {
-        setAlertMessage("Password changed successfully!");
-        setAlertSeverity("success");
+        showToast("Password changed successfully!", "success");
         setBody({ password: "", oldPassword: "" });
         setCheckPass("");
       } else {
-        setAlertMessage("Something went wrong!");
-        setAlertSeverity("error");
+        showToast("Something went wrong!", "error");
       }
-      setShowAlert(true);
     } catch {
-      setAlertMessage("Something went wrong!");
-      setAlertSeverity("error");
-      setShowAlert(true);
+      showToast("Something went wrong!", "error");
     }
   };
 
@@ -99,16 +91,7 @@ const ChangePassword = () => {
         </Typography>
       </Box>
 
-      {/* Alert */}
-      <Collapse in={showAlert}>
-        <Alert
-          severity={alertSeverity}
-          onClose={() => setShowAlert(false)}
-          sx={{ mb: "22px", borderRadius: "10px", fontFamily: "Nunito", fontWeight: 600 }}
-        >
-          {alertMessage}
-        </Alert>
-      </Collapse>
+      <Toast open={toast.open} message={toast.message} severity={toast.severity} onClose={() => setToast((t) => ({ ...t, open: false }))} />
 
       {/* Security tip */}
       <Box
