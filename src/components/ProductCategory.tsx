@@ -6,20 +6,20 @@ import { RootState, useAppDispatch } from "store";
 import { setCategories } from "state";
 import { useSelector } from "react-redux";
 import { brand } from "../theme";
-import lips from "../assets/lips.PNG";
-import face from "../assets/face.jpg";
-import skin from "../assets/skin.jpg";
-import perfumery from "../assets/perfumery.jpg";
-import household from "../assets/household.PNG";
-import decorative from "../assets/decorative.jpg";
+import womens from "../assets/cat-womens.webp";
+import mens from "../assets/cat-mens.webp";
+import footwear from "../assets/cat-footwear.webp";
+import bags from "../assets/cat-bags.png";
+import activewear from "../assets/cat-activewear.webp";
+import watches from "../assets/cat-watches.webp";
 
 const categories = [
-  { title: "skin", image: skin },
-  { title: "face", image: face },
-  { title: "lips", image: lips },
-  { title: "perfumery", image: perfumery },
-  { title: "household", image: household },
-  { title: "decorative", image: decorative },
+  { title: "Women's Wear", value: "womens", image: womens },
+  { title: "Men's Wear", value: "mens", image: mens },
+  { title: "Footwear", value: "footwear", image: footwear },
+  { title: "Bags & Accessories", value: "bags", image: bags },
+  { title: "Activewear", value: "activewear", image: activewear },
+  { title: "Watches & Jewellery", value: "watches", image: watches },
 ];
 
 const ProductCategory = () => {
@@ -70,16 +70,16 @@ const ProductCategory = () => {
             gridTemplateColumns: isMobile
               ? "repeat(2, 1fr)"
               : isMedium
-              ? "repeat(3, 1fr)"
-              : "repeat(6, 1fr)",
+                ? "repeat(3, 1fr)"
+                : "repeat(6, 1fr)",
             gap: { xs: "12px", md: "16px" },
           }}
         >
-          {categories.map(({ title, image }) => (
+          {categories.map(({ title, value, image }) => (
             <Link
-              key={title}
+              key={value}
               to="/shop"
-              onClick={() => dispatch(setCategories([title]))}
+              onClick={() => dispatch(setCategories([value]))}
             >
               <Box
                 sx={{
@@ -115,7 +115,8 @@ const ProductCategory = () => {
                     left: 0,
                     right: 0,
                     height: "55%",
-                    background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
                     pointerEvents: "none",
                   }}
                 />
@@ -150,7 +151,7 @@ const ProductCategory = () => {
                     color="#FFFFFF"
                     sx={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
                   >
-                    {title[0].toUpperCase()}{title.slice(1)}
+                    {title}
                   </Typography>
                 </Box>
               </Box>

@@ -29,6 +29,7 @@ interface UserData {
 }
 
 const ROLE_STYLE: Record<string, { bg: string; color: string }> = {
+  superadmin: { bg: "rgba(168,85,247,0.12)", color: "#A855F7" },
   admin: { bg: `${brand.primary}18`, color: brand.primary },
   user: { bg: "#6B728018", color: "#6B7280" },
 };
@@ -47,10 +48,13 @@ const Users = () => {
   );
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
+  const isSuperAdmin = storedUser?.role === "superadmin";
+
   const [data, setData] = useState<UserData[]>([]);
   const [total, setTotal] = useState(0);
   const [query, setQuery] = useState("");
   const [toggling, setToggling] = useState<string | null>(null);
+  const [togglingRole, setTogglingRole] = useState<string | null>(null);
 
   const getAllUsers = async () => {
     try {
@@ -87,6 +91,26 @@ const Users = () => {
     }
   };
 
+  const handleToggleRole = async (userId: string) => {
+    setTogglingRole(userId);
+    try {
+      const res = await fetch(`${baseUrl}/edit/users/${userId}/role`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${storedUser?.token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setData((prev) =>
+          prev.map((u) => (u._id === userId ? { ...u, role: json.role } : u))
+        );
+      }
+    } catch {
+      /* silent */
+    } finally {
+      setTogglingRole(null);
+    }
+  };
+
   useEffect(() => {
     getAllUsers();
   }, []);
@@ -103,11 +127,15 @@ const Users = () => {
       })
     : data;
 
+  const gridCols = isSuperAdmin
+    ? "2fr 2.5fr 1.4fr 0.7fr 0.9fr 0.9fr"
+    : "2fr 2.5fr 1.4fr 0.7fr 0.9fr";
+
   const cols = isSmall
     ? { display: "flex", flexDirection: "column" as const, gap: "6px" }
     : {
         display: "grid",
-        gridTemplateColumns: "2fr 2.5fr 1.4fr 0.7fr 0.9fr",
+        gridTemplateColumns: gridCols,
         alignItems: "center",
       };
 
@@ -209,14 +237,17 @@ const Users = () => {
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: "2fr 2.5fr 1.4fr 0.7fr 0.9fr",
+                  gridTemplateColumns: gridCols,
                   px: "16px",
                   py: "10px",
                   backgroundColor: isDark ? "#0C0C10" : "#FAFAFA",
                   borderBottom: `1px solid ${borderColor}`,
                 }}
               >
-                {["Name", "Email", "Phone", "Role", "Status"].map((col) => (
+                {[
+                  "Name", "Email", "Phone", "Role", "Status",
+                  ...(isSuperAdmin ? ["Promote"] : []),
+                ].map((col) => (
                   <Typography
                     key={col}
                     fontFamily="Nunito"
@@ -357,13 +388,50 @@ const Users = () => {
                         },
                       }}
                     >
-                      {isTogglingThis
-                        ? "…"
-                        : isActive
-                        ? "Deactivate"
-                        : "Activate"}
+                      {isTogglingThis ? "…" : isActive ? "Deactivate" : "Activate"}
                     </Button>
                   </Box>
+
+                  {/* Promote / Demote — superadmin only */}
+                  {isSuperAdmin && (
+                    <Box>
+                      {user.role !== "superadmin" && user._id !== storedUser?._id ? (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          disabled={togglingRole === user._id}
+                          onClick={() => handleToggleRole(user._id)}
+                          sx={{
+                            fontFamily: "Nunito",
+                            fontWeight: 700,
+                            fontSize: "0.72rem",
+                            borderRadius: "8px",
+                            px: "10px",
+                            py: "3px",
+                            minWidth: 0,
+                            whiteSpace: "nowrap",
+                            borderColor: user.role === "admin" ? brand.primary : "#6B7280",
+                            color: user.role === "admin" ? brand.primary : "#6B7280",
+                            "&:hover": {
+                              borderColor: user.role === "admin" ? brand.primary : brand.primary,
+                              backgroundColor: `${brand.primary}08`,
+                              color: brand.primary,
+                            },
+                          }}
+                        >
+                          {togglingRole === user._id
+                            ? "…"
+                            : user.role === "admin"
+                            ? "Demote"
+                            : "Promote"}
+                        </Button>
+                      ) : (
+                        <Typography fontFamily="Nunito" fontSize="0.72rem" color="text.disabled">
+                          —
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
                 </Box>
               );
             })}

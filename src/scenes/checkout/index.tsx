@@ -23,7 +23,7 @@ import Header from "components/Header";
 import PaystackPayment from "components/PaystackPayment";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setCoupon, clearCoupon, setPrevPage } from "state";
+import { setCoupon, clearCoupon, setPrevPage, setShipping } from "state";
 import { RootState, useAppDispatch } from "store";
 import { brand } from "../../theme";
 
@@ -42,6 +42,13 @@ const Checkout = () => {
   const deliveryAddress = useSelector((state: RootState) => state.global.deliveryAddress);
   const couponCode = useSelector((state: RootState) => state.global.couponCode);
   const couponDiscount = useSelector((state: RootState) => state.global.couponDiscount);
+  const shippingMethod = useSelector((state: RootState) => state.global.shippingMethod);
+  const shippingFee = useSelector((state: RootState) => state.global.shippingFee);
+
+  const SHIPPING_OPTIONS = [
+    { method: "standard" as const, label: "Standard", duration: "3–5 business days", fee: 1500 },
+    { method: "express" as const, label: "Express", duration: "1–2 business days", fee: 3500 },
+  ];
 
   const [tab, setTab] = useState(0);
   const [couponInput, setCouponInput] = useState(couponCode);
@@ -59,7 +66,8 @@ const Checkout = () => {
 
   const fmt = (n: string) => "₦" + n.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const subtotal = cart.reduce((acc, i) => acc + i.price * i.quantity * ((100 - i.discount) / 100), 0);
-  const total = couponDiscount > 0 ? subtotal * ((100 - couponDiscount) / 100) : subtotal;
+  const discountedSubtotal = couponDiscount > 0 ? subtotal * ((100 - couponDiscount) / 100) : subtotal;
+  const total = discountedSubtotal + shippingFee;
 
   const auth = async () => {
     try {
@@ -131,6 +139,53 @@ const Checkout = () => {
         </Typography>
       </Box>
 
+      {/* Shipping selector */}
+      <Box>
+        <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.82rem" color="text.secondary" mb="8px">
+          Shipping Method
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {SHIPPING_OPTIONS.map((opt) => {
+            const selected = shippingMethod === opt.method;
+            return (
+              <Box
+                key={opt.method}
+                onClick={() => dispatch(setShipping({ method: opt.method, fee: opt.fee }))}
+                sx={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  px: "12px", py: "10px", borderRadius: "10px", cursor: "pointer",
+                  border: `1.5px solid ${selected ? brand.primary : borderColor}`,
+                  backgroundColor: selected ? `${brand.primary}08` : "transparent",
+                  transition: "all 0.15s",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <Box sx={{
+                    width: "16px", height: "16px", borderRadius: "50%", flexShrink: 0,
+                    border: `2px solid ${selected ? brand.primary : borderColor}`,
+                    backgroundColor: selected ? brand.primary : "transparent",
+                    transition: "all 0.15s",
+                  }} />
+                  <Box>
+                    <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.83rem"
+                      color={selected ? brand.primary : "text.primary"}>
+                      {opt.label}
+                    </Typography>
+                    <Typography fontFamily="Nunito" fontSize="0.72rem" color="text.secondary">
+                      {opt.duration}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.83rem"
+                  color={selected ? brand.primary : "text.secondary"}>
+                  {fmt(opt.fee.toFixed(2))}
+                </Typography>
+              </Box>
+            );
+          })}
+        </Box>
+      </Box>
+
       {/* Coupon input */}
       <Box>
         <Box
@@ -186,6 +241,13 @@ const Checkout = () => {
           </Typography>
         </Box>
       )}
+
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography fontFamily="Nunito" fontSize="0.85rem" color="text.secondary">Shipping</Typography>
+        <Typography fontFamily="Nunito" fontWeight={700} fontSize="0.85rem">
+          {fmt(shippingFee.toFixed(2))}
+        </Typography>
+      </Box>
 
       <Divider sx={{ borderColor }} />
 
@@ -243,19 +305,37 @@ const Checkout = () => {
 
       <Typography fontFamily="Nunito" fontWeight={800} fontSize="1rem">Order Confirmation</Typography>
 
-      {/* Total */}
+      {/* Total breakdown */}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography fontFamily="Nunito" fontSize="0.83rem" color="text.secondary">Subtotal</Typography>
+          <Typography fontFamily="Nunito" fontSize="0.83rem">{fmt(subtotal.toFixed(2))}</Typography>
+        </Box>
+        {couponDiscount > 0 && (
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography fontFamily="Nunito" fontSize="0.83rem" color="success.main">
+              Coupon ({couponCode})
+            </Typography>
+            <Typography fontFamily="Nunito" fontSize="0.83rem" color="success.main">
+              -{couponDiscount}%
+            </Typography>
+          </Box>
+        )}
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography fontFamily="Nunito" fontSize="0.83rem" color="text.secondary">
+            Shipping ({shippingMethod === "express" ? "Express" : "Standard"})
+          </Typography>
+          <Typography fontFamily="Nunito" fontSize="0.83rem">{fmt(shippingFee.toFixed(2))}</Typography>
+        </Box>
+      </Box>
+
+      <Divider sx={{ borderColor }} />
+
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography fontFamily="Nunito" fontWeight={700}>Total</Typography>
-        <Box sx={{ textAlign: "right" }}>
-          <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="primary">
-            {fmt(total.toFixed(2))}
-          </Typography>
-          {couponDiscount > 0 && (
-            <Typography fontFamily="Nunito" fontSize="0.72rem" color="success.main">
-              {couponCode} ({couponDiscount}% off)
-            </Typography>
-          )}
-        </Box>
+        <Typography fontFamily="Playfair Display" fontWeight={900} fontSize="1.2rem" color="primary">
+          {fmt(total.toFixed(2))}
+        </Typography>
       </Box>
 
       <Divider sx={{ borderColor }} />

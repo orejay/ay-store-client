@@ -46,6 +46,8 @@ interface InitialState {
   wishlist: string[];
   couponCode: string;
   couponDiscount: number;
+  shippingMethod: "standard" | "express";
+  shippingFee: number;
   themeMode: "light" | "dark";
 }
 
@@ -100,6 +102,8 @@ const initialState: InitialState = {
   wishlist: [],
   couponCode: "",
   couponDiscount: 0,
+  shippingMethod: "standard",
+  shippingFee: 1500,
   themeMode: savedMode || "light",
 };
 
@@ -182,6 +186,10 @@ export const globalSlice = createSlice({
       state.couponCode = "";
       state.couponDiscount = 0;
     },
+    setShipping: (state, action: { payload: { method: "standard" | "express"; fee: number } }) => {
+      state.shippingMethod = action.payload.method;
+      state.shippingFee = action.payload.fee;
+    },
     setThemeMode: (state, action: { payload: "light" | "dark" }) => {
       state.themeMode = action.payload;
       localStorage.setItem("themeMode", action.payload);
@@ -209,6 +217,7 @@ export const {
   setWishlist,
   setCoupon,
   clearCoupon,
+  setShipping,
   setThemeMode,
 } = globalSlice.actions;
 export default globalSlice.reducer;

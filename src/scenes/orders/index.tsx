@@ -15,7 +15,6 @@ import {
   ReplayRounded,
   ShoppingBagOutlined,
   LocationOnOutlined,
-  LocalShippingOutlined,
   ReceiptLongOutlined,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
@@ -208,24 +207,49 @@ const OrderCard = ({
               </Box>
             )}
             {!confirming && (
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<ReplayRounded sx={{ fontSize: "14px" }} />}
-                onClick={() => onReorder(order)}
-                sx={{
-                  borderRadius: "100px",
-                  fontFamily: "Nunito",
-                  fontWeight: 700,
-                  fontSize: "0.78rem",
-                  py: "4px",
-                  borderColor: brand.primary,
-                  color: brand.primary,
-                  "&:hover": { backgroundColor: `${brand.primary}10`, borderColor: brand.primary },
-                }}
-              >
-                Reorder
-              </Button>
+              <>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<ReplayRounded sx={{ fontSize: "14px" }} />}
+                  onClick={() => onReorder(order)}
+                  sx={{
+                    borderRadius: "100px",
+                    fontFamily: "Nunito",
+                    fontWeight: 700,
+                    fontSize: "0.78rem",
+                    py: "4px",
+                    borderColor: brand.primary,
+                    color: brand.primary,
+                    "&:hover": { backgroundColor: `${brand.primary}10`, borderColor: brand.primary },
+                  }}
+                >
+                  Reorder
+                </Button>
+                <Link
+                  to={`/customer/orders/${order._id}/invoice`}
+                  state={{ order }}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<ReceiptLongOutlined sx={{ fontSize: "14px" }} />}
+                    sx={{
+                      borderRadius: "100px",
+                      fontFamily: "Nunito",
+                      fontWeight: 700,
+                      fontSize: "0.78rem",
+                      py: "4px",
+                      borderColor: "text.disabled",
+                      color: "text.secondary",
+                      "&:hover": { borderColor: brand.primary, color: brand.primary, backgroundColor: `${brand.primary}08` },
+                    }}
+                  >
+                    Invoice
+                  </Button>
+                </Link>
+              </>
             )}
           </Box>
           <IconButton size="small" onClick={() => setExpanded(!expanded)}

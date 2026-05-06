@@ -8,7 +8,7 @@ import {
   ShieldOutlined, StarOutlined, VerifiedOutlined,
 } from "@mui/icons-material";
 import { brand } from "../../theme";
-import about from "../../assets/about.PNG";
+import about from "../../assets/about.webp";
 
 const stats = [
   { value: "10K+", label: "Happy Customers" },

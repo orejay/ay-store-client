@@ -43,6 +43,7 @@ import AdminInbox from "scenes/admin inbox";
 import AdminInventory from "scenes/admin inventory";
 import SearchResults from "scenes/search results";
 import NotFound from "scenes/not found";
+import OrderInvoice from "scenes/order invoice";
 
 function App() {
   const themeMode = useSelector((state: RootState) => state.global.themeMode);
@@ -185,6 +186,14 @@ function App() {
               />
             </Route>
 
+            <Route
+              path="/customer/orders/:id/invoice"
+              element={
+                <ProtectedRoute>
+                  <OrderInvoice />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

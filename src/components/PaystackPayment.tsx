@@ -25,20 +25,20 @@ const PaystackPayment = () => {
   const key = String(import.meta.env.VITE_PAYSTACK_KEY);
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const cart = useSelector((state: RootState) => state.global.cart);
-  const instructions = useSelector(
-    (state: RootState) => state.global.instructions
-  );
-  const deliveryAddress = useSelector(
-    (state: RootState) => state.global.deliveryAddress
-  );
+  const instructions = useSelector((state: RootState) => state.global.instructions);
+  const deliveryAddress = useSelector((state: RootState) => state.global.deliveryAddress);
+  const couponCode = useSelector((state: RootState) => state.global.couponCode);
+  const couponDiscount = useSelector((state: RootState) => state.global.couponDiscount);
+  const shippingMethod = useSelector((state: RootState) => state.global.shippingMethod);
+  const shippingFee = useSelector((state: RootState) => state.global.shippingFee);
 
   const total = () => {
-    let x = 0;
-    for (let i = 0; i < cart.length; i++) {
-      console.log(cart[i]);
-      x += cart[i].price * cart[i].quantity * ((100 - cart[i].discount) / 100);
-    }
-    return x;
+    const subtotal = cart.reduce(
+      (acc, i) => acc + i.price * i.quantity * ((100 - i.discount) / 100),
+      0
+    );
+    const afterDiscount = couponDiscount > 0 ? subtotal * ((100 - couponDiscount) / 100) : subtotal;
+    return afterDiscount + shippingFee;
   };
 
   const checkout = async (ref: string) => {
@@ -54,6 +54,9 @@ const PaystackPayment = () => {
         instructions: instructions,
         price: total().toFixed(2),
         ref: ref,
+        couponCode: couponCode || null,
+        shippingMethod,
+        shippingFee,
       }),
     });
 
@@ -67,8 +70,6 @@ const PaystackPayment = () => {
       dispatch(setModalMessage("Order could not be placed. Please try again."));
       dispatch(setCloseModal(false));
     }
-
-    console.log(jsonData);
   };
 
   useEffect(() => {
@@ -100,7 +101,6 @@ const PaystackPayment = () => {
         dispatch(setCloseModal(false));
       },
       callback: function (response: any) {
-        console.log(response);
         const verify = async () => {
           try {
             const res = await fetch(
